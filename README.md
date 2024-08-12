@@ -1,0 +1,1 @@
+# geonode-nuxt-client
