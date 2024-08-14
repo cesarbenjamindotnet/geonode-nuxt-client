@@ -1,6 +1,6 @@
 <template>
-  <Menu />
-  <slot></slot>
+  <TopBarMenu />
+  <slot/>
 </template>
 
 <script setup lang="ts">
