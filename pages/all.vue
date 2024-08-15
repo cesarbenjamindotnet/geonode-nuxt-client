@@ -1,9 +1,8 @@
 <template>
 
-  <CatalogueLayout>
-    <TopBarMenu/>
-    <h1> Prueba </h1>
-  </CatalogueLayout>
+<CatalogueLayout>
+<h1> all </h1>
+</CatalogueLayout>
 
 </template>
 
@@ -11,6 +10,8 @@
 const ui = /* ui */ {
   background: 'bg-white dark:bg-slate-900'
 }
+
+
 
 
 </script>
