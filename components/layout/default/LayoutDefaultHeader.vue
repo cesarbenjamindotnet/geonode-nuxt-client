@@ -5,7 +5,6 @@
       <div class="col-auto">
         <div class="row">
 
-
           <div class="col-auto">
             <NuxtLink to="/">
               <q-avatar>
@@ -23,15 +22,19 @@
 
         </div>
       </div>
-      <div class="col-6">
+      <div :class="['q-px-sm', $q.screen.width >= $q.screen.sizes.sm ? 'col-5' : ''] ">
         <q-input dense v-model="search" outlined type="search" :loading="loadingState">
           <template v-slot:prepend>
             <q-icon name="search"/>
           </template>
         </q-input>
       </div>
-      <div class="col-auto q-gutter-sm">
-        <q-btn class="q-px-sm" dense no-caps color="accent">Acceder</q-btn>
+      <div class="col-auto">
+        <div class="row">
+          <q-btn dense flat round icon="mdi-dots-vertical"></q-btn>
+          <q-btn v-if="$q.screen.width <= $q.screen.sizes.sm" class="q-px-sm" dense no-caps color="accent" round icon="mdi-account-circle" />
+          <q-btn v-else class="q-px-sm" dense no-caps color="accent" label="Acceder" />
+        </div>
       </div>
     </q-toolbar>
 

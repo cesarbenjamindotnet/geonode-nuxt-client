@@ -10,6 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@mdi/js": "^7.4.47",
     "@nuxt/ui": "^2.18.4",
     "@pinia/nuxt": "^0.5.3",
     "@quasar/extras": "^1.16.12",
