@@ -32,8 +32,9 @@
       <div class="col-auto">
         <div class="row">
           <q-btn dense flat round icon="mdi-dots-vertical"></q-btn>
-          <q-btn v-if="$q.screen.width <= $q.screen.sizes.sm" class="q-px-sm" dense no-caps color="accent" round icon="mdi-account-circle" />
-          <q-btn v-else class="q-px-sm" dense no-caps color="accent" label="Acceder" />
+          <q-btn v-if="$q.screen.width <= $q.screen.sizes.sm" class="q-px-sm" dense no-caps color="accent" round
+                 icon="mdi-account-circle"/>
+          <q-btn v-else class="q-px-sm" dense no-caps color="accent" label="Acceder"/>
         </div>
       </div>
     </q-toolbar>
@@ -61,10 +62,13 @@
       <div class="col-auto">
         <q-tabs dense align="left">
 
-          <q-tab no-caps @click="menuVisible = true" label="English" href="#"/>
-          <q-route-tab no-caps to="/prueba" label="About">
 
-            <q-menu v-model="menuVisible" anchor="bottom left" self="top right">
+          <q-tab no-caps @click="menuVisible = true" label="English" href="#"
+                 :active-class="['.no-indicator', '.q-tab__indicator']">
+
+          </q-tab>
+          <div class="q-pt-sm" style="padding-top: 36px;">
+            <q-menu v-model="menuVisible" anchor="bottom left" self="top left">
               <q-list>
                 <q-item clickable v-close-popup @click="menuAction('Settings')">
                   <q-item-section class="q-px-md">Español</q-item-section>
@@ -80,8 +84,14 @@
                 </q-item>
               </q-list>
             </q-menu>
+          </div>
+          <q-route-tab no-caps to="/prueba" label="About">
+
           </q-route-tab>
+
         </q-tabs>
+
+
       </div>
     </div>
   </q-header>
@@ -99,4 +109,9 @@ const menuAction = (action: string) => {
 
 </script>
 
+<style lang="scss" scoped>
+.no-indicator .q-tab__indicator {
+  display: none;
+}
+</style>
 
