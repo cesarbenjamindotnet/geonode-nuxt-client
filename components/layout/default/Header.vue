@@ -31,10 +31,13 @@
       </div>
       <div class="col-auto">
         <div class="row">
-          <q-btn dense flat round icon="mdi-dots-vertical"></q-btn>
-          <q-btn v-if="$q.screen.width <= $q.screen.sizes.sm" class="q-px-sm" dense no-caps color="accent" round
+          <q-btn dense flat round icon="mdi-dots-vertical" @click="showHeaderMenu = true"></q-btn>
+          <div class="q-pt-sm" style="padding-top: 36px;">
+            <LayoutSharedHeaderMenu :showMenu="showHeaderMenu" @close-menu="showHeaderMenu = false" />
+          </div>
+          <q-btn v-if="isMounted && $q.screen.width <= $q.screen.sizes.sm" class="q-px-sm" dense no-caps color="accent" round
                  icon="mdi-account-circle"/>
-          <q-btn v-else class="q-px-sm" dense no-caps color="accent" label="Acceder"/>
+          <q-btn v-else-if="isMounted" class="q-px-sm" dense no-caps color="accent" label="Acceder"/>
         </div>
       </div>
     </q-toolbar>
@@ -62,10 +65,8 @@
       <div class="col-auto">
         <q-tabs dense align="left">
 
-
           <q-tab no-caps @click="menuVisible = true" label="English" href="#"
                  :active-class="['.no-indicator', '.q-tab__indicator']">
-
           </q-tab>
           <div class="q-pt-sm" style="padding-top: 36px;">
             <q-menu v-model="menuVisible" anchor="bottom left" self="top left">
@@ -98,14 +99,22 @@
 </template>
 
 <script setup lang="ts">
+
+const showHeaderMenu = ref(false)
+
 const menuVisible = ref(false)
 const loadingState = ref(true)
+const isMounted = ref(false)
 const search = ref('')
 const route = useRoute()
 
 const menuAction = (action: string) => {
   console.log(action)
 }
+
+onMounted(() => {
+  isMounted.value = true
+})
 
 </script>
 
