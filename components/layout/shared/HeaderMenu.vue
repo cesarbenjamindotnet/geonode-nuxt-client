@@ -1,5 +1,5 @@
 <template>
-  <q-menu v-model="internalShowMenu" anchor="bottom left" self="top left" @hide="emitClose">
+  <q-menu v-model="showMenu" anchor="bottom left" self="top left" @hide="emitHide">
     <q-list>
       <q-item clickable v-close-popup @click="menuAction('Settings')">
         <q-item-section class="q-px-md">Español</q-item-section>
@@ -18,27 +18,28 @@
 </template>
 
 <script setup lang="ts">
-const internalShowMenu = computed({
-  get: () => props.showMenu,
-  set: (val) => emit('update:showMenu', val)
-})
-
 const props = defineProps({
-  showMenu: Boolean
+  show: Boolean
 })
+const emit = defineEmits(['hide'])
 
-const emit = defineEmits(['update:showMenu', 'close-menu'])
+const showMenu = computed({
+  get: () => props.show,
+  set: (val) => {
+    if (!val) {
+      emit('hide')
+    }
+  }
+})
 
 const menuAction = (action: string) => {
   console.log(action)
 }
 
-const emitClose = () => {
-  emit('update:showMenu', false)
-  emit('close-menu')
-  console.log('emitClose')
+const emitHide = () => {
+  console.log('emitHide')
+  emit('hide')
 }
-
 </script>
 
 <style scoped>

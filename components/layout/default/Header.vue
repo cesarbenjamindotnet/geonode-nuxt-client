@@ -33,7 +33,7 @@
         <div class="row">
           <q-btn dense flat round icon="mdi-dots-vertical" @click="showHeaderMenu = true"></q-btn>
           <div class="q-pt-sm" style="padding-top: 36px;">
-            <LayoutSharedHeaderMenu :showMenu="showHeaderMenu" @close-menu="showHeaderMenu = false" />
+            <LayoutSharedHeaderMenu :show="showHeaderMenu" @hide="showHeaderMenu = false" />
           </div>
           <q-btn v-if="isMounted && $q.screen.width <= $q.screen.sizes.sm" class="q-px-sm" dense no-caps color="accent" round
                  icon="mdi-account-circle"/>
