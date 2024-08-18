@@ -1,17 +1,44 @@
 <template>
-  <q-menu v-model="showMenu" anchor="bottom left" self="top left" @hide="emitHide">
-    <q-list>
+  <q-menu  v-model="showMenu" anchor="bottom left" self="top left" @hide="emitHide">
+    <q-list dense>
+      <q-item clickable>
+        <q-item-section side class="submenu-arrow-left">
+          <q-icon name="keyboard_arrow_left"/>
+        </q-item-section>
+        <q-item-section>Language</q-item-section>
+        <q-menu anchor="top end" self="top start">
+          <q-list dense>
+            <q-item clickable v-close-popup @click="menuAction('Logout')">
+              <q-item-section class="q-px-sm">English</q-item-section>
+            </q-item>
+            <q-item clickable v-close-popup @click="menuAction('Logout')">
+              <q-item-section class="q-px-sm active">Español</q-item-section>
+            </q-item>
+            <q-item clickable v-close-popup @click="menuAction('Logout')">
+              <q-item-section class="q-px-sm">Français</q-item-section>
+            </q-item>
+            <q-item clickable v-close-popup @click="menuAction('Logout')">
+              <q-item-section class="q-px-sm">Italiano</q-item-section>
+            </q-item>
+          </q-list>
+        </q-menu>
+      </q-item>
+      <q-separator />
       <q-item clickable v-close-popup @click="menuAction('Settings')">
-        <q-item-section class="q-px-md">Español</q-item-section>
+        <q-item-section class="q-px-sm">Persons</q-item-section>
       </q-item>
       <q-item clickable v-close-popup @click="menuAction('Help')">
-        <q-item-section>Deutsch</q-item-section>
+        <q-item-section class="q-px-sm">Groups</q-item-section>
+      </q-item>
+      <q-separator/>
+      <q-item clickable v-close-popup @click="menuAction('Logout')">
+        <q-item-section class="q-px-sm">Invite User</q-item-section>
       </q-item>
       <q-item clickable v-close-popup @click="menuAction('Logout')">
-        <q-item-section>Français</q-item-section>
+        <q-item-section class="q-px-sm">Add User</q-item-section>
       </q-item>
       <q-item clickable v-close-popup @click="menuAction('Logout')">
-        <q-item-section>Italiano</q-item-section>
+        <q-item-section class="q-px-sm">Create Group</q-item-section>
       </q-item>
     </q-list>
   </q-menu>
@@ -42,6 +69,8 @@ const emitHide = () => {
 }
 </script>
 
-<style scoped>
-
+<style lang="scss" scoped>
+.submenu-arrow-left {
+  padding-right: 2px;
+}
 </style>

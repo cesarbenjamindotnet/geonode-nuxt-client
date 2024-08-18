@@ -12,7 +12,7 @@
               </q-avatar>
             </NuxtLink>
           </div>
-          <div class="col-auto q-pl-xs q-pt-xs" v-show="$q.screen.width >= $q.screen.sizes.sm">
+          <div class="col-auto q-pl-xs q-pt-xs" v-show="!isSmallScreen">
             <span class="q-pl-xs text-h6 ">
               <NuxtLink to="/" class="text-grey-10" style="text-decoration: none;">
                 GeoNode
@@ -22,7 +22,7 @@
 
         </div>
       </div>
-      <div :class="['q-px-sm', $q.screen.width >= $q.screen.sizes.sm ? 'col-5' : ''] ">
+      <div :class="['q-px-sm', isSmallScreen ? '' : 'col-5'] ">
         <q-input dense v-model="search" outlined type="search" :loading="loadingState">
           <template v-slot:prepend>
             <q-icon name="search"/>
@@ -31,13 +31,19 @@
       </div>
       <div class="col-auto">
         <div class="row">
-          <q-btn dense flat round icon="mdi-dots-vertical" @click="showHeaderMenu = true"></q-btn>
+          <q-btn dense flat icon="mdi-dots-vertical" @click="showHeaderMenu = true"></q-btn>
           <div class="q-pt-sm" style="padding-top: 36px;">
             <LayoutSharedHeaderMenu :show="showHeaderMenu" @hide="showHeaderMenu = false" />
           </div>
-          <q-btn v-if="isMounted && $q.screen.width <= $q.screen.sizes.sm" class="q-px-sm" dense no-caps color="accent" round
+          <q-btn v-if="isMounted && isSmallScreen" class="q-px-sm" dense no-caps color="accent" round
                  icon="mdi-account-circle"/>
           <q-btn v-else-if="isMounted" class="q-px-sm" dense no-caps color="accent" label="Acceder"/>
+
+          <q-btn dense flat>
+            <q-avatar>
+                <img src="https://cdn.quasar.dev/logo-v2/svg/logo-dark.svg">
+              </q-avatar>
+          </q-btn>
         </div>
       </div>
     </q-toolbar>
@@ -65,30 +71,10 @@
       <div class="col-auto">
         <q-tabs dense align="left">
 
-          <q-tab no-caps @click="menuVisible = true" label="English" href="#"
+          <q-tab no-caps label="English" href="#"
                  :active-class="['.no-indicator', '.q-tab__indicator']">
           </q-tab>
-          <div class="q-pt-sm" style="padding-top: 36px;">
-            <q-menu v-model="menuVisible" anchor="bottom left" self="top left">
-              <q-list>
-                <q-item clickable v-close-popup @click="menuAction('Settings')">
-                  <q-item-section class="q-px-md">Español</q-item-section>
-                </q-item>
-                <q-item clickable v-close-popup @click="menuAction('Help')">
-                  <q-item-section>Deutsch</q-item-section>
-                </q-item>
-                <q-item clickable v-close-popup @click="menuAction('Logout')">
-                  <q-item-section>Français</q-item-section>
-                </q-item>
-                <q-item clickable v-close-popup @click="menuAction('Logout')">
-                  <q-item-section>Italiano</q-item-section>
-                </q-item>
-              </q-list>
-            </q-menu>
-          </div>
-          <q-route-tab no-caps to="/prueba" label="About">
-
-          </q-route-tab>
+          <q-route-tab no-caps to="/prueba" label="About"/>
 
         </q-tabs>
 
@@ -101,12 +87,13 @@
 <script setup lang="ts">
 
 const showHeaderMenu = ref(false)
+const isLoggedUser = ref(false)
 
-const menuVisible = ref(false)
 const loadingState = ref(true)
 const isMounted = ref(false)
 const search = ref('')
 const route = useRoute()
+const $q = useQuasar()
 
 const menuAction = (action: string) => {
   console.log(action)
@@ -114,6 +101,10 @@ const menuAction = (action: string) => {
 
 onMounted(() => {
   isMounted.value = true
+})
+
+const isSmallScreen = computed(() => {
+  return $q.screen.width <= $q.screen.sizes.sm
 })
 
 </script>
