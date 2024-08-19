@@ -19,7 +19,6 @@
               </NuxtLink>
             </span>
           </div>
-
         </div>
       </div>
       <div :class="['q-px-sm', isSmallScreen ? '' : 'col-5'] ">
@@ -33,16 +32,15 @@
         <div class="row">
           <q-btn dense flat icon="mdi-dots-vertical" @click="showHeaderMenu = true"></q-btn>
           <div class="q-pt-sm" style="padding-top: 36px;">
-            <LayoutSharedHeaderMenu :show="showHeaderMenu" @hide="showHeaderMenu = false" />
+            <LayoutSharedHeaderMenu :show="showHeaderMenu" @hide="showHeaderMenu = false"/>
           </div>
-          <q-btn v-if="isMounted && isSmallScreen" class="q-px-sm" dense no-caps color="accent" round
+          <q-btn v-if="!isLoggedUser && isSmallScreen" class="q-px-sm" dense no-caps color="accent" round
                  icon="mdi-account-circle"/>
-          <q-btn v-else-if="isMounted" class="q-px-sm" dense no-caps color="accent" label="Acceder"/>
-
-          <q-btn dense flat>
+          <q-btn v-else-if="!isLoggedUser" class="q-px-sm" dense no-caps color="accent" label="Acceder"/>
+          <q-btn v-else rounded dense flat>
             <q-avatar>
-                <img src="https://cdn.quasar.dev/logo-v2/svg/logo-dark.svg">
-              </q-avatar>
+              <img :src="gravatarUrl">
+            </q-avatar>
           </q-btn>
         </div>
       </div>
@@ -70,37 +68,33 @@
       <q-space/>
       <div class="col-auto">
         <q-tabs dense align="left">
-
-          <q-tab no-caps label="English" href="#"
-                 :active-class="['.no-indicator', '.q-tab__indicator']">
+          <q-tab no-caps label="English">
           </q-tab>
-          <q-route-tab no-caps to="/prueba" label="About"/>
-
+          <q-route-tab no-caps to="/about" label="About"/>
         </q-tabs>
-
-
       </div>
     </div>
   </q-header>
 </template>
 
 <script setup lang="ts">
-
 const showHeaderMenu = ref(false)
-const isLoggedUser = ref(false)
+const isLoggedUser = ref(false) // TODO: Implement user authentication and pinia storage of user data
+const loggedUser = ref({email: 'mathereall@gmail.com'}) // TODO: Implement user authentication and pinia storage of user data
 
 const loadingState = ref(true)
-const isMounted = ref(false)
 const search = ref('')
 const route = useRoute()
-const $q = useQuasar()
 
-const menuAction = (action: string) => {
-  console.log(action)
-}
+const $q = useQuasar()
+const stringToMD5 = useStringToMD5()
+
+const gravatarUrl = ref('https://www.gravatar.com/avatar/46d229b033af06a191ff2267bca9ae56/')
 
 onMounted(() => {
-  isMounted.value = true
+  if (!!isLoggedUser.value && loggedUser.value.email) {
+    gravatarUrl.value = `https://www.gravatar.com/avatar/${stringToMD5(loggedUser.value.email)}/`
+  }
 })
 
 const isSmallScreen = computed(() => {
@@ -109,9 +103,7 @@ const isSmallScreen = computed(() => {
 
 </script>
 
-<style lang="scss" scoped>
-.no-indicator .q-tab__indicator {
-  display: none;
-}
+<style scoped>
+
 </style>
 

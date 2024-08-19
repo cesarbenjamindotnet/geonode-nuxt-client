@@ -14,5 +14,37 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
   devtools: { enabled: true },
   components: true,
+  imports: {
+    dirs: [
+      // Scan top-level modules
+      'composables',
+      // ... or scan all modules within given directory
+      'composables/**'
+    ]
+  },
+  quasar: {
+    config: {
+      brand: {
+        primary: '#1976D2',
+        secondary: '#26A69A',
+        accent: '#9C27B0',
+        dark: '#1D1D1D',
+        "dark-page": '#121212',
+        positive: '#21BA45',
+        negative: '#C10015',
+        info: '#31CCEC',
+        warning: '#F2C037'
+      },
+    },
+    iconSet: 'material-icons',
+    extras: {
+      fontIcons: ['mdi-v5']
+    }
+  },
+  vue: {
+    compilerOptions: {
+
+    }
+  },
   modules: ['@pinia/nuxt', "nuxt-quasar-ui"],
 })

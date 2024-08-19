@@ -2,7 +2,7 @@
   <q-menu  v-model="showMenu" anchor="bottom left" self="top left" @hide="emitHide">
     <q-list dense>
       <q-item clickable>
-        <q-item-section side class="submenu-arrow-left">
+        <q-item-section side style="padding-right: 2px;">
           <q-icon name="keyboard_arrow_left"/>
         </q-item-section>
         <q-item-section>Language</q-item-section>
