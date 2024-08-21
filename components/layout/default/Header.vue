@@ -15,7 +15,7 @@
           <div class="col-auto q-pl-xs q-pt-xs" v-show="!isSmallScreen">
             <span class="q-pl-xs text-h6 ">
               <NuxtLink to="/" class="text-grey-10" style="text-decoration: none;">
-                GeoNode
+                Geonode
               </NuxtLink>
             </span>
           </div>
@@ -49,7 +49,7 @@
     <div v-if="route.path === '/'"
          class="row bg-primary text-white justify-center q-pa-sm content-center bg-light-blue-10">
       <div class="col-auto content-center text-center" style="min-height: 258px;">
-        <p class="text-h1 q-pt-md">GeoNode</p>
+        <p class="text-h1 q-pt-md">Geonode</p>
         <p class="text-h6">Sharing geospatial data and maps.</p>
       </div>
     </div>
