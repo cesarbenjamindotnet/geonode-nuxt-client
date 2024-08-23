@@ -1,4 +1,4 @@
-import type { OAuthConfig, OAuthUserConfig } from ".";
+import type { OAuthConfig, OAuthUserConfig } from "next-auth/providers/oauth";
 export interface GeoNodeProfile extends Record<string, any> {
     exp: number;
     iat: number;

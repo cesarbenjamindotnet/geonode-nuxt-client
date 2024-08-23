@@ -61,8 +61,8 @@ export default defineNuxtConfig({
         provider: {
             type: 'authjs',
             trustHost: false,
-            defaultProvider: 'GeoNode',
-            addDefaultCallbackUrl: false,
+            defaultProvider: 'geonode',
+            addDefaultCallbackUrl: true,
         },
         sessionRefresh: {
             enablePeriodically: true,
