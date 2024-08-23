@@ -1,11 +1,6 @@
 "use strict";
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = GeoNode;
-
-function GeoNode(options) {
+export default function GeoNode(options) {
   return {
     id: "keycloak",
     name: "Keycloak",
