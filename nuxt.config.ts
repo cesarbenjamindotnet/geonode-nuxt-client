@@ -54,15 +54,17 @@ export default defineNuxtConfig({
         "@sidebase/nuxt-auth"
     ],
     auth: {
+
         isEnabled: true,
         disableServerSideAuth: false,
         originEnvKey: 'NUXT_AUTH_ORIGIN',
         baseURL: 'http://localhost:3000/api/auth',
         provider: {
             type: 'authjs',
-            trustHost: false,
+            trustHost: true,
             defaultProvider: 'geonode',
             addDefaultCallbackUrl: true,
+
         },
         sessionRefresh: {
             enablePeriodically: true,
