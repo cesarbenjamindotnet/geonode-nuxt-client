@@ -8,7 +8,7 @@
           <div class="col-auto">
             <NuxtLink to="/">
               <q-avatar>
-                <img src="https://cdn.quasar.dev/logo-v2/svg/logo-dark.svg">
+                <img width="128" src="https://cdn.quasar.dev/logo-v2/svg/logo-dark.svg">
               </q-avatar>
             </NuxtLink>
           </div>
