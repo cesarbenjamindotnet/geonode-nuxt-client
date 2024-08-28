@@ -1,5 +1,4 @@
 import {NuxtAuthHandler} from '#auth';
-import {OAuthConfig} from '@auth/core/providers';
 
 
 // Configuración de constantes
