@@ -1,7 +1,7 @@
 <template>
   <div v-if="data">
     <!-- You can access the session data you injected above! -->
-    Hello, {{ data.user }}. You have the role: {{ data.user.profile.perms }}!
+    Hello, {{ data.user }}. You have the role: {{ 'data.user.profile.perms' }}!
   </div>
   <q-separator/>
   <div>{{ token || 'no token present, are you logged in?' }}</div>

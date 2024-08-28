@@ -2,8 +2,8 @@ import {NuxtAuthHandler} from '#auth';
 import {OAuthConfig} from '@auth/core/providers';
 
 // Configuración de constantes
-const GEONODE_API_URL = process.env.GEONODE_BASEURL || '';
-const WELL_KNOWN_URL = `${process.env.GEONODE_ISSUER}/.well-known/openid-configuration/`;
+const GEONODE_BASE_URL = process.env.GEONODE_BASE_URL || '';
+const GEONODE_WELL_KNOWN_URL = `${process.env.GEONODE_ISSUER}/.well-known/openid-configuration/`;
 
 async function fetchUserProfile(url: string, token: string) {
     try {
@@ -28,15 +28,16 @@ export default NuxtAuthHandler({
             name: 'GeoNode',
             type: 'oauth',
             issuer: process.env.GEONODE_ISSUER,
-            wellKnown: WELL_KNOWN_URL,
+            wellKnown: GEONODE_WELL_KNOWN_URL,
             clientId: process.env.GEONODE_CLIENT_ID || '',
             clientSecret: process.env.GEONODE_CLIENT_SECRET || '',
             authorization: {
                 params: {scope: 'openid read write groups profile'},
             },
             async profile(profile: any, token: any) {
-                const url = `${GEONODE_API_URL}/api/v2/users/${profile.sub}`;
+                const url = `${GEONODE_BASE_URL}/api/v2/users/${profile.sub}`;
                 const fetchedProfile = await fetchUserProfile(url, token.access_token);
+                console.log('Fetched Profile', fetchedProfile);
 
                 if (fetchedProfile) {
                     profile = fetchedProfile;
@@ -58,6 +59,7 @@ export default NuxtAuthHandler({
                 id: token.sub,
                 profile: token.profile,
             }
+            console.log("session", session)
             return session;
         },
 
@@ -72,13 +74,14 @@ export default NuxtAuthHandler({
                     idToken: account.id_token,
                 };
 
-                const url = `${GEONODE_API_URL}/api/v2/users/${account.providerAccountId}`;
+                const url = `${GEONODE_BASE_URL}/api/v2/users/${account.providerAccountId}`;
                 const fetchedProfile = await fetchUserProfile(url, account.access_token || "");
 
                 if (fetchedProfile) {
                     token.profile = fetchedProfile;
                 }
             }
+            console.log("token", token)
             return token;
         },
     },
