@@ -38,10 +38,12 @@ export default NuxtAuthHandler({
                 const url = `${GEONODE_BASE_URL}/api/v2/users/${profile.sub}`;
                 const fetchedProfile = await fetchUserProfile(url, token.access_token);
                 console.log('Fetched Profile', fetchedProfile);
+                console.log('token', token);
 
                 if (fetchedProfile) {
                     profile = fetchedProfile;
                     profile.id = profile.pk;
+                    console.log("token", token)
                     console.log('Profile', profile);
                 }
 
@@ -54,12 +56,12 @@ export default NuxtAuthHandler({
         async session({session, token}) {
             session.user = {
                 ...session.user,
-                accessToken: token.accessToken,
-                refreshToken: token.refreshToken,
-                id: token.sub,
-                profile: token.profile,
+                // accessToken: token.accessToken,
+                // refreshToken: token.refreshToken,
+                // profile: token.profile,
             }
-            console.log("session", session)
+            // console.log("session", session)
+            // console.log("session token", token)
             return session;
         },
 
@@ -67,21 +69,27 @@ export default NuxtAuthHandler({
             if (account) {
                 token = {
                     ...token,
-                    id: account.sub,
+                    id: account.providerAccountId,
                     tokenType: account.token_type,
                     accessToken: account.access_token,
                     refreshToken: account.refresh_token,
                     idToken: account.id_token,
                 };
 
+                console.log("jwt account", account)
+                console.log("jwt token", token)
+
+                /*
                 const url = `${GEONODE_BASE_URL}/api/v2/users/${account.providerAccountId}`;
                 const fetchedProfile = await fetchUserProfile(url, account.access_token || "");
 
                 if (fetchedProfile) {
                     token.profile = fetchedProfile;
                 }
+
+                 */
             }
-            console.log("token", token)
+
             return token;
         },
     },

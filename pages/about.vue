@@ -1,10 +1,10 @@
 <template>
   <div v-if="data">
     <!-- You can access the session data you injected above! -->
-    Hello, {{ data.user }}. You have the role: {{ 'data.user.profile.perms' }}!
+    Hello, Data: {{ data.user }}. You have the role: {{ 'data.user.profile.perms' }}!
   </div>
   <q-separator/>
-  <div>{{ token || 'no token present, are you logged in?' }}</div>
+  <div>Token: {{ token || 'no token present, are you logged in?' }}</div>
   <button v-for="provider in providers" :key="provider.id" @click="signIn(provider.id)">
     Sign in with {{ provider.name }}
   </button>
