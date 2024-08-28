@@ -34,9 +34,8 @@
           <div class="q-pt-sm" style="padding-top: 36px;">
             <LayoutSharedHeaderMenu :show="showHeaderMenu" @hide="showHeaderMenu = false"/>
           </div>
-          <q-btn v-if="!isLoggedUser && isSmallScreen" class="q-px-sm" dense no-caps color="accent" round
-                 icon="mdi-account-circle"/>
-          <q-btn v-else-if="!isLoggedUser" class="q-px-sm" dense no-caps color="accent" label="Acceder"/>
+          <q-btn v-if="!isLoggedUser && isSmallScreen" class="q-px-sm" dense no-caps color="accent" round icon="mdi-account-circle" href="/api/auth/signin" />
+          <q-btn v-else-if="!isLoggedUser" class="q-px-sm" dense no-caps color="accent" label="Acceder" href="/api/auth/signin"/>
           <q-btn v-else rounded dense flat>
             <q-avatar>
               <img :src="gravatarUrl">

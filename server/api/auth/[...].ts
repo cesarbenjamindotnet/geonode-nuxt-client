@@ -1,9 +1,12 @@
 import {NuxtAuthHandler} from '#auth';
 import {OAuthConfig} from '@auth/core/providers';
 
+
 // Configuración de constantes
 const GEONODE_BASE_URL = process.env.GEONODE_BASE_URL || '';
 const GEONODE_WELL_KNOWN_URL = `${process.env.GEONODE_ISSUER}/.well-known/openid-configuration/`;
+const GEONODE_PROFILE_URL = `${GEONODE_BASE_URL}/api/v2/users`;
+
 
 async function fetchUserProfile(url: string, token: string) {
     try {
@@ -12,7 +15,11 @@ async function fetchUserProfile(url: string, token: string) {
                 Authorization: `Bearer ${token}`,
             },
         });
-        return userProfileData?.user;
+        if (!!userProfileData && userProfileData.user) {
+            return userProfileData.user;
+        } else {
+            throw new Error('No user profile data');
+        }
     } catch (error) {
         console.error(`Error fetching user profile from ${url}`, error);
         return null;
@@ -31,65 +38,39 @@ export default NuxtAuthHandler({
             wellKnown: GEONODE_WELL_KNOWN_URL,
             clientId: process.env.GEONODE_CLIENT_ID || '',
             clientSecret: process.env.GEONODE_CLIENT_SECRET || '',
-            authorization: {
-                params: {scope: 'openid read write groups profile'},
-            },
-            async profile(profile: any, token: any) {
-                const url = `${GEONODE_BASE_URL}/api/v2/users/${profile.sub}`;
-                const fetchedProfile = await fetchUserProfile(url, token.access_token);
-                console.log('Fetched Profile', fetchedProfile);
-                console.log('token', token);
 
+            async profile(profile: any, token: any) {
+                const fetchedProfile = await fetchUserProfile(`${GEONODE_PROFILE_URL}/${profile.sub}`, token.access_token);
                 if (fetchedProfile) {
                     profile = fetchedProfile;
                     profile.id = profile.pk;
-                    console.log("token", token)
-                    console.log('Profile', profile);
                 }
-
                 return profile;
             },
-        } as OAuthConfig,
+        },
     ],
 
     callbacks: {
-        async session({session, token}) {
-            session.user = {
-                ...session.user,
-                // accessToken: token.accessToken,
-                // refreshToken: token.refreshToken,
-                // profile: token.profile,
-            }
-            // console.log("session", session)
-            // console.log("session token", token)
-            return session;
-        },
-
         async jwt({token, account}) {
             if (account) {
                 token = {
                     ...token,
                     id: account.providerAccountId,
-                    tokenType: account.token_type,
-                    accessToken: account.access_token,
-                    refreshToken: account.refresh_token,
-                    idToken: account.id_token,
+                    provider: account.provider,
+                    scope: account.scope,
+                    token_type: account.token_type,
+                    access_token: account.access_token,
+                    refresh_token: account.refresh_token,
+                    id_token: account.id_token,
                 };
 
-                console.log("jwt account", account)
-                console.log("jwt token", token)
-
-                /*
-                const url = `${GEONODE_BASE_URL}/api/v2/users/${account.providerAccountId}`;
-                const fetchedProfile = await fetchUserProfile(url, account.access_token || "");
+                const fetchedProfile = await fetchUserProfile(`${GEONODE_PROFILE_URL}/${account.providerAccountId}`, account.access_token || '');
 
                 if (fetchedProfile) {
-                    token.profile = fetchedProfile;
+                    token.picture = fetchedProfile.avatar;
+                    token.name = (fetchedProfile.first_name + ' ' + fetchedProfile.last_name).trim();
                 }
-
-                 */
             }
-
             return token;
         },
     },
