@@ -8,6 +8,8 @@
   <button v-for="provider in providers" :key="provider.id" @click="signIn(provider.id)">
     Sign in with {{ provider.name }}
   </button>
+  <hr>
+
 </template>
 
 

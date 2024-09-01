@@ -1,28 +1,32 @@
 import {NuxtAuthHandler} from '#auth';
 
-
 // Configuración de constantes
-const GEONODE_BASE_URL = process.env.GEONODE_BASE_URL || '';
-const GEONODE_WELL_KNOWN_URL = `${process.env.GEONODE_ISSUER}/.well-known/openid-configuration/`;
-const GEONODE_PROFILE_URL = `${GEONODE_BASE_URL}/api/v2/users`;
+const GEONODE_BASE_URL = process.env.NUXT_GEONODE_BASE_URL || '';
+const GEONODE_WELL_KNOWN_URL = `${process.env.NUXT_GEONODE_ISSUER}/.well-known/openid-configuration/`;
+const GEONODE_APIV2_USERS_URL = `${GEONODE_BASE_URL}/api/v2/users`;
 
-
-async function fetchUserProfile(url: string, token: string) {
+// Función para obtener el perfil del usuario
+async function fetchUserData(url: string, token: string) {
     try {
-        const userProfileData = await $fetch(url, {
+        const userData = await $fetch(url, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
         });
-        if (!!userProfileData && userProfileData.user) {
-            return userProfileData.user;
+        if (userData) {
+            return userData;
         } else {
-            throw new Error('No user profile data');
+            throw new Error('No user data');
         }
     } catch (error) {
-        console.error(`Error fetching user profile from ${url}`, error);
+        console.error(`Error fetching user data from ${url}`, error);
         return null;
     }
+}
+
+// Verificación de variables de entorno
+if (!process.env.NUXT_GEONODE_ISSUER || !process.env.NUXT_GEONODE_CLIENT_ID || !process.env.NUXT_GEONODE_CLIENT_SECRET) {
+    throw new Error('Missing required environment variables for GeoNode authentication');
 }
 
 export default NuxtAuthHandler({
@@ -33,15 +37,20 @@ export default NuxtAuthHandler({
             id: 'geonode',
             name: 'GeoNode',
             type: 'oauth',
-            issuer: process.env.GEONODE_ISSUER,
+            issuer: process.env.NUXT_GEONODE_ISSUER,
             wellKnown: GEONODE_WELL_KNOWN_URL,
-            clientId: process.env.GEONODE_CLIENT_ID || '',
-            clientSecret: process.env.GEONODE_CLIENT_SECRET || '',
+            clientId: process.env.NUXT_GEONODE_CLIENT_ID || '',
+            clientSecret: process.env.NUXT_GEONODE_CLIENT_SECRET || '',
+            authorization: {
+                params: {
+                    scope: 'openid read write',
+                },
+            },
 
             async profile(profile: any, token: any) {
-                const fetchedProfile = await fetchUserProfile(`${GEONODE_PROFILE_URL}/${profile.sub}`, token.access_token);
-                if (fetchedProfile) {
-                    profile = fetchedProfile;
+                const fetchedUserData = await fetchUserData(`${GEONODE_APIV2_USERS_URL}/${profile.sub}`, token.access_token);
+                if (fetchedUserData && fetchedUserData.user) {
+                    profile = fetchedUserData.user;
                     profile.id = profile.pk;
                 }
                 return profile;
@@ -50,7 +59,7 @@ export default NuxtAuthHandler({
     ],
 
     callbacks: {
-        async jwt({token, account}) {
+        async jwt({ token, account }) {
             if (account) {
                 token = {
                     ...token,
@@ -61,14 +70,18 @@ export default NuxtAuthHandler({
                     access_token: account.access_token,
                     refresh_token: account.refresh_token,
                     id_token: account.id_token,
+                    test: "jwt test",
                 };
 
-                const fetchedProfile = await fetchUserProfile(`${GEONODE_PROFILE_URL}/${account.providerAccountId}`, account.access_token || '');
+                const fetchedUserData = await fetchUserData(`${GEONODE_APIV2_USERS_URL}/${account.providerAccountId}`, account.access_token || '');
 
-                if (fetchedProfile) {
-                    token.picture = fetchedProfile.avatar;
-                    token.name = (fetchedProfile.first_name + ' ' + fetchedProfile.last_name).trim();
+                if (fetchedUserData && fetchedUserData.user) {
+                    // console.log("fetchedUserData.user", fetchedUserData.user);
+                    token.user = fetchedUserData.user;
+                    token.picture = fetchedUserData.user.avatar;
+                    token.name = (fetchedUserData.user.first_name + ' ' + fetchedUserData.user.last_name).trim();
                 }
+                console.log("token", token);
             }
             return token;
         },

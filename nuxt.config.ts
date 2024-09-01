@@ -66,7 +66,14 @@ export default defineNuxtConfig({
         sessionRefresh: {
             enablePeriodically: false,
             enableOnWindowFocus: true,
-
         },
+    },
+    runtimeConfig: {
+        public: {
+            GEOSERVER_BASE_URL: process.env.NUXT_GEOSERVER_BASE_URL || 'http://localhost:8080/geoserver',
+            GEONODE_BASE_URL: process.env.NUXT_GEONODE_BASE_URL || 'http://localhost:8000',
+            GEONODE_FORCE_SCRIPT_NAME: process.env.NUXT_GEONODE_FORCE_SCRIPT_NAME || '',
+            GEONODE_ADMIN_PATH: process.env.NUXT_GEONODE_ADMIN_PATH || '/admin',
+        }
     }
 })

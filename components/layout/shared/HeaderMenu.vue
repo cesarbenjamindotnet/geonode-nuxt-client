@@ -12,7 +12,7 @@
               <q-item-section class="q-px-sm">English</q-item-section>
             </q-item>
             <q-item clickable v-close-popup @click="menuAction('Logout')">
-              <q-item-section class="q-px-sm active">Español</q-item-section>
+              <q-item-section class="q-px-sm">Español</q-item-section>
             </q-item>
             <q-item clickable v-close-popup @click="menuAction('Logout')">
               <q-item-section class="q-px-sm">Français</q-item-section>

@@ -45,7 +45,7 @@ export const useAuthStore = defineStore('auth', {
 
             try {
                 const userProfileData = await $fetch(
-                    `${process.env.GEONODE_API_URL}/v2/users/${id}`,
+                    `${process.env.NUXT_GEONODE_API_URL}/v2/users/${id}`,
                     {
                         headers: {
                             Authorization: `Bearer ${this.token.access_token}`,
