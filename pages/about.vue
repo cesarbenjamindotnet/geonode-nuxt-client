@@ -8,6 +8,17 @@
   <button v-for="provider in providers" :key="provider.id" @click="signIn(provider.id)">
     Sign in with {{ provider.name }}
   </button>
+  <br>
+  <button @click="() => getSession()">
+    Refresh
+  </button>
+  <button @click="() => getSession({ required: true })">
+    Refresh or trigger signin
+  </button>
+  <p>status: {{ status }}</p>
+  <p>loading: {{ loading }}</p>
+  <p>session: {{ data }}</p>
+  <p>lastRefreshedAt: {{ lastRefreshedAt }}</p>
   <hr>
 
 </template>
@@ -22,8 +33,17 @@ definePageMeta({
 */
 
 const headers = useRequestHeaders(['cookie']) as HeadersInit
-const {signIn, getProviders, data} = useAuth()
+const {signIn, getProviders} = useAuth()
 const providers = await getProviders()
+
+const {getSession} = useAuth()
+
+const {
+  status,
+  loading,
+  data,
+  lastRefreshedAt
+} = useAuthState()
 
 const {data: token} = await useFetch('/api/token', {headers})
 </script>
