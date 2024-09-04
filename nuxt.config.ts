@@ -68,6 +68,9 @@ export default defineNuxtConfig({
             enableOnWindowFocus: true,
         },
     },
+    publicRuntimeConfig: {
+        baseUrl: process.env.BASE_URL || 'http://localhost:3000',
+    },
     runtimeConfig: {
         public: {
             GEOSERVER_BASE_URL: process.env.NUXT_GEOSERVER_BASE_URL || 'http://localhost:8080/geoserver',
