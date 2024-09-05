@@ -3,7 +3,7 @@ import {NuxtAuthHandler} from '#auth';
 // Configuración de constantes
 const GEONODE_BASEURL = process.env.NUXT_GEONODE_BASEURL || '';
 const GEONODE_WELL_KNOWN_URL = `${process.env.NUXT_GEONODE_ISSUER}/.well-known/openid-configuration/`;
-const GEONODE_APIV2_USERS_URL = `${GEONODE_BASEURL}/api/v2/users`;
+const GEONODE_API_V2_USERS_URL = `${GEONODE_BASEURL}/api/v2/users`;
 
 interface RefreshToken {
     access_token: string;
@@ -33,9 +33,6 @@ interface UserData {
 // Función para refrescar el token de acceso
 async function refreshAccessToken(token: any) {
     try {
-        // const url = `${process.env.NUXT_GEONODE_ISSUER}/token/?client_id=${process.env.NUXT_GEONODE_CLIENT_ID}&client_secret=${process.env.NUXT_GEONODE_CLIENT_SECRET}&refresh_token=${token.refresh_token}&grant_type=refresh_token`;
-        // const url = `${process.env.NUXT_GEONODE_ISSUER}/token/?client_id=${process.env.NUXT_GEONODE_CLIENT_ID}&client_secret=${process.env.NUXT_GEONODE_CLIENT_SECRET}&refresh_token=${token.refresh_token}&grant_type=refresh_token`;
-
         const refreshedToken = await $fetch<RefreshToken>(`${process.env.NUXT_GEONODE_ISSUER}/token/`, {
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
@@ -74,7 +71,6 @@ async function fetchUserData(url: any, token: any) {
                 Authorization: `Bearer ${token}`,
             },
         });
-        console.log("userData", userData);
         return userData.user;
     } catch (error) {
         console.error(`Error fetching user data from ${url}`, error);
@@ -110,8 +106,7 @@ export default NuxtAuthHandler({
                 },
             },
             async profile(profile: any, token: any) {
-                const fetchedUserData = await fetchUserData(`${GEONODE_APIV2_USERS_URL}/${profile.sub}`, token.access_token);
-                console.log("fetchedUserData", fetchedUserData);
+                const fetchedUserData = await fetchUserData(`${GEONODE_API_V2_USERS_URL}/${profile.sub}`, token.access_token);
                 if (fetchedUserData) {
                     profile = fetchedUserData;
                     profile.id = profile.pk;
@@ -123,32 +118,36 @@ export default NuxtAuthHandler({
 
     callbacks: {
         async jwt({token, account}) {
-            if (account) {
-                token = {
-                    ...token,
-                    id: account.providerAccountId,
-                    provider: account.provider,
-                    scope: account.scope,
-                    token_type: account.token_type,
-                    access_token: account.access_token,
-                    refresh_token: account.refresh_token,
-                    id_token: account.id_token,
-                    access_token_expires_at: account.expires_at,
-                };
-                console.log("jwt", token.access_token_expires_at);
-            }
+            if (token) {
+                if (account) {
+                    token = {
+                        ...token,
+                        id: account.providerAccountId,
+                        provider: account.provider,
+                        scope: account.scope,
+                        token_type: account.token_type,
+                        access_token: account.access_token,
+                        refresh_token: account.refresh_token,
+                        id_token: account.id_token,
+                        access_token_expires_at: account.expires_at,
+                    };
+                }
 
-            if (isTokenExpired(token.access_token_expires_at)) {
-                console.log("Token expired, refreshing...");
-                return await refreshAccessToken(token);
-            }
+                if (isTokenExpired(token.access_token_expires_at)) {
+                    console.log("Token expired, refreshing...");
+                    return await refreshAccessToken(token);
+                } else {
+                    console.log("Token still valid");
+                }
 
-            const fetchedUserData = await fetchUserData(`${GEONODE_APIV2_USERS_URL}/${token.id}`, token.access_token);
-            if (fetchedUserData) {
-                token.user = fetchedUserData;
-                token.image = fetchedUserData.avatar;
+                const fetchedUserData = await fetchUserData(`${GEONODE_API_V2_USERS_URL}/${token.id}`, token.access_token);
+                if (fetchedUserData) {
+                    token.user = fetchedUserData;
+                    token.image = fetchedUserData.avatar;
+                }
+                console.log("nuevo token", token);
+                return token;
             }
-            return token;
         },
     },
 });

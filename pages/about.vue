@@ -4,7 +4,7 @@
     Hello, Data: {{ data.user }}. You have the role: {{ 'data.user.profile.perms' }}!
   </div>
   <q-separator/>
-  <div>Token: {{ token || 'no token present, are you logged in?' }}</div>
+  <div>Token: {{ authStore.token || 'no token present, are you logged in?' }}</div>
   <button v-for="provider in providers" :key="provider.id" @click="signIn(provider.id)">
     Sign in with {{ provider.name }}
   </button>
@@ -32,11 +32,13 @@ definePageMeta({
 })
 */
 
-const headers = useRequestHeaders(['cookie']) as HeadersInit
+// const headers = useRequestHeaders(['cookie']) as HeadersInit
 const {signIn, getProviders} = useAuth()
 const providers = await getProviders()
 
 const {getSession} = useAuth()
+
+const authStore = useAuthStore()
 
 const {
   status,
@@ -45,5 +47,5 @@ const {
   lastRefreshedAt
 } = useAuthState()
 
-const {data: token} = await useFetch('/api/token', {headers})
+// const {data: token} = await useFetch('/api/token', {headers})
 </script>

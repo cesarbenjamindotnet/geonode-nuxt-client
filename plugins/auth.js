@@ -5,14 +5,13 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
     try {
         if (status?.value === 'authenticated') {
-            console.log('is Authenticated:', status.value);
+            console.log('(plugin auth) is Authenticated:', status.value);
 
             authStore.isAuthenticated = true;
 
             const {data: token} = await useFetch('/api/token', {headers});
 
             if (token) {
-
                 authStore.setToken(token);
                 authStore.setUser(data.value.user);
             } else {
