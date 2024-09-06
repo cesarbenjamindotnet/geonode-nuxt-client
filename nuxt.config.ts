@@ -54,7 +54,6 @@ export default defineNuxtConfig({
         "@sidebase/nuxt-auth"
     ],
     auth: {
-
         isEnabled: true,
         disableServerSideAuth: false,
         originEnvKey: 'NUXT_AUTH_ORIGIN',
@@ -68,13 +67,10 @@ export default defineNuxtConfig({
             enableOnWindowFocus: true,
         },
     },
-    publicRuntimeConfig: {
-        baseUrl: process.env.BASE_URL || 'http://localhost:3000',
-    },
     runtimeConfig: {
         public: {
-            GEOSERVER_BASE_URL: process.env.NUXT_GEOSERVER_BASE_URL || 'http://localhost:8080/geoserver',
-            GEONODE_BASE_URL: process.env.NUXT_GEONODE_BASE_URL || 'http://localhost:8000',
+            GEOSERVER_BASEURL: process.env.NUXT_GEOSERVER_BASEURL || 'http://localhost:8080/geoserver',
+            GEONODE_BASEURL: process.env.NUXT_GEONODE_BASEURL || 'http://localhost:8080',
             GEONODE_FORCE_SCRIPT_NAME: process.env.NUXT_GEONODE_FORCE_SCRIPT_NAME || '',
             GEONODE_ADMIN_PATH: process.env.NUXT_GEONODE_ADMIN_PATH || '/admin',
         }

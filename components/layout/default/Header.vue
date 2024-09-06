@@ -117,8 +117,8 @@
 <script setup lang="ts">
 const config = useRuntimeConfig()
 const showHeaderMenu = ref(false)
-const geoserverUrl = config.public.GEOSERVER_BASE_URL
-const geonodeAdminUrl = `${config.public.GEONODE_BASE_URL}/${config.public.GEONODE_BASE_URL}/${config.public.GEONODE_BASE_URL}`
+const geoserverUrl = config.public.GEOSERVER_BASEURL
+const geonodeAdminUrl = `${config.public.GEONODE_BASEURL}/${config.public.GEONODE_BASE_URL}/${config.public.GEONODE_BASE_URL}`
 const isLoggedUser = ref(false) // TODO: Implement user authentication and pinia storage of user data
 const loggedUser = ref({email: 'mathereall@gmail.com'}) // TODO: Implement user authentication and pinia storage of user data
 
@@ -137,7 +137,7 @@ onMounted(() => {
   if (!!isLoggedUser.value && loggedUser.value.email) {
     gravatarUrl.value = `https://www.gravatar.com/avatar/${stringToMD5(loggedUser.value.email)}/`
   }
-  console.log("process.env.NUXT_GEOSERVER_BASE_URL", process.env)
+  console.log("process.env", process.env)
 })
 
 const isSmallScreen = computed(() => {

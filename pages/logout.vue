@@ -8,35 +8,43 @@
 </template>
 
 <script setup lang="ts">
-const {logout} = useAuth()
 const isProcessing = ref(false)
 const authStore = useAuthStore()
 const router = useRouter()
+const config = useRuntimeConfig()
 
-const {
-  status,
-  loading,
-  lastRefreshedAt,
-  accessToken,
-  signOut,
-} = useAuthState()
+const { signOut } = useAuth()
 
 const handleLogout = async () => {
   isProcessing.value = true
   try {
-    await signOut()
 
-    await fetch(`${process.env.NUXT_GEONODE_ISSUER}/revoke-token/`, {
+    const revokeTokenURL = `${config.public.GEONODE_BASEURL}/o/revoke_token/`
+
+
+
+    const revokeTokenResponse = await useFetch(revokeTokenURL, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
+        'Authorization': `Bearer ${authStore.token.refresh_token}`,
       },
     })
+
+    console.log("post logout geonode revokeTokenResponse:", revokeTokenResponse)
+    console.log("post logout geonode revokeTokenURL:", revokeTokenURL)
+
+    alert("espera")
+
+    await signOut()
+
+    console.log("post logout nuxtauth")
+
   } catch (error) {
+    console.log("error")
     console.error(error)
   } finally {
     isProcessing.value = false
+    console.log("finally")
     await router.push('/')
   }
 }
