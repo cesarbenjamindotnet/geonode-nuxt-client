@@ -136,14 +136,14 @@ export default NuxtAuthHandler({
                 if (isTokenExpired(token.access_token_expires_at)) {
                     console.log("Token expired, refreshing...");
                     return await refreshAccessToken(token);
-                } else {
-                    console.log("Token still valid");
                 }
 
-                const fetchedUserData = await fetchUserData(`${GEONODE_API_V2_USERS_URL}/${token.id}`, token.access_token);
-                if (fetchedUserData) {
-                    token.user = fetchedUserData;
-                    token.image = fetchedUserData.avatar;
+                console.log("token", token);
+                if (!token.user) {
+                    const fetchedUserData = await fetchUserData(`${GEONODE_API_V2_USERS_URL}/${token.id}`, token.access_token);
+                    if (fetchedUserData) {
+                        token.user = fetchedUserData;
+                    }
                 }
                 console.log("nuevo token", token);
                 return token;

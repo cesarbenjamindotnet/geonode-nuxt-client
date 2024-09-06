@@ -36,14 +36,13 @@ definePageMeta({
 const {signIn, getProviders} = useAuth()
 const providers = await getProviders()
 
-const {getSession} = useAuth()
+const {getSession, data} = useAuth()
 
 const authStore = useAuthStore()
 
 const {
   status,
   loading,
-  data,
   lastRefreshedAt
 } = useAuthState()
 
