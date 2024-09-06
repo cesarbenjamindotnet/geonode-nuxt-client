@@ -19,19 +19,17 @@ const handleLogout = async () => {
   isProcessing.value = true
   try {
 
-    const revokeTokenURL = `${config.public.GEONODE_BASEURL}/o/revoke_token/`
-
-
-
-    const revokeTokenResponse = await useFetch(revokeTokenURL, {
+    const response = await useFetch('/api/auth/geonode-signout', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${authStore.token.refresh_token}`,
+      body: {
+        token: authStore.token
       },
+      headers: {
+        'Content-Type': 'application/json'
+      }
     })
 
-    console.log("post logout geonode revokeTokenResponse:", revokeTokenResponse)
-    console.log("post logout geonode revokeTokenURL:", revokeTokenURL)
+    console.log("response: ", response)
 
     alert("espera")
 
