@@ -73,7 +73,7 @@
                   <q-item-section class="q-px-sm">Help</q-item-section>
                 </q-item>
                 <q-separator/>
-                <q-item clickable v-close-popup href="/api/auth/signout">
+                <q-item clickable v-close-popup to="/logout">
                   <q-item-section class="q-px-sm">Logout</q-item-section>
                 </q-item>
               </q-list>

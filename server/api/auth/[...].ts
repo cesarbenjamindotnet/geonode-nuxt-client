@@ -46,8 +46,6 @@ async function refreshAccessToken(token: any) {
             }),
         });
 
-        console.log("response", refreshedToken);
-
         return {
             ...token,
             access_token: refreshedToken.access_token,
@@ -84,7 +82,7 @@ if (!process.env.NUXT_GEONODE_ISSUER || !process.env.NUXT_GEONODE_CLIENT_ID || !
 }
 
 // Función para comprobar si el token ha expirado
-function isTokenExpired(expiresAt: any) {
+function isTokenExpired(expiresAt: number) {
     return Date.now() >= expiresAt * 1000;
 }
 
@@ -117,6 +115,12 @@ export default NuxtAuthHandler({
     ],
 
     callbacks: {
+        async session({session, token}) {
+            if (token) {
+                session.user = token.user
+            }
+            return session;
+        },
         async jwt({token, account}) {
             if (token) {
                 if (account) {
@@ -138,14 +142,12 @@ export default NuxtAuthHandler({
                     return await refreshAccessToken(token);
                 }
 
-                console.log("token", token);
                 if (!token.user) {
                     const fetchedUserData = await fetchUserData(`${GEONODE_API_V2_USERS_URL}/${token.id}`, token.access_token);
                     if (fetchedUserData) {
                         token.user = fetchedUserData;
                     }
                 }
-                console.log("nuevo token", token);
                 return token;
             }
         },
