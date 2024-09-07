@@ -2,7 +2,6 @@ export default defineEventHandler(async (event) => {
     // Obtén los datos de la solicitud, incluyendo el token a revocar
     const body = await readBody(event);
 
-    const tokenToRevoke = body.token;
     const refreshTokenRevoke = body.token.refresh_token;
     const accessTokenRevoke = body.token.access_token;
 
@@ -16,7 +15,8 @@ export default defineEventHandler(async (event) => {
 
     // Hacer la solicitud desde el servidor para revocar el token
     try {
-        const response = await $fetch(revokeTokenURL, {
+
+        const responseRevokeToken = await $fetch(revokeTokenURL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
             }),
         });
 
-        console.log("response", response);
+        console.log("response", responseRevokeToken);
 
         // Devolver la respuesta al cliente
         return {success: true, message: 'Token revocado con éxito'};

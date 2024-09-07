@@ -11,9 +11,10 @@
 const isProcessing = ref(false)
 const authStore = useAuthStore()
 const router = useRouter()
+const route = useRoute()
 const config = useRuntimeConfig()
 
-const { signOut } = useAuth()
+const {signOut} = useAuth()
 
 const handleLogout = async () => {
   isProcessing.value = true
@@ -31,19 +32,20 @@ const handleLogout = async () => {
 
     console.log("response: ", response)
 
-    alert("espera")
+    const logoutUrl = `${config.public.GEONODE_BASEURL}/api/v2/geonuxt/logout`
+    const returnUrl = `${config.public.NUXT_BASE_URL}`
 
-    await signOut()
+    const redirectLogoutUrl = `${logoutUrl}?next=${returnUrl}`
+    console.log("redirectLogoutUrl: ", redirectLogoutUrl)
 
-    console.log("post logout nuxtauth")
+    await signOut({
+      redirect: false,
+    })
+
+    window.location.href = redirectLogoutUrl
 
   } catch (error) {
-    console.log("error")
     console.error(error)
-  } finally {
-    isProcessing.value = false
-    console.log("finally")
-    await router.push('/')
   }
 }
 </script>
