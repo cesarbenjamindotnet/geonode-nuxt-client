@@ -6,7 +6,10 @@
         <NuxtLink href="https://geonode.org" target="_blank" style="text-decoration: none;">geonode.org</NuxtLink>
       </div>
       <div class="col-auto">
-        <NuxtLink href="https://stable.demo.geonode.org/developer/" target="_blank" style="text-decoration: none;">Developers</NuxtLink>
+        <NuxtLink to="/developer" style="text-decoration: none;">Developers</NuxtLink>
+      </div>
+      <div class="col-auto">
+        <NuxtLink to="/help" style="text-decoration: none;">Help</NuxtLink>
       </div>
       <div class="col-auto">
         <NuxtLink to="/about" style="text-decoration: none;">About</NuxtLink>
@@ -15,3 +18,5 @@
     </div>
   </q-footer>
 </template>
+<script setup lang="ts">
+</script>

@@ -94,18 +94,46 @@
     <div class="row">
       <div class="col-auto">
         <q-tabs dense align="left">
-          <q-route-tab no-caps to="/all" label="All Resources"/>
-          <q-route-tab no-caps to="/otra" label="Datasets"/>
-          <q-route-tab no-caps to="/prueba" label="Maps"/>
-          <q-route-tab no-caps to="/otra" label="Documents"/>
-          <q-route-tab no-caps to="/prueba" label="GeoStories"/>
-          <q-route-tab no-caps to="/otra" label="Dashboards"/>
+          <q-route-tab no-caps to="/catalogue/all" label="All Resources"/>
+          <q-route-tab no-caps to="/catalogue/dataset" label="Datasets"/>
+          <q-route-tab no-caps to="/catalogue/map" label="Maps"/>
+          <q-route-tab no-caps to="/catalogue/document" label="Documents"/>
+          <q-route-tab no-caps to="/catalogue/geostory" label="GeoStories"/>
+          <q-route-tab no-caps to="/catalogue/dashboard" label="Dashboards"/>
         </q-tabs>
       </div>
       <q-space/>
       <div class="col-auto">
         <q-tabs dense align="left">
-          <q-tab no-caps label="English">
+          <q-tab no-caps label="Add resource">
+            <q-menu>
+              <q-list dense>
+                <q-item clickable v-close-popup class="q-px-lg">
+                  <q-item-section class="q-px-sm">Upload dataset</q-item-section>
+                </q-item>
+                <q-item clickable v-close-popup>
+                  <q-item-section class="q-px-sm">Upload document</q-item-section>
+                </q-item>
+                <q-separator/>
+                <q-item clickable v-close-popup>
+                  <q-item-section class="q-px-sm">Create dataset</q-item-section>
+                </q-item>
+                <q-item clickable v-close-popup>
+                  <q-item-section class="q-px-sm">Create map</q-item-section>
+                </q-item>
+                <q-item clickable v-close-popup>
+                  <q-item-section class="q-px-sm">Create geostory</q-item-section>
+                </q-item>
+                <q-item clickable v-close-popup>
+                  <q-item-section class="q-px-sm">Create dashboard</q-item-section>
+                </q-item>
+                <q-separator/>
+                <q-item clickable v-close-popup>
+                  <q-item-section class="q-px-sm">Connect remote service</q-item-section>
+                </q-item>
+
+              </q-list>
+            </q-menu>
           </q-tab>
           <q-route-tab no-caps to="/about" label="About"/>
         </q-tabs>

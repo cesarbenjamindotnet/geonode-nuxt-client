@@ -1,7 +1,5 @@
 <template>
-
-  <slot/>
-
+  <Catalogue/>
 </template>
 
 <script setup lang="ts">
