@@ -23,7 +23,7 @@ export default defineNuxtConfig({
             // Scan top-level modules
             'composables',
             // ... or scan all modules within given directory
-            'composables/**'
+            'composables/**',
         ]
     },
     quasar: {

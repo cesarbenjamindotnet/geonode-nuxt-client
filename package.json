@@ -20,9 +20,13 @@
     "next-auth": "^4.21.1",
     "nuxt": "^3.12.4",
     "nuxt-quasar-ui": "^2.1.4",
+    "ol": "^10.1.0",
+    "ol-contextmenu": "^5.5.0",
+    "ol-ext": "^4.0.23",
     "pinia": "^2.2.0",
     "quasar": "^2.16.9",
-    "vue": "latest"
+    "vue": "latest",
+    "vue3-openlayers": "^11.2.0"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.2.2",

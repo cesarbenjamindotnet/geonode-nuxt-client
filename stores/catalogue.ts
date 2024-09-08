@@ -3,26 +3,16 @@
 import {defineStore} from 'pinia';
 
 
-export const useAuthStore = defineStore('auth', {
+export const useCatalogueStore = defineStore('catalogue', {
     state: () => ({
-        isAuthenticated: false,
-        token: null,
-        user: null,
+        filterUsingExtent: false,
+        filterExtent: [-180, -90, 180, 90],
+
     }),
     actions: {
-        setToken(token: any) {
-            this.isAuthenticated = true;
-            this.token = token;
-        },
-        setUser(user: any) {
-            this.isAuthenticated = true;
-            this.user = user;
-        },
-        clearAuth() {
+        clearFilter() {
             // TODO: implementar que se use esta función para cerrar sesión
-            this.isAuthenticated = false;
-            this.token = null;
-            this.user = null;
+            this.filterExtent = [-180, -90, 180, 90];
         },
     },
 });
