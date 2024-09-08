@@ -4,22 +4,22 @@
     <q-drawer v-model="leftDrawerOpen" side="left" bordered>
       <!-- drawer content -->
     </q-drawer>
+    <q-toolbar>
+      <div class="col q-gutter-sm">
+        <q-btn dense @click="toggleLeftDrawer" no-caps color="primary" class="q-px-md">Filter
+          <q-badge :color="filter.length ? 'green' : 'grey-7'" rounded floating label="199"/>
+        </q-btn>
+        <q-btn dense no-caps class="q-px-md" color="grey-7">Order by</q-btn>
+        <!-- <q-chip class="bg-white text-grey-7" style="margin-top: 12px;">X Resources found</q-chip> -->
+      </div>
 
+
+      <q-space/>
+      <q-btn dense flat round :icon="viewMode == 'grid' ? 'mdi-view-grid' : 'mdi-view-list'" @click="toggleViewMode"/>
+
+    </q-toolbar>
     <q-page-container>
-      <q-toolbar class="sticky">
-        <div class="col q-gutter-sm">
-          <q-btn dense @click="toggleLeftDrawer" no-caps color="primary" class="q-px-md">Filter
-            <q-badge :color="filter.length ? 'green' : 'grey-7'" rounded floating label="199"/>
-          </q-btn>
-          <q-btn dense no-caps class="q-px-md" color="grey-7">Order by</q-btn>
-          <!-- <q-chip class="bg-white text-grey-7" style="margin-top: 12px;">X Resources found</q-chip> -->
-        </div>
 
-
-        <q-space/>
-        <q-btn dense flat round :icon="viewMode == 'grid' ? 'mdi-view-grid' : 'mdi-view-list'" @click="toggleViewMode" />
-
-      </q-toolbar>
       <q-separator/>
       <q-page padding>
 

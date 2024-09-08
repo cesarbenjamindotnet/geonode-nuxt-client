@@ -1,126 +1,157 @@
 <template>
-  <div>
-    <q-layout view="hHh lpr fff">
 
+  <q-layout view="lHr Lpr fff" container :style="'height: ' + childLayoutHeight + 'px'">
+
+    <q-header fixed>
+      <q-toolbar class="bg-grey-2 text-grey-9">
+        <div class="col q-gutter-sm">
+          <q-btn dense @click="toggleLeftDrawer" no-caps color="primary" class="q-px-md">Filter
+            <q-badge :color="filter.length ? 'green' : 'grey-7'" rounded floating label="199"/>
+          </q-btn>
+          <q-btn dense no-caps class="q-px-md" color="grey-7">Order by</q-btn>
+        </div>
+        <q-space/>
+        <q-btn dense flat round :icon="viewMode == 'grid' ? 'mdi-view-grid' : 'mdi-view-list'"
+               @click="toggleViewMode"/>
+      </q-toolbar>
+      <q-separator color="grey-5"/>
+    </q-header>
+
+    <q-page-container>
       <q-drawer v-model="leftDrawerOpen" side="left" bordered behavior="desktop">
-        <!-- drawer content -->
-        <div class="row q-px-sm q-py-xs">
-          <div class="col-auto content-center">
-            <span class="text-grey-9"><q-icon name="mdi-filter"/>Filters</span>
-          </div>
-          <q-space/>
-          <div class="col-auto content-center">
-            <q-btn flat dense @click="toggleLeftDrawer" no-caps class="q-px-sm" text-color="grey-8">Clear
-              filters
-            </q-btn>
-            <q-btn flat round dense icon="close" @click="toggleLeftDrawer"/>
-          </div>
+      <!-- drawer content -->
+      <q-toolbar>
+        <span class="text-grey-9"><q-icon name="mdi-filter" style="top: -1.5px"/></span>
+        <span class="text-grey-9 text-bold">Filters</span>
+        <q-space/>
+        <div class="q-pr-sm">
+          <q-btn flat dense @click="toggleLeftDrawer" no-caps class="q-px-sm" text-color="grey-8">
+            Clear filters
+          </q-btn>
         </div>
-        <q-separator color="grey-2"/>
-        <!-- <p>{{ ticked }}</p> -->
-        <div class="row q-pa-md">
-          <div class="col-auto full-width">
-            <div class="row q-pb-md">
-              <InputSearch v-model="search"/>
-            </div>
-            <div class="row">
-              <b>Resources</b>
-            </div>
-            <div class="row q-pb-md" style="margin-top: 0">
-              <q-tree
-                  :nodes="resource_tree_nodes"
-                  v-model:ticked="ticked"
-                  node-key="value"
-                  tick-strategy="leaf"
-                  default-expand-all
-                  no-connectors
-              />
-            </div>
-            <div class="row">
-              <b>Category</b>
-            </div>
-            <div class="row q-pb-md" style="margin-top: 4px;">
-              <p>{{ categoriesSelected }}</p>
-              <q-select outlined dense v-model="categoriesSelected" :options="categoriesList" label="Select categories"
-                        use-chips clearable
-                        option-value="key"
-                        :option-label="(item) => item.label + ' (' + item.count + ')'"
-                        emit-value
-                        map-options
-                        multiple use-input class="full-width" @scroll="handleCategoriesScroll" :loading="categoriesLoading" />
-            </div>
-            <div class="row">
-              <b>Keyword</b>
-            </div>
-            <div class="row q-pb-md" style="margin-top: 4px;">
-              <p>{{ keywordsSelected }}</p>
-              <q-select outlined dense v-model="keywordsSelected" :options="keywordsList" label="Select keywords"
-                        option-value="key" :option-label="(item) => item.label + ' (' + item.count + ')'" multiple
-                        use-input use-chips clearable emit-value map-options
-                        class="full-width" @scroll="handleKeywordsScroll" :loading="keywordsLoading" />
-            </div>
-            <div class="row">
-              <b>Region</b>
-            </div>
-            <div class="row q-pb-md" style="margin-top: 4px;">
-              <p>{{ regionsSelected }}</p>
-              <q-select outlined dense v-model="regionsSelected" :options="regionsList" label="Select keywords"
-                        option-value="key" :option-label="(item) => item.label + ' (' + item.count + ')'" multiple
-                        use-input use-chips clearable emit-value map-options
-                        class="full-width" @scroll="handleRegionsScroll" :loading="regionsLoading" />
-            </div>
-            <div class="row">
-              <b>Owner</b>
-            </div>
-            <div class="row q-pb-md" style="margin-top: 4px;">
-              <p>{{ ownersSelected }}</p>
-              <q-select outlined dense v-model="ownersSelected" :options="ownersList" label="Select keywords"
-                        option-value="key" :option-label="(item) => item.label + ' (' + item.count + ')'" multiple
-                        use-input use-chips clearable emit-value map-options
-                        class="full-width" @scroll="handleOwnersScroll" :loading="ownersLoading" />
-            </div>
-            <div class="row">
-              <b>Group</b>
-            </div>
-            <div class="row q-pb-md" style="margin-top: 4px;">
-              <p>{{ groupsSelected }}</p>
-              <q-select outlined dense v-model="groupsSelected" :options="groupsList" label="Select keywords"
-                        option-value="key" :option-label="(item) => item.label + ' (' + item.count + ')'" multiple
-                        use-input use-chips clearable emit-value map-options
-                        class="full-width" @scroll="handleGroupsScroll" :loading="groupsLoading" />
-            </div>
-            <div class="row">
-              <b>Extent</b>
-            </div>
-            <div class="row" style="margin-top: 4px;">
-              <q-select model-value="all" outlined class="full-width" :options="resource_types" label="Resource type"
-                        dense/>
-            </div>
-
+        <q-btn flat round dense size="sm" icon="close" @click="toggleLeftDrawer"/>
+      </q-toolbar>
+      <q-separator color="grey-2"/>
+      <!-- <p>{{ ticked }}</p> -->
+      <div class="row q-pa-md">
+        <div class="col-auto full-width">
+          <div class="row q-pb-md">
+            <InputSearch v-model="search"/>
           </div>
+          <div class="row">
+            <b>Resources</b>
+          </div>
+          <div class="row q-pb-md" style="margin-top: 0">
+            <q-tree
+                :nodes="resource_tree_nodes"
+                v-model:ticked="ticked"
+                node-key="value"
+                tick-strategy="leaf"
+                default-expand-all
+                no-connectors
+            />
+          </div>
+          <div class="row">
+            <b>Category</b>
+          </div>
+          <div class="row q-pb-md" style="margin-top: 4px;">
+            <p>{{ categoriesSelected }}</p>
+            <q-select outlined dense v-model="categoriesSelected" :options="categoriesList" label="Select categories"
+                      use-chips clearable
+                      option-value="key"
+                      :option-label="(item) => item.label + ' (' + item.count + ')'"
+                      emit-value
+                      map-options
+                      multiple use-input class="full-width" @scroll="handleCategoriesScroll"
+                      :loading="categoriesLoading"/>
+          </div>
+          <div class="row">
+            <b>Keyword</b>
+          </div>
+          <div class="row q-pb-md" style="margin-top: 4px;">
+            <p>{{ keywordsSelected }}</p>
+            <q-select outlined dense v-model="keywordsSelected" :options="keywordsList" label="Select keywords"
+                      option-value="key" :option-label="(item) => item.label + ' (' + item.count + ')'" multiple
+                      use-input use-chips clearable emit-value map-options
+                      class="full-width" @scroll="handleKeywordsScroll" :loading="keywordsLoading"/>
+          </div>
+          <div class="row">
+            <b>Region</b>
+          </div>
+          <div class="row q-pb-md" style="margin-top: 4px;">
+            <p>{{ regionsSelected }}</p>
+            <q-select outlined dense v-model="regionsSelected" :options="regionsList" label="Select keywords"
+                      option-value="key" :option-label="(item) => item.label + ' (' + item.count + ')'" multiple
+                      use-input use-chips clearable emit-value map-options
+                      class="full-width" @scroll="handleRegionsScroll" :loading="regionsLoading"/>
+          </div>
+          <div class="row">
+            <b>Owner</b>
+          </div>
+          <div class="row q-pb-md" style="margin-top: 4px;">
+            <p>{{ ownersSelected }}</p>
+            <q-select outlined dense v-model="ownersSelected" :options="ownersList" label="Select keywords"
+                      option-value="key" :option-label="(item) => item.label + ' (' + item.count + ')'" multiple
+                      use-input use-chips clearable emit-value map-options
+                      class="full-width" @scroll="handleOwnersScroll" :loading="ownersLoading"/>
+          </div>
+          <div class="row">
+            <b>Group</b>
+          </div>
+          <div class="row q-pb-md" style="margin-top: 4px;">
+            <p>{{ groupsSelected }}</p>
+            <q-select outlined dense v-model="groupsSelected" :options="groupsList" label="Select keywords"
+                      option-value="key" :option-label="(item) => item.label + ' (' + item.count + ')'" multiple
+                      use-input use-chips clearable emit-value map-options
+                      class="full-width" @scroll="handleGroupsScroll" :loading="groupsLoading"/>
+          </div>
+          <div class="row">
+            <b>Extent</b>
+          </div>
+          <div class="row" style="margin-top: 4px;">
+            <q-select model-value="all" outlined class="full-width" :options="resource_types" label="Resource type"
+                      dense/>
+          </div>
+
         </div>
-      </q-drawer>
+      </div>
+    </q-drawer>
+      <q-page padding>
+        <p>aaa</p>
+        <p>aaa</p>
+        <p>aaa</p>
+        <p>aaa</p>
+        <p>aaa</p>
+        <p>aaa</p>
+        <p>aaa</p>
+        <p>aaa</p>
+        <p>aaa</p>
+        <p>aaa</p>
+        <p>aaa</p>
+        <p>aaa</p>
+        <p>aaa</p>
+        <p>aaa</p>
+        <p>aaa</p>
+        <p>aaa</p>
+        <p>aaa</p>
+        <p>aaa</p>
+        <p>aaa</p>
+        <p>aaa</p>
+        <p>aaa</p>
+        <p>aaa</p>
+        <p>aaa</p>
+        <p>aaa</p>
+        <p>aaa</p>
+        <p>aaa</p>
+        <p>aaa</p>
+        <p>aaa</p>
+        <p>aaa</p>
+        <p>aaa</p>
+        <p>aaa</p>
+      </q-page>
+    </q-page-container>
+  </q-layout>
 
-      <q-page-container>
-        <q-toolbar class="sticky">
-          <div class="col q-gutter-sm">
-            <q-btn dense @click="toggleLeftDrawer" no-caps color="primary" class="q-px-md">Filter
-              <q-badge :color="filter.length ? 'green' : 'grey-7'" rounded floating label="199"/>
-            </q-btn>
-            <q-btn dense no-caps class="q-px-md" color="grey-7">Order by</q-btn>
-          </div>
-          <q-space/>
-          <q-btn dense flat round :icon="viewMode == 'grid' ? 'mdi-view-grid' : 'mdi-view-list'"
-                 @click="toggleViewMode"/>
-        </q-toolbar>
-        <q-separator/>
-        <q-page padding>
-aaa
-        </q-page>
-      </q-page-container>
-
-    </q-layout>
-  </div>
 </template>
 
 <script setup lang="ts">
@@ -129,6 +160,7 @@ import InputSearch from "~/components/catalogue/InputSearch.vue";
 
 const router = useRouter()
 const route = useRoute()
+const $q = useQuasar()
 
 const leftDrawerOpen = ref(false)
 
@@ -173,6 +205,9 @@ const groupsHasMore = ref(true);
 const filter = ref([1])
 const viewMode = ref("grid")
 
+const childLayoutHeight = computed(() => {
+  return $q.screen.height - 117
+})
 
 const resource_types = [
   {value: "all", label: "All"},
@@ -347,7 +382,6 @@ const handleKeywordsScroll = (event) => {
 };
 
 
-
 const fetchRegions = async () => {
   if (regionsLoading.value || !regionsHasMore.value) return;
   regionsLoading.value = true;
@@ -441,7 +475,6 @@ const handleGroupsScroll = (event) => {
 };
 
 
-
 // Inicializamos el estado de 'ticked' cuando se monta el componente
 onMounted(() => {
   initializeTickedFromQuery()
@@ -460,5 +493,7 @@ watch([ticked, search], () => {
 </script>
 
 <style scoped>
-
+.q-page-container {
+  padding-top: 87px; /* Ajusta este valor según la altura del header del hijo */
+}
 </style>

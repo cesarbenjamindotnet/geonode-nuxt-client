@@ -1,6 +1,5 @@
 <template>
-  <q-header reveal bordered>
-
+  <q-header bordered>
     <q-toolbar class="bg-white text-grey-10 justify-between">
       <div class="col-auto">
         <div class="row">
