@@ -21,7 +21,7 @@
     </q-header>
 
     <q-page-container>
-      <q-drawer v-model="leftDrawerOpen" side="left" bordered behavior="desktop">
+      <q-drawer v-model="leftDrawerOpen" side="left" bordered behavior="desktop" :width="leftDrawerWidth">
         <!-- drawer content -->
         <q-toolbar>
           <span class="text-grey-9"><q-icon name="mdi-filter" style="top: -1.5px"/></span>
@@ -65,7 +65,7 @@
                         :option-label="(item) => item.label + ' (' + item.count + ')'"
                         emit-value
                         map-options
-                        multiple use-input class="full-width" @scroll="handleCategoriesScroll"
+                        multiple use-input class="full-width" @virtual-scroll="handleCategoriesScroll"
                         :loading="categoriesLoading"/>
             </div>
             <div class="row">
@@ -76,7 +76,7 @@
               <q-select outlined dense v-model="keywordsSelected" :options="keywordsList" label="Select keywords"
                         option-value="key" :option-label="(item) => item.label + ' (' + item.count + ')'" multiple
                         use-input use-chips clearable emit-value map-options
-                        class="full-width" @scroll="handleKeywordsScroll" :loading="keywordsLoading"/>
+                        class="full-width" @virtual-scroll="handleKeywordsScroll" :loading="keywordsLoading"/>
             </div>
             <div class="row">
               <b>Region</b>
@@ -110,16 +110,17 @@
             </div>
             <div class="row">
               <q-toggle
-                    v-model="catalogueStore.filterUsingExtent"
-                    checked-icon="mdi-map"
-                    color="primary"
-                    label="Extent"
-                    unchecked-icon="clear"
-                />
+                  v-model="catalogueStore.filterUsingExtent"
+                  checked-icon="mdi-map"
+                  color="primary"
+                  label="Extent"
+                  unchecked-icon="clear"
+              />
             </div>
             <div class="row" style="margin-top: 4px;">
               <CatalogueFilterExtentMap/>
             </div>
+            <p><!-- end spacer --></p>
 
           </div>
         </div>
@@ -171,11 +172,11 @@ const $q = useQuasar()
 
 const leftDrawerOpen = ref(false)
 
-const search = ref("")
+const search = ref(undefined)
 const ticked = ref([])
 
 const categoriesList = ref([]);
-const categoriesSelected = ref([]);
+const categoriesSelected = ref(null);
 const categoriesLoading = ref(false);
 const categoriesPage = ref(0);
 const categoriesPageSize = 20;
@@ -214,6 +215,16 @@ const viewMode = ref("grid")
 
 const childLayoutHeight = computed(() => {
   return $q.screen.height - 117
+})
+
+const leftDrawerWidth = computed(() => {
+  if ($q.screen.width < 400 && $q.screen.width >= 300) {
+    return 300
+  } else if ($q.screen.width < 300) {
+    return $q.screen.width
+  } else {
+    return 400
+  }
 })
 
 const resource_types = [
@@ -257,7 +268,10 @@ const toggleViewMode = () => {
 
 // Función para actualizar los query params en la URL cuando se seleccionan nodos
 const updateQueryParams = (selected) => {
+
   const queryParams = {...route.query}
+
+  console.log("queryParams", queryParams)
 
   // Obtener los nodos hijos del tipo 'dataset'
   const datasetNode = resource_tree_nodes.find(node => node.value === 'dataset')
@@ -297,6 +311,13 @@ const updateQueryParams = (selected) => {
   // Actualizamos el parámetro `q` con el valor del input de búsqueda
   queryParams.q = search.value || undefined
 
+  // Agregamos los filtros de categorías desde `categoriesList`
+  if (!!categoriesSelected.value && categoriesSelected.value.length > 0) {
+    queryParams[`filter{category.identifier.in}`] = categoriesSelected.value
+  } else {
+    delete queryParams[`filter{category.identifier.in}`]
+  }
+
   // Navegamos a la URL con los nuevos query params
   router.push({query: queryParams})
 }
@@ -331,12 +352,16 @@ const initializeTickedFromQuery = () => {
 
 // Función para cargar categorías usando useFetch
 const fetchCategories = async () => {
+  console.log("categoriesLoading.value", categoriesLoading.value)
+  console.log("categoriesHasMore.value", !categoriesHasMore.value)
   if (categoriesLoading.value || !categoriesHasMore.value) return;
+  console.log("meh")
   categoriesLoading.value = true;
 
   try {
-    const {data} = await useFetch(`https://development.demo.geonode.org/api/v2/facets/category?page=${categoriesPage.value}&pageSize=${categoriesPageSize}`);
-    console.log("data", data.value)
+    const {data} = await useFetch(`https://development.demo.geonode.org/api/v2/facets/category?page=${categoriesPage.value}&page_size=${categoriesPageSize}`);
+    console.log("data", data)
+    console.log("data value", data.value)
     const newCategories = data.value.topics.items; // Ajusta esto según la estructura de tu respuesta API
 
     if (newCategories.length > 0) {
@@ -353,9 +378,8 @@ const fetchCategories = async () => {
 };
 
 // Manejar el evento de scroll
-const handleCategoriesScroll = (event) => {
-  const bottom = event.target.scrollHeight === event.target.scrollTop + event.target.clientHeight;
-  if (bottom) {
+const handleCategoriesScroll = ({to}) => {
+  if (!categoriesLoading.value && categoriesHasMore.value && to === categoriesList.value.length - 1) {
     fetchCategories();
   }
 };
@@ -365,7 +389,7 @@ const fetchKeywords = async () => {
   keywordsLoading.value = true;
 
   try {
-    const {data} = await useFetch(`https://development.demo.geonode.org/api/v2/facets/keyword?page=${keywordsPage.value}&pageSize=${keywordsPageSize}`);
+    const {data} = await useFetch(`https://development.demo.geonode.org/api/v2/facets/keyword?page=${keywordsPage.value}&page_size=${keywordsPageSize}`);
     console.log("data", data.value)
     const newKeywords = data.value.topics.items; // Ajusta esto según la estructura de tu respuesta API
 
@@ -383,20 +407,18 @@ const fetchKeywords = async () => {
 };
 
 // Manejar el evento de scroll
-const handleKeywordsScroll = (event) => {
-  const bottom = event.target.scrollHeight === event.target.scrollTop + event.target.clientHeight;
-  if (bottom) {
+const handleKeywordsScroll = ({to}) => {
+  if (!keywordsLoading.value && keywordsHasMore.value && to === keywordsList.value.length - 1) {
     fetchKeywords();
   }
-};
-
+}
 
 const fetchRegions = async () => {
   if (regionsLoading.value || !regionsHasMore.value) return;
   regionsLoading.value = true;
 
   try {
-    const {data} = await useFetch(`https://development.demo.geonode.org/api/v2/facets/region?page=${regionsPage.value}&pageSize=${regionsPageSize}`);
+    const {data} = await useFetch(`https://development.demo.geonode.org/api/v2/facets/region?page=${regionsPage.value}&page_size=${regionsPageSize}`);
     console.log("data", data.value)
     const newRegions = data.value.topics.items; // Ajusta esto según la estructura de tu respuesta API
 
@@ -411,23 +433,20 @@ const fetchRegions = async () => {
   } finally {
     regionsLoading.value = false;
   }
-};
+}
 
-// Manejar el evento de scroll
-const handleRegionsScroll = (event) => {
-  const bottom = event.target.scrollHeight === event.target.scrollTop + event.target.clientHeight;
-  if (bottom) {
+const handleRegionsScroll = ({to}) => {
+  if (!regionsLoading.value && regionsHasMore.value && to === regionsList.value.length - 1) {
     fetchRegions();
   }
-};
-
+}
 
 const fetchOwners = async () => {
   if (ownersLoading.value || !ownersHasMore.value) return;
   ownersLoading.value = true;
 
   try {
-    const {data} = await useFetch(`https://development.demo.geonode.org/api/v2/facets/owner?page=${ownersPage.value}&pageSize=${ownersPageSize}`);
+    const {data} = await useFetch(`https://development.demo.geonode.org/api/v2/facets/owner?page=${ownersPage.value}&page_size=${ownersPageSize}`);
     console.log("data", data.value)
     const newOwners = data.value.topics.items; // Ajusta esto según la estructura de tu respuesta API
 
@@ -444,21 +463,18 @@ const fetchOwners = async () => {
   }
 };
 
-// Manejar el evento de scroll
-const handleOwnersScroll = (event) => {
-  const bottom = event.target.scrollHeight === event.target.scrollTop + event.target.clientHeight;
-  if (bottom) {
+const handleOwnersScroll = ({to}) => {
+  if (!ownersLoading.value && ownersHasMore.value && to === ownersList.value.length - 1) {
     fetchOwners();
   }
-};
-
+}
 
 const fetchGroups = async () => {
   if (groupsLoading.value || !groupsHasMore.value) return;
   groupsLoading.value = true;
 
   try {
-    const {data} = await useFetch(`https://development.demo.geonode.org/api/v2/facets/group?page=${groupsPage.value}&pageSize=${groupsPageSize}`);
+    const {data} = await useFetch(`https://development.demo.geonode.org/api/v2/facets/group?page=${groupsPage.value}&page_size=${groupsPageSize}`);
     console.log("data", data.value)
     const newGroups = data.value.topics.items; // Ajusta esto según la estructura de tu respuesta API
 
@@ -475,34 +491,31 @@ const fetchGroups = async () => {
   }
 };
 
-// Manejar el evento de scroll
-const handleGroupsScroll = (event) => {
-  const bottom = event.target.scrollHeight === event.target.scrollTop + event.target.clientHeight;
-  if (bottom) {
+const handleGroupsScroll = ({to}) => {
+  if (!groupsLoading.value && groupsHasMore.value && to === groupsList.value.length - 1) {
     fetchGroups();
   }
-};
-
+}
 
 // Inicializamos el estado de 'ticked' cuando se monta el componente
 onMounted(() => {
   initializeTickedFromQuery()
-  fetchCategories()
-  fetchKeywords()
-  fetchRegions()
-  fetchOwners()
-  fetchGroups()
+  setTimeout(() => {
+    fetchCategories()
+    fetchKeywords()
+    fetchRegions()
+    fetchOwners()
+    fetchGroups()
+  }, 100)
 })
 
 // Observamos los cambios en 'ticked' para actualizar la URL
-watch([ticked, search], () => {
+watch([ticked, search, categoriesSelected], () => {
   updateQueryParams(ticked.value)
 })
 
 </script>
 
 <style scoped>
-.q-page-container {
-  padding-top: 87px; /* Ajusta este valor según la altura del header del hijo */
-}
+
 </style>
