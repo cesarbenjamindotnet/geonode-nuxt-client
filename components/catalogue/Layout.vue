@@ -267,7 +267,7 @@ const toggleViewMode = () => {
 }
 
 // Función para actualizar los query params en la URL cuando se seleccionan nodos
-const updateQueryParams = (selected) => {
+const updateQueryParams = () => {
 
   const queryParams = {...route.query}
 
@@ -279,11 +279,11 @@ const updateQueryParams = (selected) => {
   let datasetSelected = false
 
   // Verificar si todos los hijos de 'dataset' están seleccionados
-  const datasetTicked = selected.filter(item => datasetChildren.includes(item))
+  const datasetTicked = ticked.value.filter(item => datasetChildren.includes(item))
   const allDatasetChildrenSelected = datasetTicked.length === datasetChildren.length
 
   // Creamos los query params f para cada nodo ticked
-  let filters = selected.reduce((acc, item) => {
+  let filters = ticked.value.reduce((acc, item) => {
     // Si es un hijo de dataset
     if (datasetChildren.includes(item)) {
       datasetSelected = true
@@ -511,7 +511,7 @@ onMounted(() => {
 
 // Observamos los cambios en 'ticked' para actualizar la URL
 watch([ticked, search, categoriesSelected], () => {
-  updateQueryParams(ticked.value)
+  updateQueryParams()
 })
 
 </script>
