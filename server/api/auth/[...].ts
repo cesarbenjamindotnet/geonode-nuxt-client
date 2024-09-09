@@ -82,7 +82,7 @@ if (!process.env.NUXT_GEONODE_ISSUER || !process.env.NUXT_GEONODE_CLIENT_ID || !
 }
 
 // Función para comprobar si el token ha expirado
-function isTokenExpired(expiresAt: number) {
+function isTokenExpired(expiresAt: any) {
     return Date.now() >= expiresAt * 1000;
 }
 
@@ -116,7 +116,7 @@ export default NuxtAuthHandler({
 
     callbacks: {
         async session({session, token}) {
-            if (token) {
+            if (token && token.user) {
                 session.user = token.user
             }
             return session;
