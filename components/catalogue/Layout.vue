@@ -118,7 +118,7 @@
               />
             </div>
             <div class="row" style="margin-top: 4px;">
-              <CatalogueFilterExtentMap />
+              <CatalogueFilterExtentMap/>
             </div>
             <p><!-- end spacer --></p>
 
@@ -176,7 +176,7 @@ const search = ref(undefined)
 const ticked = ref([])
 
 const categoriesList = ref([]);
-const categoriesSelected = ref(null);
+const categoriesSelected = ref([]);
 const categoriesLoading = ref(false);
 const categoriesPage = ref(0);
 const categoriesPageSize = 20;
@@ -316,6 +316,39 @@ const updateQueryParams = () => {
     queryParams[`filter{category.identifier.in}`] = categoriesSelected.value
   } else {
     delete queryParams[`filter{category.identifier.in}`]
+  }
+
+  if (!!keywordsSelected.value && keywordsSelected.value.length > 0) {
+    queryParams[`filter{keywords.slug.in}`] = keywordsSelected.value
+  } else {
+    delete queryParams[`filter{keywords.slug.in}`]
+  }
+
+  if (!!regionsSelected.value && regionsSelected.value.length > 0) {
+    queryParams[`filter{regions.code.in}`] = regionsSelected.value
+  } else {
+    delete queryParams[`filter{regions.code.in}`]
+  }
+
+  if (!!ownersSelected.value && ownersSelected.value.length > 0) {
+    queryParams[`filter{owner.pk.in}`] = ownersSelected.value
+  } else {
+    delete queryParams[`filter{owner.pk.in}`]
+  }
+
+  if (!!groupsSelected.value && groupsSelected.value.length > 0) {
+    queryParams[`filter{group.in}`] = groupsSelected.value
+  } else {
+    delete queryParams[`filter{group.in}`]
+  }
+
+  if (catalogueStore.filterUsingExtent === true) {
+    console.log("catalogueStore.filterExtent", catalogueStore.filterExtent)
+    const [xmin, ymin, xmax, ymax] = catalogueStore.filterExtent
+    queryParams.extent = `${xmin},${ymin},${xmax},${ymax}`
+  } else {
+    console.log("catalogueStore.filterExtent", catalogueStore.filterExtent)
+    delete queryParams.extent
   }
 
   // Navegamos a la URL con los nuevos query params
@@ -510,7 +543,7 @@ onMounted(() => {
 })
 
 // Observamos los cambios en 'ticked' para actualizar la URL
-watch([ticked, search, categoriesSelected], () => {
+watch([ticked, search, categoriesSelected, keywordsSelected, regionsSelected, ownersSelected, groupsSelected, () => catalogueStore.filterUsingExtent, () => catalogueStore.filterExtent], () => {
   updateQueryParams()
 })
 
