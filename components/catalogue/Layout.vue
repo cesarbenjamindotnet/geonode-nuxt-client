@@ -118,7 +118,7 @@
               />
             </div>
             <div class="row" style="margin-top: 4px;">
-              <CatalogueFilterExtentMap/>
+              <CatalogueFilterExtentMap />
             </div>
             <p><!-- end spacer --></p>
 

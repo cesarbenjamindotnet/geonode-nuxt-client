@@ -2,11 +2,12 @@
   <q-card style="width: 100%;">
     <client-only>
       <ol-map v-if="true" ref="olMapRef" style="height: 168px; width: 100%;">
-        <ol-view ref="olViewRef" :center="center" :zoom="-4" @change="mapChanged" :projection="'EPSG:4326'"/>
+        <ol-view ref="olViewRef" :center="center" :zoom="-4" @change="mapChanged" :projection="'EPSG:4326'"
+                 :extent="[-180, -90, 180, 90]"/>
         <ol-tile-layer>
           <ol-source-osm/>
         </ol-tile-layer>
-        <ol-vector-layer v-if="catalogueStore.filterUsingExtent">
+        <ol-vector-layer v-if="catalogueStore.filterUsingExtent" :key="catalogueStore.filterUsingExtent">
           <ol-source-vector>
             <ol-feature>
               <ol-geom-polygon :coordinates="polygonCoordinates"></ol-geom-polygon>
@@ -26,7 +27,15 @@
 const olMapRef = ref(null);
 const olViewRef = ref(null);
 const catalogueStore = useCatalogueStore();
-const polygonCoordinates = ref([]);
+const polygonCoordinates = ref([
+    [
+        [-180, -90],
+        [-180, 90],
+        [180, 90],
+        [180, -90],
+        [-180, -90],
+    ]
+]);
 const center = ref([0, 0]);
 
 function mapChanged(event) {
