@@ -359,6 +359,17 @@ const updateQueryParams = () => {
 const initializeTickedFromQuery = () => {
   const queryParamsTicked = route.query.f
   const queryParamsSearch = route.query.q
+  const queryParamsCategories = route.query['filter{category.identifier.in}']
+  const queryParamsKeywords = route.query['filter{keywords.slug.in}']
+  const queryParamsRegions = route.query['filter{regions.code.in}']
+  const queryParamsOwners = route.query['filter{owner.pk.in}']
+  const queryParamsGroups = route.query['filter{group.in}']
+  const queryParamsExtent = route.query.extent
+
+
+  if (Object.keys(route.query).length > 0) {
+    leftDrawerOpen.value = true
+  }
 
   if (queryParamsTicked) {
     const selectedValues = Array.isArray(queryParamsTicked) ? queryParamsTicked : [queryParamsTicked]
@@ -372,15 +383,49 @@ const initializeTickedFromQuery = () => {
         return false
       })
     })
-    if (ticked.value.length > 0) {
-      leftDrawerOpen.value = true
-    }
+
   }
+
   if (queryParamsSearch) {
-    if (typeof queryParamsSearch === "string") {
-      search.value = queryParamsSearch
-    }
+    search.value = queryParamsSearch
   }
+
+  if (queryParamsCategories) {
+    categoriesSelected.value = Array.isArray(queryParamsCategories) ? queryParamsCategories : [queryParamsCategories]
+  }
+
+  if (queryParamsKeywords) {
+    keywordsSelected.value = Array.isArray(queryParamsKeywords) ? queryParamsKeywords : [queryParamsKeywords]
+  }
+
+  if (queryParamsRegions) {
+    regionsSelected.value = Array.isArray(queryParamsRegions) ? queryParamsRegions : [queryParamsRegions]
+  }
+
+  if (queryParamsOwners) {
+    ownersSelected.value = Array.isArray(queryParamsOwners) ? queryParamsOwners : [queryParamsOwners]
+  }
+
+  if (queryParamsGroups) {
+    groupsSelected.value = Array.isArray(queryParamsGroups) ? queryParamsGroups : [queryParamsGroups]
+  }
+
+  if (queryParamsExtent) {
+    console.log("queryParamsExtent", queryParamsExtent)
+    const [xmin, ymin, xmax, ymax] = queryParamsExtent.split(',')
+    catalogueStore.filterUsingExtent = true
+    catalogueStore.filterExtent = [xmin, ymin, xmax, ymax]
+    catalogueStore.filterExtentPolygon = [
+      [
+        [xmin, ymin],
+        [xmin, ymax],
+        [xmax, ymax],
+        [xmax, ymin],
+        [xmin, ymin],
+      ],
+    ]
+  }
+
 }
 
 // Función para cargar categorías usando useFetch

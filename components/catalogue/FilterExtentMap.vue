@@ -28,7 +28,13 @@ const olMapRef = ref(null);
 const olViewRef = ref(null);
 const catalogueStore = useCatalogueStore();
 const center = ref([0, 0]);
-const extent = ref([-180, -90, 180, 90]);
+const extent = ref(catalogueStore.filterExtent);
+
+/*
+if (catalogueStore.filterExtent) {
+  extent.value = catalogueStore.filterExtent;
+}
+*/
 
 function moveEnd() {
   catalogueStore.filterExtent = olViewRef.value.calculateExtent();
