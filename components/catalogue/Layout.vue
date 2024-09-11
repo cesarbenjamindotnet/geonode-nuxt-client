@@ -384,6 +384,7 @@ const initializeTickedFromQuery = () => {
   }
 
   if (queryParamsKeywords) {
+    console.log("queryParamsKeywords", queryParamsKeywords)
     keywordsSelected.value = Array.isArray(queryParamsKeywords) ? queryParamsKeywords : [queryParamsKeywords]
   }
 
