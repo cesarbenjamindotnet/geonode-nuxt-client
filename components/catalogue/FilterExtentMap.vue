@@ -29,28 +29,39 @@ const olViewRef = ref(null);
 const catalogueStore = useCatalogueStore();
 const center = ref([0, 0]);
 const extent = ref(catalogueStore.filterExtent);
-
+const mounted = ref(false);
 /*
 if (catalogueStore.filterExtent) {
   extent.value = catalogueStore.filterExtent;
 }
 */
 
+// Si se carga el componente con un extent ya establecido
+onMounted(() => {
+  setTimeout(() => {
+    mounted.value = true;
+    olViewRef.value.fit(catalogueStore.filterExtent);
+  }, 300);
+});
+
 function moveEnd() {
-  catalogueStore.filterExtent = olViewRef.value.calculateExtent();
-  const [xmin, ymin, xmax, ymax] = catalogueStore.filterExtent;
+  if (mounted.value) {
 
-  catalogueStore.filterExtentPolygon = [
-    [
-      [xmin, ymin],
-      [xmin, ymax],
-      [xmax, ymax],
-      [xmax, ymin],
-      [xmin, ymin],
-    ],
-  ];
+    catalogueStore.filterExtent = olViewRef.value.calculateExtent();
+    const [xmin, ymin, xmax, ymax] = catalogueStore.filterExtent;
 
-  console.log("catalogueStore.filterExtentPolygon", catalogueStore.filterExtentPolygon);
+    catalogueStore.filterExtentPolygon = [
+      [
+        [xmin, ymin],
+        [xmin, ymax],
+        [xmax, ymax],
+        [xmax, ymin],
+        [xmin, ymin],
+      ],
+    ];
+
+    console.log("catalogueStore.filterExtentPolygon", catalogueStore.filterExtentPolygon);
+  }
 }
 
 </script>
