@@ -154,6 +154,29 @@
 </template>
 
 <script setup lang="ts">
+import type {LocationQueryValue} from 'vue-router';
+
+interface ScrollEvent {
+  to: number;
+}
+
+interface CategoryItem {
+  key: string;
+  label: string;
+  count: number;
+  fa_class: string;
+}
+
+interface FacetsResponse {
+  page: number;
+  page_size: number;
+  start: number;
+  total: number;
+  topics: {
+    items: CategoryItem[];
+  };
+}
+
 const catalogueStore = useCatalogueStore()
 const router = useRouter()
 const route = useRoute()
@@ -161,39 +184,39 @@ const $q = useQuasar()
 
 const leftDrawerOpen = ref(false)
 
-const search = ref(undefined)
-const ticked = ref([])
+const search = ref<string | undefined>(undefined)
+const ticked = ref<LocationQueryValue[]>([])
 
-const categoriesList = ref([]);
-const categoriesSelected = ref([]);
+const categoriesList = ref<any>([]);
+const categoriesSelected = ref<LocationQueryValue[]>([]);
 const categoriesLoading = ref(false);
 const categoriesPage = ref(0);
 const categoriesPageSize = 20;
 const categoriesHasMore = ref(true);
 
-const keywordsList = ref([]);
-const keywordsSelected = ref([]);
+const keywordsList = ref<any>([]);
+const keywordsSelected = ref<LocationQueryValue[]>([]);
 const keywordsLoading = ref(false);
 const keywordsPage = ref(0);
 const keywordsPageSize = 20;
 const keywordsHasMore = ref(true);
 
-const regionsList = ref([]);
-const regionsSelected = ref([]);
+const regionsList = ref<any>([]);
+const regionsSelected = ref<LocationQueryValue[]>([]);
 const regionsLoading = ref(false);
 const regionsPage = ref(0);
 const regionsPageSize = 20;
 const regionsHasMore = ref(true);
 
-const ownersList = ref([]);
-const ownersSelected = ref([]);
+const ownersList = ref<any>([]);
+const ownersSelected = ref<LocationQueryValue[]>([]);
 const ownersLoading = ref(false);
 const ownersPage = ref(0);
 const ownersPageSize = 20;
 const ownersHasMore = ref(true);
 
-const groupsList = ref([]);
-const groupsSelected = ref([]);
+const groupsList = ref<any>([]);
+const groupsSelected = ref<LocationQueryValue[]>([]);
 const groupsLoading = ref(false);
 const groupsPage = ref(0);
 const groupsPageSize = 20;
@@ -216,14 +239,6 @@ const leftDrawerWidth = computed(() => {
   }
 })
 
-const resource_types = [
-  {value: "all", label: "All"},
-  {value: "dataset", label: "Datasets"},
-  {value: "map", label: "Maps"},
-  {value: "document", label: "documents"},
-  {value: "geostory", label: "Geostories"},
-  {value: "dashboard", label: "Dashboards"},
-]
 
 const resource_tree_nodes = [
   {value: 'my-resources', label: 'My resources'},
@@ -264,7 +279,7 @@ const updateQueryParams = () => {
 
   // Obtener los nodos hijos del tipo 'dataset'
   const datasetNode = resource_tree_nodes.find(node => node.value === 'dataset')
-  const datasetChildren = datasetNode?.children?.map(child => child.value) || []
+  const datasetChildren: LocationQueryValue[] = datasetNode?.children?.map(child => child.value) || []
   let datasetSelected = false
 
   // Verificar si todos los hijos de 'dataset' están seleccionados
@@ -272,8 +287,8 @@ const updateQueryParams = () => {
   const allDatasetChildrenSelected = datasetTicked.length === datasetChildren.length
 
   // Creamos los query params f para cada nodo ticked
-  let filters = ticked.value.reduce((acc, item) => {
-    // Si es un hijo de dataset
+  let filters: LocationQueryValue[]
+  filters = ticked.value.reduce<LocationQueryValue[]>((acc, item) => {
     if (datasetChildren.includes(item)) {
       datasetSelected = true
       if (!allDatasetChildrenSelected) {
@@ -298,7 +313,9 @@ const updateQueryParams = () => {
   }
 
   // Actualizamos el parámetro `q` con el valor del input de búsqueda
-  queryParams.q = search.value || undefined
+  if (search.value) {
+    queryParams.q = search.value
+  }
 
   // Agregamos los filtros de categorías desde `categoriesList`
   if (!!categoriesSelected.value && categoriesSelected.value.length > 0) {
@@ -346,14 +363,14 @@ const updateQueryParams = () => {
 
 // Función para inicializar el estado de 'ticked' según los query params
 const initializeTickedFromQuery = () => {
-  const queryParamsTicked = route.query.f
-  const queryParamsSearch = route.query.q
-  const queryParamsCategories = route.query['filter{category.identifier.in}']
-  const queryParamsKeywords = route.query['filter{keywords.slug.in}']
-  const queryParamsRegions = route.query['filter{regions.code.in}']
-  const queryParamsOwners = route.query['filter{owner.pk.in}']
-  const queryParamsGroups = route.query['filter{group.in}']
-  const queryParamsExtent = route.query.extent
+  const queryParamsTicked: LocationQueryValue | LocationQueryValue[] | undefined = route.query.f
+  const queryParamsSearch: string | undefined = typeof route.query.q === 'string' ? route.query.q : undefined;
+  const queryParamsCategories: LocationQueryValue | LocationQueryValue[] | undefined = route.query['filter{category.identifier.in}']
+  const queryParamsKeywords: LocationQueryValue | LocationQueryValue[] | undefined = route.query['filter{keywords.slug.in}']
+  const queryParamsRegions: LocationQueryValue | LocationQueryValue[] | undefined = route.query['filter{regions.code.in}']
+  const queryParamsOwners: LocationQueryValue | LocationQueryValue[] | undefined = route.query['filter{owner.pk.in}']
+  const queryParamsGroups: LocationQueryValue | LocationQueryValue[] | undefined = route.query['filter{group.in}']
+  const queryParamsExtent: LocationQueryValue | LocationQueryValue[] | undefined = route.query.extent
 
 
   if (Object.keys(route.query).length > 0) {
@@ -372,7 +389,6 @@ const initializeTickedFromQuery = () => {
         return false
       })
     })
-
   }
 
   if (queryParamsSearch) {
@@ -400,22 +416,21 @@ const initializeTickedFromQuery = () => {
     groupsSelected.value = Array.isArray(queryParamsGroups) ? queryParamsGroups : [queryParamsGroups]
   }
 
-  if (queryParamsExtent) {
+  if (queryParamsExtent && typeof queryParamsExtent === 'string') {
     console.log("queryParamsExtent", queryParamsExtent)
     const [xmin, ymin, xmax, ymax] = queryParamsExtent.split(',')
     catalogueStore.filterUsingExtent = true
-    catalogueStore.filterExtent = [xmin, ymin, xmax, ymax]
+    catalogueStore.filterExtent = [parseFloat(xmin), parseFloat(ymin), parseFloat(xmax), parseFloat(ymax)]
     catalogueStore.filterExtentPolygon = [
       [
-        [xmin, ymin],
-        [xmin, ymax],
-        [xmax, ymax],
-        [xmax, ymin],
-        [xmin, ymin],
+        [parseFloat(xmin), parseFloat(ymin)],
+        [parseFloat(xmin), parseFloat(ymax)],
+        [parseFloat(xmax), parseFloat(ymax)],
+        [parseFloat(xmax), parseFloat(ymin)],
+        [parseFloat(xmin), parseFloat(ymin)],
       ],
     ]
   }
-
 }
 
 // Función para cargar categorías usando useFetch
@@ -427,16 +442,15 @@ const fetchCategories = async () => {
   categoriesLoading.value = true;
 
   try {
-    const {data} = await useFetch(`https://development.demo.geonode.org/api/v2/facets/category?page=${categoriesPage.value}&page_size=${categoriesPageSize}`);
-    console.log("data", data)
-    console.log("data value", data.value)
-    const newCategories = data.value.topics.items; // Ajusta esto según la estructura de tu respuesta API
-
-    if (newCategories.length > 0) {
-      categoriesList.value.push(...newCategories);
-      categoriesPage.value++;
-    } else {
-      categoriesHasMore.value = false;
+    const {data} = await useFetch<FacetsResponse>(`https://development.demo.geonode.org/api/v2/facets/category?page=${categoriesPage.value}&page_size=${categoriesPageSize}`);
+    if (data.value) {
+      const newCategories = data.value.topics.items;
+      if (newCategories.length > 0) {
+        categoriesList.value.push(...newCategories);
+        categoriesPage.value++;
+      } else {
+        categoriesHasMore.value = false;
+      }
     }
   } catch (error) {
     console.error('Error fetching categories:', error);
@@ -446,7 +460,7 @@ const fetchCategories = async () => {
 };
 
 // Manejar el evento de scroll
-const handleCategoriesScroll = ({to}) => {
+const handleCategoriesScroll = ({to}: ScrollEvent) => {
   if (!categoriesLoading.value && categoriesHasMore.value && to === categoriesList.value.length - 1) {
     fetchCategories();
   }
@@ -457,15 +471,15 @@ const fetchKeywords = async () => {
   keywordsLoading.value = true;
 
   try {
-    const {data} = await useFetch(`https://development.demo.geonode.org/api/v2/facets/keyword?page=${keywordsPage.value}&page_size=${keywordsPageSize}`);
-    console.log("data", data.value)
-    const newKeywords = data.value.topics.items; // Ajusta esto según la estructura de tu respuesta API
-
-    if (newKeywords.length > 0) {
-      keywordsList.value.push(...newKeywords);
-      keywordsPage.value++;
-    } else {
-      keywordsHasMore.value = false;
+    const {data} = await useFetch<FacetsResponse>(`https://development.demo.geonode.org/api/v2/facets/keyword?page=${keywordsPage.value}&page_size=${keywordsPageSize}`);
+    if (data.value) {
+      const newKeywords = data.value.topics.items;
+      if (newKeywords.length > 0) {
+        keywordsList.value.push(...newKeywords);
+        keywordsPage.value++;
+      } else {
+        keywordsHasMore.value = false;
+      }
     }
   } catch (error) {
     console.error('Error fetching keywords:', error);
@@ -475,7 +489,7 @@ const fetchKeywords = async () => {
 };
 
 // Manejar el evento de scroll
-const handleKeywordsScroll = ({to}) => {
+const handleKeywordsScroll = ({to}: ScrollEvent) => {
   if (!keywordsLoading.value && keywordsHasMore.value && to === keywordsList.value.length - 1) {
     fetchKeywords();
   }
@@ -486,15 +500,16 @@ const fetchRegions = async () => {
   regionsLoading.value = true;
 
   try {
-    const {data} = await useFetch(`https://development.demo.geonode.org/api/v2/facets/region?page=${regionsPage.value}&page_size=${regionsPageSize}`);
+    const {data} = await useFetch<FacetsResponse>(`https://development.demo.geonode.org/api/v2/facets/region?page=${regionsPage.value}&page_size=${regionsPageSize}`);
     console.log("data", data.value)
-    const newRegions = data.value.topics.items; // Ajusta esto según la estructura de tu respuesta API
-
-    if (newRegions.length > 0) {
-      regionsList.value.push(...newRegions);
-      regionsPage.value++;
-    } else {
-      regionsHasMore.value = false;
+    if (data.value) {
+      const newRegions = data.value.topics.items;
+      if (newRegions.length > 0) {
+        regionsList.value.push(...newRegions);
+        regionsPage.value++;
+      } else {
+        regionsHasMore.value = false;
+      }
     }
   } catch (error) {
     console.error('Error fetching regions:', error);
@@ -503,7 +518,7 @@ const fetchRegions = async () => {
   }
 }
 
-const handleRegionsScroll = ({to}) => {
+const handleRegionsScroll = ({to}: ScrollEvent) => {
   if (!regionsLoading.value && regionsHasMore.value && to === regionsList.value.length - 1) {
     fetchRegions();
   }
@@ -514,15 +529,16 @@ const fetchOwners = async () => {
   ownersLoading.value = true;
 
   try {
-    const {data} = await useFetch(`https://development.demo.geonode.org/api/v2/facets/owner?page=${ownersPage.value}&page_size=${ownersPageSize}`);
+    const {data} = await useFetch<FacetsResponse>(`https://development.demo.geonode.org/api/v2/facets/owner?page=${ownersPage.value}&page_size=${ownersPageSize}`);
     console.log("data", data.value)
-    const newOwners = data.value.topics.items; // Ajusta esto según la estructura de tu respuesta API
-
-    if (newOwners.length > 0) {
-      ownersList.value.push(...newOwners);
-      ownersPage.value++;
-    } else {
-      ownersHasMore.value = false;
+    if (data.value) {
+      const newOwners = data.value.topics.items;
+      if (newOwners.length > 0) {
+        ownersList.value.push(...newOwners);
+        ownersPage.value++;
+      } else {
+        ownersHasMore.value = false;
+      }
     }
   } catch (error) {
     console.error('Error fetching owners:', error);
@@ -531,7 +547,7 @@ const fetchOwners = async () => {
   }
 };
 
-const handleOwnersScroll = ({to}) => {
+const handleOwnersScroll = ({to}: ScrollEvent) => {
   if (!ownersLoading.value && ownersHasMore.value && to === ownersList.value.length - 1) {
     fetchOwners();
   }
@@ -542,15 +558,16 @@ const fetchGroups = async () => {
   groupsLoading.value = true;
 
   try {
-    const {data} = await useFetch(`https://development.demo.geonode.org/api/v2/facets/group?page=${groupsPage.value}&page_size=${groupsPageSize}`);
+    const {data} = await useFetch<FacetsResponse>(`https://development.demo.geonode.org/api/v2/facets/group?page=${groupsPage.value}&page_size=${groupsPageSize}`);
     console.log("data", data.value)
-    const newGroups = data.value.topics.items; // Ajusta esto según la estructura de tu respuesta API
-
+    if (data.value) {
+    const newGroups = data.value.topics.items;
     if (newGroups.length > 0) {
       groupsList.value.push(...newGroups);
       groupsPage.value++;
     } else {
       groupsHasMore.value = false;
+    }
     }
   } catch (error) {
     console.error('Error fetching groups:', error);
@@ -559,7 +576,7 @@ const fetchGroups = async () => {
   }
 };
 
-const handleGroupsScroll = ({to}) => {
+const handleGroupsScroll = ({to}: ScrollEvent) => {
   if (!groupsLoading.value && groupsHasMore.value && to === groupsList.value.length - 1) {
     fetchGroups();
   }
@@ -583,7 +600,3 @@ watch([ticked, search, categoriesSelected, keywordsSelected, regionsSelected, ow
 })
 
 </script>
-
-<style scoped>
-
-</style>
