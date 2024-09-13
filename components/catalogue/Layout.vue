@@ -136,17 +136,6 @@
         <p>aaa</p>
         <p>aaa</p>
         <p>aaa</p>
-        <p>aaa</p>
-        <p>aaa</p>
-        <p>aaa</p>
-        <p>aaa</p>
-        <p>aaa</p>
-        <p>aaa</p>
-        <p>aaa</p>
-        <p>aaa</p>
-        <p>aaa</p>
-        <p>aaa</p>
-        <p>aaa</p>
       </q-page>
     </q-page-container>
   </q-layout>
@@ -155,27 +144,8 @@
 
 <script setup lang="ts">
 import type {LocationQueryValue} from 'vue-router';
-
-interface ScrollEvent {
-  to: number;
-}
-
-interface CategoryItem {
-  key: string;
-  label: string;
-  count: number;
-  fa_class: string;
-}
-
-interface FacetsResponse {
-  page: number;
-  page_size: number;
-  start: number;
-  total: number;
-  topics: {
-    items: CategoryItem[];
-  };
-}
+import type { ScrollEvent } from "@/interfaces/catalogue";
+import type { FacetsResponse } from "@/interfaces/catalogue";
 
 const catalogueStore = useCatalogueStore()
 const router = useRouter()
@@ -433,6 +403,15 @@ const initializeTickedFromQuery = () => {
   }
 }
 
+const fetchFacetsConfig = async () => {
+  try {
+    const {data} = await useFetch<FacetsResponse>(`https://development.demo.geonode.org/api/v2/facets/config`);
+    console.log("fetchFacetsConfig", data.value)
+  } catch (error) {
+    console.error('Error fetching facets config:', error);
+  }
+}
+
 // Función para cargar categorías usando useFetch
 const fetchCategories = async () => {
   console.log("categoriesLoading.value", categoriesLoading.value)
@@ -584,6 +563,7 @@ const handleGroupsScroll = ({to}: ScrollEvent) => {
 
 // Inicializamos el estado de 'ticked' cuando se monta el componente
 onMounted(() => {
+  fetchFacetsConfig()
   initializeTickedFromQuery()
   setTimeout(() => {
     fetchCategories()
