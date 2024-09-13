@@ -144,8 +144,8 @@
 
 <script setup lang="ts">
 import type {LocationQueryValue} from 'vue-router';
-import type { ScrollEvent } from "@/interfaces/catalogue";
-import type { FacetsResponse } from "@/interfaces/catalogue";
+import type {FacetItem, ScrollEvent} from "@/interfaces/catalogue";
+import type {FacetsResponse} from "@/interfaces/catalogue";
 
 const catalogueStore = useCatalogueStore()
 const router = useRouter()
@@ -157,35 +157,35 @@ const leftDrawerOpen = ref(false)
 const search = ref<string | undefined>(undefined)
 const ticked = ref<LocationQueryValue[]>([])
 
-const categoriesList = ref<any>([]);
+const categoriesList = ref<FacetItem[]>([]);
 const categoriesSelected = ref<LocationQueryValue[]>([]);
 const categoriesLoading = ref(false);
 const categoriesPage = ref(0);
 const categoriesPageSize = 20;
 const categoriesHasMore = ref(true);
 
-const keywordsList = ref<any>([]);
+const keywordsList = ref<FacetItem[]>([]);
 const keywordsSelected = ref<LocationQueryValue[]>([]);
 const keywordsLoading = ref(false);
 const keywordsPage = ref(0);
 const keywordsPageSize = 20;
 const keywordsHasMore = ref(true);
 
-const regionsList = ref<any>([]);
+const regionsList = ref<FacetItem[]>([]);
 const regionsSelected = ref<LocationQueryValue[]>([]);
 const regionsLoading = ref(false);
 const regionsPage = ref(0);
 const regionsPageSize = 20;
 const regionsHasMore = ref(true);
 
-const ownersList = ref<any>([]);
+const ownersList = ref<FacetItem[]>([]);
 const ownersSelected = ref<LocationQueryValue[]>([]);
 const ownersLoading = ref(false);
 const ownersPage = ref(0);
 const ownersPageSize = 20;
 const ownersHasMore = ref(true);
 
-const groupsList = ref<any>([]);
+const groupsList = ref<FacetItem[]>([]);
 const groupsSelected = ref<LocationQueryValue[]>([]);
 const groupsLoading = ref(false);
 const groupsPage = ref(0);
@@ -249,7 +249,7 @@ const updateQueryParams = () => {
 
   // Obtener los nodos hijos del tipo 'dataset'
   const datasetNode = resource_tree_nodes.find(node => node.value === 'dataset')
-  const datasetChildren: LocationQueryValue[] = datasetNode?.children?.map(child => child.value) || []
+  const datasetChildren: any[] = datasetNode.children.map(child => child.value) || []
   let datasetSelected = false
 
   // Verificar si todos los hijos de 'dataset' están seleccionados
@@ -332,7 +332,7 @@ const updateQueryParams = () => {
 }
 
 // Función para inicializar el estado de 'ticked' según los query params
-const initializeTickedFromQuery = () => {
+const initializeTickedFromQuery = async () => {
   const queryParamsTicked: LocationQueryValue | LocationQueryValue[] | undefined = route.query.f
   const queryParamsSearch: string | undefined = typeof route.query.q === 'string' ? route.query.q : undefined;
   const queryParamsCategories: LocationQueryValue | LocationQueryValue[] | undefined = route.query['filter{category.identifier.in}']
@@ -350,7 +350,6 @@ const initializeTickedFromQuery = () => {
   if (queryParamsTicked) {
     const selectedValues = Array.isArray(queryParamsTicked) ? queryParamsTicked : [queryParamsTicked]
     ticked.value = selectedValues.filter((value) => {
-      // Validamos que los valores existan en los nodos del árbol
       return resource_tree_nodes.some(node => {
         if (node.value === value) return true
         if (node.children) {
@@ -367,23 +366,48 @@ const initializeTickedFromQuery = () => {
 
   if (queryParamsCategories) {
     categoriesSelected.value = Array.isArray(queryParamsCategories) ? queryParamsCategories : [queryParamsCategories]
+
+    while (!categoriesSelected.value.every(selectedKey =>
+        categoriesList.value.some(category => category.key === selectedKey))) {
+      await fetchCategories();
+    }
+
   }
 
   if (queryParamsKeywords) {
-    console.log("queryParamsKeywords", queryParamsKeywords)
     keywordsSelected.value = Array.isArray(queryParamsKeywords) ? queryParamsKeywords : [queryParamsKeywords]
+
+    while (!keywordsSelected.value.every(selectedKey =>
+        keywordsList.value.some(keyword => keyword.key === selectedKey))) {
+      await fetchKeywords();
+    }
   }
 
   if (queryParamsRegions) {
     regionsSelected.value = Array.isArray(queryParamsRegions) ? queryParamsRegions : [queryParamsRegions]
+
+    while (!regionsSelected.value.every(selectedKey =>
+        regionsList.value.some(region => region.key === selectedKey))) {
+      await fetchRegions();
+    }
   }
 
   if (queryParamsOwners) {
     ownersSelected.value = Array.isArray(queryParamsOwners) ? queryParamsOwners : [queryParamsOwners]
+
+    while (!ownersSelected.value.every(selectedKey =>
+        ownersList.value.some(owner => owner.key === selectedKey))) {
+      await fetchOwners();
+    }
   }
 
   if (queryParamsGroups) {
     groupsSelected.value = Array.isArray(queryParamsGroups) ? queryParamsGroups : [queryParamsGroups]
+
+    while (!groupsSelected.value.every(selectedKey =>
+        groupsList.value.some(group => group.key === selectedKey))) {
+      await fetchGroups();
+    }
   }
 
   if (queryParamsExtent && typeof queryParamsExtent === 'string') {
@@ -403,21 +427,9 @@ const initializeTickedFromQuery = () => {
   }
 }
 
-const fetchFacetsConfig = async () => {
-  try {
-    const {data} = await useFetch<FacetsResponse>(`https://development.demo.geonode.org/api/v2/facets/config`);
-    console.log("fetchFacetsConfig", data.value)
-  } catch (error) {
-    console.error('Error fetching facets config:', error);
-  }
-}
-
 // Función para cargar categorías usando useFetch
 const fetchCategories = async () => {
-  console.log("categoriesLoading.value", categoriesLoading.value)
-  console.log("categoriesHasMore.value", !categoriesHasMore.value)
   if (categoriesLoading.value || !categoriesHasMore.value) return;
-  console.log("meh")
   categoriesLoading.value = true;
 
   try {
@@ -540,13 +552,13 @@ const fetchGroups = async () => {
     const {data} = await useFetch<FacetsResponse>(`https://development.demo.geonode.org/api/v2/facets/group?page=${groupsPage.value}&page_size=${groupsPageSize}`);
     console.log("data", data.value)
     if (data.value) {
-    const newGroups = data.value.topics.items;
-    if (newGroups.length > 0) {
-      groupsList.value.push(...newGroups);
-      groupsPage.value++;
-    } else {
-      groupsHasMore.value = false;
-    }
+      const newGroups = data.value.topics.items;
+      if (newGroups.length > 0) {
+        groupsList.value.push(...newGroups);
+        groupsPage.value++;
+      } else {
+        groupsHasMore.value = false;
+      }
     }
   } catch (error) {
     console.error('Error fetching groups:', error);
@@ -561,17 +573,19 @@ const handleGroupsScroll = ({to}: ScrollEvent) => {
   }
 }
 
+watch(() => leftDrawerOpen.value, (value) => {
+  if (value) {
+    if (!categoriesList.value.length) fetchCategories()
+    if (!keywordsList.value.length) fetchKeywords()
+    if (!regionsList.value.length) fetchRegions()
+    if (!ownersList.value.length) fetchOwners()
+    if (!groupsList.value.length) fetchGroups()
+  }
+})
+
 // Inicializamos el estado de 'ticked' cuando se monta el componente
 onMounted(() => {
-  fetchFacetsConfig()
   initializeTickedFromQuery()
-  setTimeout(() => {
-    fetchCategories()
-    fetchKeywords()
-    fetchRegions()
-    fetchOwners()
-    fetchGroups()
-  }, 100)
 })
 
 // Observamos los cambios en 'ticked' para actualizar la URL

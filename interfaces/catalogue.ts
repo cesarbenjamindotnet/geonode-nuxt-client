@@ -15,6 +15,18 @@ export interface FacetsResponse {
   };
 }
 
+export interface FacetItem {
+    count: number;
+    key: string;
+    label: string;
+}
+
 export interface ScrollEvent {
   to: number;
+}
+
+export interface ResourceTreeNode {
+    value: string;
+    label: string;
+    children: ResourceTreeNode[];
 }
