@@ -46,8 +46,8 @@
             </div>
             <div class="row q-pb-md" style="margin-top: 0">
               <q-tree
-                  :nodes="resourceTreeNodes"
-                  v-model:ticked="ticked"
+                  :nodes="filteredResourceTreeNodes"
+                  v-model:ticked="tickedResourceTreeNodes"
                   node-key="value"
                   tick-strategy="leaf"
                   default-expand-all
@@ -167,6 +167,7 @@ import type {LocationQueryValue} from 'vue-router'
 import type {FacetsResponse, ResourceTreeNode, ScrollEvent} from "@/interfaces/catalogue"
 
 const catalogueStore = useCatalogueStore()
+const authStore = useAuthStore()
 const router = useRouter()
 const route = useRoute()
 const $q = useQuasar()
@@ -174,7 +175,7 @@ const $q = useQuasar()
 const leftDrawerOpen = ref(false)
 
 const search = ref<string | undefined>(undefined)
-const ticked = ref<LocationQueryValue[]>([])
+const tickedResourceTreeNodes = ref<LocationQueryValue[]>([])
 
 const categoriesLoading = ref(false)
 const categoriesPage = ref(0)
@@ -247,6 +248,29 @@ const resourceTreeNodes: ResourceTreeNode[] = [
   {value: 'remote', label: 'Remote'},
 ]
 
+// Computed para filtrar los nodos
+const filteredResourceTreeNodes = computed(() => {
+  // Función recursiva para filtrar nodos hijos también
+  const filterNodes = (nodes: ResourceTreeNode[]) => {
+    return nodes
+      .filter((node) => {
+        // Filtrar nodos principales según el estado de autenticación
+        if (node.showIfUserIsLoggedIn && !authStore.user) {
+          return false;
+        }
+
+        // Si tiene hijos, filtrarlos también de manera recursiva
+        if (node.children) {
+          node.children = filterNodes(node.children);
+        }
+
+        return true;
+      });
+  };
+
+  return filterNodes(resourceTreeNodes);
+});
+
 const toggleLeftDrawer = () => {
   leftDrawerOpen.value = !leftDrawerOpen.value
 }
@@ -271,12 +295,12 @@ const updateQueryParams = () => {
   let datasetSelected = false
 
   // Verificar si todos los hijos de 'dataset' están seleccionados
-  const datasetTicked = ticked.value.filter(item => datasetChildren.includes(item))
+  const datasetTicked = tickedResourceTreeNodes.value.filter(item => datasetChildren.includes(item))
   const allDatasetChildrenSelected = datasetTicked.length === datasetChildren.length
 
   // Creamos los query params f para cada nodo ticked
   let filters: LocationQueryValue[]
-  filters = ticked.value.reduce<LocationQueryValue[]>((acc, item) => {
+  filters = tickedResourceTreeNodes.value.reduce<LocationQueryValue[]>((acc, item) => {
     if (datasetChildren.includes(item)) {
       datasetSelected = true
       if (!allDatasetChildrenSelected) {
@@ -364,7 +388,7 @@ const initializeTickedFromQuery = async () => {
   if (queryParamsTicked) {
     console.log("queryParamsTicked", queryParamsTicked)
     const selectedValues = Array.isArray(queryParamsTicked) ? queryParamsTicked : [queryParamsTicked]
-    ticked.value = selectedValues.filter((value) => {
+    tickedResourceTreeNodes.value = selectedValues.filter((value) => {
       return resourceTreeNodes.some(node => {
         if (node.value === value) return true
         if (node.children) {
@@ -640,7 +664,7 @@ onMounted(() => {
 
 watch(
     [
-      ticked,
+      tickedResourceTreeNodes,
       search,
       () => catalogueStore.filterUsingExtent,
       () => catalogueStore.filterExtent
