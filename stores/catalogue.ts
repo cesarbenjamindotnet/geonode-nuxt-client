@@ -1,7 +1,7 @@
 // stores/auth.ts
 
 import {defineStore} from 'pinia';
-import type {FacetItem} from "@/interfaces/catalogue";
+import type {FacetItem, ResourceTreeNode} from "@/interfaces/catalogue";
 import type {LocationQueryValue} from "vue-router";
 
 export const useCatalogueStore = defineStore('catalogue', {
@@ -28,6 +28,30 @@ export const useCatalogueStore = defineStore('catalogue', {
         ownersSelected: [] as LocationQueryValue[],
         groupsList: [] as FacetItem[],
         groupsSelected: [] as LocationQueryValue[],
+        resourceTreeNodes: [
+            {value: 'my-resources', label: 'My resources', showIfUserIsLoggedIn: true},
+            {value: 'favorite', label: 'Favorites', showIfUserIsLoggedIn: true},
+            {value: 'featured', label: 'Featured'},
+            {value: 'unpublished', label: 'Unpublished', showIfUserIsLoggedIn: true},
+            {value: 'pending-approval', label: 'Pending approval', showIfUserIsLoggedIn: true},
+            {
+                value: 'dataset', label: 'Datasets', children: [
+                    {value: 'store-vector', label: 'Vector'},
+                    {value: 'store-raster', label: 'Raster'},
+                    {value: 'store-time-series', label: 'Time series'},
+                    {value: '3dtiles', label: '3D Tiles'},
+                    {value: 'tabular', label: 'Tabular'},
+                ]
+            },
+            {value: 'map', label: 'Maps'},
+            {value: 'mapviewer', label: 'Maps Viewers'},
+            {value: 'document', label: 'Documents'},
+            {value: 'geostory', label: 'GeoStories'},
+            {value: 'dashboard', label: 'Dashboards'},
+            {value: 'remote', label: 'Remote'},
+        ] as ResourceTreeNode[],
+
+        filterInputSearch: undefined as undefined | string,
     }),
     getters: {
         getFilterUsingExtent: state => state.filterUsingExtent,

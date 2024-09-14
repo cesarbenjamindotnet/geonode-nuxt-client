@@ -38,9 +38,9 @@
         <!-- <p>{{ ticked }}</p> -->
         <div class="row q-pa-sm">
           <div class="col-auto full-width">
-            <div class="row q-pb-md">
-              <CatalogueInputSearch v-model="search"/>
-            </div>
+
+            <CatalogueInputSearch/>
+
             <div class="row">
               <b>Resources</b>
             </div>
@@ -174,7 +174,6 @@ const $q = useQuasar()
 
 const leftDrawerOpen = ref(false)
 
-const search = ref<string | undefined>(undefined)
 const tickedResourceTreeNodes = ref<LocationQueryValue[]>([])
 
 const categoriesLoading = ref(false)
@@ -253,19 +252,19 @@ const filteredResourceTreeNodes = computed(() => {
   // Función recursiva para filtrar nodos hijos también
   const filterNodes = (nodes: ResourceTreeNode[]) => {
     return nodes
-      .filter((node) => {
-        // Filtrar nodos principales según el estado de autenticación
-        if (node.showIfUserIsLoggedIn && !authStore.user) {
-          return false;
-        }
+        .filter((node) => {
+          // Filtrar nodos principales según el estado de autenticación
+          if (node.showIfUserIsLoggedIn && !authStore.user) {
+            return false;
+          }
 
-        // Si tiene hijos, filtrarlos también de manera recursiva
-        if (node.children) {
-          node.children = filterNodes(node.children);
-        }
+          // Si tiene hijos, filtrarlos también de manera recursiva
+          if (node.children) {
+            node.children = filterNodes(node.children);
+          }
 
-        return true;
-      });
+          return true;
+        });
   };
 
   return filterNodes(resourceTreeNodes);
@@ -322,11 +321,6 @@ const updateQueryParams = () => {
     queryParams.f = filters
   } else {
     delete queryParams.f
-  }
-
-  // Actualizamos el parámetro `q` con el valor del input de búsqueda
-  if (search.value) {
-    queryParams.q = search.value
   }
 
   if (!!catalogueStore.categoriesSelected && catalogueStore.categoriesSelected.length > 0) {
@@ -400,7 +394,7 @@ const initializeTickedFromQuery = async () => {
   }
 
   if (queryParamsSearch) {
-    search.value = queryParamsSearch
+    catalogueStore.filterInputSearch = queryParamsSearch
   }
 
   if (queryParamsCategories) {
@@ -665,7 +659,6 @@ onMounted(() => {
 watch(
     [
       tickedResourceTreeNodes,
-      search,
       () => catalogueStore.filterUsingExtent,
       () => catalogueStore.filterExtent
     ],
