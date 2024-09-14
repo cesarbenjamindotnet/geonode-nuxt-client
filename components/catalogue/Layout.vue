@@ -46,7 +46,7 @@
             </div>
             <div class="row q-pb-md" style="margin-top: 0">
               <q-tree
-                  :nodes="resource_tree_nodes"
+                  :nodes="resourceTreeNodes"
                   v-model:ticked="ticked"
                   node-key="value"
                   tick-strategy="leaf"
@@ -58,13 +58,16 @@
               <b>Category</b>
             </div>
             <div class="row q-pb-md" style="margin-top: 4px;">
-              <p>{{ categoriesSelected }}</p>
-              <q-select outlined dense v-model="categoriesSelected" :options="categoriesList" label="Select categories"
+              <p>{{ catalogueStore.categoriesSelected }}</p>
+              <q-select outlined dense v-model="catalogueStore.categoriesSelected"
+                        :options="catalogueStore.categoriesList" label="Select categories"
                         use-chips clearable
                         option-value="key"
                         :option-label="(item) => item.label + ' (' + item.count + ')'"
                         emit-value
                         map-options
+                        @clear="catalogueStore.categoriesSelected = []"
+                        @update:model-value="updateQueryParams"
                         multiple use-input class="full-width" @virtual-scroll="handleCategoriesScroll"
                         :loading="categoriesLoading"/>
             </div>
@@ -72,40 +75,48 @@
               <b>Keyword</b>
             </div>
             <div class="row q-pb-md" style="margin-top: 4px;">
-              <p>{{ keywordsSelected }}</p>
-              <q-select outlined dense v-model="keywordsSelected" :options="keywordsList" label="Select keywords"
+              <p>{{ catalogueStore.keywordsSelected }}</p>
+              <q-select outlined dense v-model="catalogueStore.keywordsSelected" :options="catalogueStore.keywordsList"
+                        label="Select keywords"
                         option-value="key" :option-label="(item) => item.label + ' (' + item.count + ')'" multiple
                         use-input use-chips clearable emit-value map-options
+                        @clear="catalogueStore.keywordsSelected = []"
                         class="full-width" @virtual-scroll="handleKeywordsScroll" :loading="keywordsLoading"/>
             </div>
             <div class="row">
               <b>Region</b>
             </div>
             <div class="row q-pb-md" style="margin-top: 4px;">
-              <p>{{ regionsSelected }}</p>
-              <q-select outlined dense v-model="regionsSelected" :options="regionsList" label="Select keywords"
+              <p>{{ catalogueStore.regionsSelected }}</p>
+              <q-select outlined dense v-model="catalogueStore.regionsSelected" :options="catalogueStore.regionsList"
+                        label="Select keywords"
                         option-value="key" :option-label="(item) => item.label + ' (' + item.count + ')'" multiple
                         use-input use-chips clearable emit-value map-options
+                        @clear="catalogueStore.regionsSelected = []"
                         class="full-width" @scroll="handleRegionsScroll" :loading="regionsLoading"/>
             </div>
             <div class="row">
               <b>Owner</b>
             </div>
             <div class="row q-pb-md" style="margin-top: 4px;">
-              <p>{{ ownersSelected }}</p>
-              <q-select outlined dense v-model="ownersSelected" :options="ownersList" label="Select keywords"
+              <p>{{ catalogueStore.ownersSelected }}</p>
+              <q-select outlined dense v-model="catalogueStore.ownersSelected" :options="catalogueStore.ownersList"
+                        label="Select keywords"
                         option-value="key" :option-label="(item) => item.label + ' (' + item.count + ')'" multiple
                         use-input use-chips clearable emit-value map-options
+                        @clear="catalogueStore.ownersSelected = []"
                         class="full-width" @scroll="handleOwnersScroll" :loading="ownersLoading"/>
             </div>
             <div class="row">
               <b>Group</b>
             </div>
             <div class="row q-pb-md" style="margin-top: 4px;">
-              <p>{{ groupsSelected }}</p>
-              <q-select outlined dense v-model="groupsSelected" :options="groupsList" label="Select keywords"
+              <p>{{ catalogueStore.groupsSelected }}</p>
+              <q-select outlined dense v-model="catalogueStore.groupsSelected" :options="catalogueStore.groupsList"
+                        label="Select keywords"
                         option-value="key" :option-label="(item) => item.label + ' (' + item.count + ')'" multiple
                         use-input use-chips clearable emit-value map-options
+                        @clear="catalogueStore.groupsSelected = []"
                         class="full-width" @scroll="handleGroupsScroll" :loading="groupsLoading"/>
             </div>
             <div class="row">
@@ -143,9 +154,8 @@
 </template>
 
 <script setup lang="ts">
-import type {LocationQueryValue} from 'vue-router';
-import type {FacetItem, ScrollEvent} from "@/interfaces/catalogue";
-import type {FacetsResponse} from "@/interfaces/catalogue";
+import type {LocationQueryValue} from 'vue-router'
+import type {FacetItem, FacetsResponse, ScrollEvent} from "@/interfaces/catalogue"
 
 const catalogueStore = useCatalogueStore()
 const router = useRouter()
@@ -157,40 +167,32 @@ const leftDrawerOpen = ref(false)
 const search = ref<string | undefined>(undefined)
 const ticked = ref<LocationQueryValue[]>([])
 
-const categoriesList = ref<FacetItem[]>([]);
-const categoriesSelected = ref<LocationQueryValue[]>([]);
-const categoriesLoading = ref(false);
-const categoriesPage = ref(0);
-const categoriesPageSize = 20;
-const categoriesHasMore = ref(true);
+const categoriesLoading = ref(false)
+const categoriesPage = ref(0)
+const categoriesPageSize = 20
+const categoriesHasMore = ref(true)
 
-const keywordsList = ref<FacetItem[]>([]);
-const keywordsSelected = ref<LocationQueryValue[]>([]);
-const keywordsLoading = ref(false);
-const keywordsPage = ref(0);
-const keywordsPageSize = 20;
-const keywordsHasMore = ref(true);
+const keywordsLoading = ref(false)
+const keywordsPage = ref(0)
+const keywordsPageSize = 20
+const keywordsHasMore = ref(true)
 
-const regionsList = ref<FacetItem[]>([]);
-const regionsSelected = ref<LocationQueryValue[]>([]);
-const regionsLoading = ref(false);
-const regionsPage = ref(0);
-const regionsPageSize = 20;
-const regionsHasMore = ref(true);
+const regionsLoading = ref(false)
+const regionsPage = ref(0)
+const regionsPageSize = 20
+const regionsHasMore = ref(true)
 
-const ownersList = ref<FacetItem[]>([]);
-const ownersSelected = ref<LocationQueryValue[]>([]);
-const ownersLoading = ref(false);
-const ownersPage = ref(0);
-const ownersPageSize = 20;
-const ownersHasMore = ref(true);
+const ownersLoading = ref(false)
+const ownersPage = ref(0)
+const ownersPageSize = 20
+const ownersHasMore = ref(true)
 
-const groupsList = ref<FacetItem[]>([]);
-const groupsSelected = ref<LocationQueryValue[]>([]);
-const groupsLoading = ref(false);
-const groupsPage = ref(0);
-const groupsPageSize = 20;
-const groupsHasMore = ref(true);
+const groupsList = ref<FacetItem[]>([])
+const groupsSelected = ref<LocationQueryValue[]>([])
+const groupsLoading = ref(false)
+const groupsPage = ref(0)
+const groupsPageSize = 20
+const groupsHasMore = ref(true)
 
 const filter = ref([1])
 const viewMode = ref("grid")
@@ -209,8 +211,7 @@ const leftDrawerWidth = computed(() => {
   }
 })
 
-
-const resource_tree_nodes = [
+const resourceTreeNodes = [
   {value: 'my-resources', label: 'My resources'},
   {value: 'favorite', label: 'Favorites'},
   {value: 'featured', label: 'Featured'},
@@ -231,7 +232,6 @@ const resource_tree_nodes = [
   {value: 'remote', label: 'Remote'},
 ]
 
-
 const toggleLeftDrawer = () => {
   leftDrawerOpen.value = !leftDrawerOpen.value
 }
@@ -242,14 +242,17 @@ const toggleViewMode = () => {
 
 // Función para actualizar los query params en la URL cuando se seleccionan nodos
 const updateQueryParams = () => {
-
   const queryParams = {...route.query}
-
   console.log("queryParams", queryParams)
 
   // Obtener los nodos hijos del tipo 'dataset'
-  const datasetNode = resource_tree_nodes.find(node => node.value === 'dataset')
-  const datasetChildren: any[] = datasetNode.children.map(child => child.value) || []
+  const datasetNode = resourceTreeNodes.find(node => node.value === 'dataset')
+  let datasetChildren: any[] = []
+
+  if (datasetNode && datasetNode.children) {
+    datasetChildren = datasetNode.children.map(child => child.value)
+  }
+
   let datasetSelected = false
 
   // Verificar si todos los hijos de 'dataset' están seleccionados
@@ -287,27 +290,26 @@ const updateQueryParams = () => {
     queryParams.q = search.value
   }
 
-  // Agregamos los filtros de categorías desde `categoriesList`
-  if (!!categoriesSelected.value && categoriesSelected.value.length > 0) {
-    queryParams[`filter{category.identifier.in}`] = categoriesSelected.value
+  if (!!catalogueStore.categoriesSelected && catalogueStore.categoriesSelected.length > 0) {
+    queryParams[`filter{category.identifier.in}`] = catalogueStore.categoriesSelected
   } else {
     delete queryParams[`filter{category.identifier.in}`]
   }
 
-  if (!!keywordsSelected.value && keywordsSelected.value.length > 0) {
-    queryParams[`filter{keywords.slug.in}`] = keywordsSelected.value
+  if (!!catalogueStore.keywordsSelected && catalogueStore.keywordsSelected.length > 0) {
+    queryParams[`filter{keywords.slug.in}`] = catalogueStore.keywordsSelected
   } else {
     delete queryParams[`filter{keywords.slug.in}`]
   }
 
-  if (!!regionsSelected.value && regionsSelected.value.length > 0) {
-    queryParams[`filter{regions.code.in}`] = regionsSelected.value
+  if (!!catalogueStore.regionsSelected && catalogueStore.regionsSelected.length > 0) {
+    queryParams[`filter{regions.code.in}`] = catalogueStore.regionsSelected
   } else {
     delete queryParams[`filter{regions.code.in}`]
   }
 
-  if (!!ownersSelected.value && ownersSelected.value.length > 0) {
-    queryParams[`filter{owner.pk.in}`] = ownersSelected.value
+  if (!!catalogueStore.ownersSelected && catalogueStore.ownersSelected.length > 0) {
+    queryParams[`filter{owner.pk.in}`] = catalogueStore.ownersSelected
   } else {
     delete queryParams[`filter{owner.pk.in}`]
   }
@@ -318,12 +320,10 @@ const updateQueryParams = () => {
     delete queryParams[`filter{group.in}`]
   }
 
-  if (catalogueStore.filterUsingExtent === true) {
-    console.log("catalogueStore.filterExtent", catalogueStore.filterExtent)
+  if (catalogueStore.filterUsingExtent) {
     const [xmin, ymin, xmax, ymax] = catalogueStore.filterExtent
     queryParams.extent = `${xmin},${ymin},${xmax},${ymax}`
   } else {
-    console.log("catalogueStore.filterExtent", catalogueStore.filterExtent)
     delete queryParams.extent
   }
 
@@ -342,7 +342,6 @@ const initializeTickedFromQuery = async () => {
   const queryParamsGroups: LocationQueryValue | LocationQueryValue[] | undefined = route.query['filter{group.in}']
   const queryParamsExtent: LocationQueryValue | LocationQueryValue[] | undefined = route.query.extent
 
-
   if (Object.keys(route.query).length > 0) {
     leftDrawerOpen.value = true
   }
@@ -350,7 +349,7 @@ const initializeTickedFromQuery = async () => {
   if (queryParamsTicked) {
     const selectedValues = Array.isArray(queryParamsTicked) ? queryParamsTicked : [queryParamsTicked]
     ticked.value = selectedValues.filter((value) => {
-      return resource_tree_nodes.some(node => {
+      return resourceTreeNodes.some(node => {
         if (node.value === value) return true
         if (node.children) {
           return node.children.some(child => child.value === value)
@@ -365,49 +364,66 @@ const initializeTickedFromQuery = async () => {
   }
 
   if (queryParamsCategories) {
-    categoriesSelected.value = Array.isArray(queryParamsCategories) ? queryParamsCategories : [queryParamsCategories]
+    console.log("queryParamsCategories IF", queryParamsCategories)
+    catalogueStore.categoriesSelected = Array.isArray(queryParamsCategories) ? queryParamsCategories : [queryParamsCategories]
 
-    while (!categoriesSelected.value.every(selectedKey =>
-        categoriesList.value.some(category => category.key === selectedKey))) {
-      await fetchCategories();
-    }
-
+    setTimeout(async () => {
+      while (!catalogueStore.categoriesSelected.every(selectedKey =>
+          catalogueStore.categoriesList.some(category => category.key === selectedKey))) {
+        console.log("categoriesPage.value", categoriesPage.value)
+        alert("categoriesPage.value " + categoriesPage.value)
+        await fetchCategories()
+        if (!categoriesHasMore.value) break
+      }
+    }, 300)
   }
 
   if (queryParamsKeywords) {
-    keywordsSelected.value = Array.isArray(queryParamsKeywords) ? queryParamsKeywords : [queryParamsKeywords]
+    catalogueStore.keywordsSelected = Array.isArray(queryParamsKeywords) ? queryParamsKeywords : [queryParamsKeywords]
 
-    while (!keywordsSelected.value.every(selectedKey =>
-        keywordsList.value.some(keyword => keyword.key === selectedKey))) {
-      await fetchKeywords();
+    setTimeout(async () => {
+    while (!catalogueStore.keywordsSelected.every(selectedKey =>
+        catalogueStore.keywordsList.some(keyword => keyword.key === selectedKey))) {
+      await fetchKeywords()
+      if (!keywordsHasMore.value) break
     }
+    }, 300)
   }
 
   if (queryParamsRegions) {
-    regionsSelected.value = Array.isArray(queryParamsRegions) ? queryParamsRegions : [queryParamsRegions]
+    catalogueStore.regionsSelected = Array.isArray(queryParamsRegions) ? queryParamsRegions : [queryParamsRegions]
 
-    while (!regionsSelected.value.every(selectedKey =>
-        regionsList.value.some(region => region.key === selectedKey))) {
-      await fetchRegions();
+    setTimeout(async () => {
+    while (!catalogueStore.regionsSelected.every(selectedKey =>
+        catalogueStore.regionsList.some(region => region.key === selectedKey))) {
+      await fetchRegions()
+      if (!regionsHasMore.value) break
     }
+    }, 300)
   }
 
   if (queryParamsOwners) {
-    ownersSelected.value = Array.isArray(queryParamsOwners) ? queryParamsOwners : [queryParamsOwners]
+    catalogueStore.ownersSelected = Array.isArray(queryParamsOwners) ? queryParamsOwners : [queryParamsOwners]
 
-    while (!ownersSelected.value.every(selectedKey =>
-        ownersList.value.some(owner => owner.key === selectedKey))) {
-      await fetchOwners();
+    setTimeout(async () => {
+    while (!catalogueStore.ownersSelected.every(selectedKey =>
+        catalogueStore.ownersList.some(owner => owner.key === selectedKey))) {
+      await fetchOwners()
+      if (!ownersHasMore.value) break
     }
+    }, 300)
   }
 
   if (queryParamsGroups) {
     groupsSelected.value = Array.isArray(queryParamsGroups) ? queryParamsGroups : [queryParamsGroups]
 
+    setTimeout(async () => {
     while (!groupsSelected.value.every(selectedKey =>
         groupsList.value.some(group => group.key === selectedKey))) {
-      await fetchGroups();
+      await fetchGroups()
+      if (!groupsHasMore.value) break
     }
+    }, 300)
   }
 
   if (queryParamsExtent && typeof queryParamsExtent === 'string') {
@@ -429,88 +445,78 @@ const initializeTickedFromQuery = async () => {
 
 // Función para cargar categorías usando useFetch
 const fetchCategories = async () => {
-  if (categoriesLoading.value || !categoriesHasMore.value) return;
-  categoriesLoading.value = true;
+  if (categoriesLoading.value || !categoriesHasMore.value) return
+  categoriesLoading.value = true
 
   try {
     const {data} = await useFetch<FacetsResponse>(`https://development.demo.geonode.org/api/v2/facets/category?page=${categoriesPage.value}&page_size=${categoriesPageSize}`);
-    if (data.value) {
-      const newCategories = data.value.topics.items;
-      if (newCategories.length > 0) {
-        categoriesList.value.push(...newCategories);
-        categoriesPage.value++;
-      } else {
-        categoriesHasMore.value = false;
-      }
+    if (data.value?.topics?.items.length) {
+      catalogueStore.categoriesList.push(...data.value.topics.items)
+      categoriesPage.value++
+    } else {
+      categoriesHasMore.value = false
     }
   } catch (error) {
-    console.error('Error fetching categories:', error);
+    console.error('Error fetching categories:', error)
   } finally {
-    categoriesLoading.value = false;
+    categoriesLoading.value = false
   }
-};
+}
 
 // Manejar el evento de scroll
 const handleCategoriesScroll = ({to}: ScrollEvent) => {
-  if (!categoriesLoading.value && categoriesHasMore.value && to === categoriesList.value.length - 1) {
+  if (!categoriesLoading.value && categoriesHasMore.value && to === catalogueStore.categoriesList.length - 1) {
     fetchCategories();
   }
 };
 
 const fetchKeywords = async () => {
-  if (keywordsLoading.value || !keywordsHasMore.value) return;
-  keywordsLoading.value = true;
+  if (keywordsLoading.value || !keywordsHasMore.value) return
+  keywordsLoading.value = true
 
   try {
     const {data} = await useFetch<FacetsResponse>(`https://development.demo.geonode.org/api/v2/facets/keyword?page=${keywordsPage.value}&page_size=${keywordsPageSize}`);
-    if (data.value) {
-      const newKeywords = data.value.topics.items;
-      if (newKeywords.length > 0) {
-        keywordsList.value.push(...newKeywords);
-        keywordsPage.value++;
-      } else {
-        keywordsHasMore.value = false;
-      }
+    if (data.value?.topics?.items.length) {
+      catalogueStore.keywordsList.push(...data.value.topics.items)
+      keywordsPage.value++
+    } else {
+      keywordsHasMore.value = false;
     }
   } catch (error) {
-    console.error('Error fetching keywords:', error);
+    console.error('Error fetching keywords:', error)
   } finally {
-    keywordsLoading.value = false;
+    keywordsLoading.value = false
   }
 };
 
 // Manejar el evento de scroll
 const handleKeywordsScroll = ({to}: ScrollEvent) => {
-  if (!keywordsLoading.value && keywordsHasMore.value && to === keywordsList.value.length - 1) {
+  if (!keywordsLoading.value && keywordsHasMore.value && to === catalogueStore.keywordsList.length - 1) {
     fetchKeywords();
   }
 }
 
 const fetchRegions = async () => {
-  if (regionsLoading.value || !regionsHasMore.value) return;
-  regionsLoading.value = true;
+  if (regionsLoading.value || !regionsHasMore.value) return
+  regionsLoading.value = true
 
   try {
     const {data} = await useFetch<FacetsResponse>(`https://development.demo.geonode.org/api/v2/facets/region?page=${regionsPage.value}&page_size=${regionsPageSize}`);
-    console.log("data", data.value)
-    if (data.value) {
-      const newRegions = data.value.topics.items;
-      if (newRegions.length > 0) {
-        regionsList.value.push(...newRegions);
-        regionsPage.value++;
-      } else {
-        regionsHasMore.value = false;
-      }
+    if (data.value?.topics?.items.length) {
+      catalogueStore.regionsList.push(...data.value.topics.items)
+      regionsPage.value++
+    } else {
+      regionsHasMore.value = false
     }
   } catch (error) {
-    console.error('Error fetching regions:', error);
+    console.error('Error fetching regions:', error)
   } finally {
-    regionsLoading.value = false;
+    regionsLoading.value = false
   }
 }
 
 const handleRegionsScroll = ({to}: ScrollEvent) => {
-  if (!regionsLoading.value && regionsHasMore.value && to === regionsList.value.length - 1) {
+  if (!regionsLoading.value && regionsHasMore.value && to === catalogueStore.regionsList.length - 1) {
     fetchRegions();
   }
 }
@@ -521,25 +527,21 @@ const fetchOwners = async () => {
 
   try {
     const {data} = await useFetch<FacetsResponse>(`https://development.demo.geonode.org/api/v2/facets/owner?page=${ownersPage.value}&page_size=${ownersPageSize}`);
-    console.log("data", data.value)
-    if (data.value) {
-      const newOwners = data.value.topics.items;
-      if (newOwners.length > 0) {
-        ownersList.value.push(...newOwners);
-        ownersPage.value++;
-      } else {
-        ownersHasMore.value = false;
-      }
+    if (data.value?.topics?.items.length) {
+      catalogueStore.ownersList.push(...data.value.topics.items)
+      ownersPage.value++
+    } else {
+      ownersHasMore.value = false;
     }
   } catch (error) {
     console.error('Error fetching owners:', error);
   } finally {
     ownersLoading.value = false;
   }
-};
+}
 
 const handleOwnersScroll = ({to}: ScrollEvent) => {
-  if (!ownersLoading.value && ownersHasMore.value && to === ownersList.value.length - 1) {
+  if (!ownersLoading.value && ownersHasMore.value && to === catalogueStore.ownersList.length - 1) {
     fetchOwners();
   }
 }
@@ -550,15 +552,11 @@ const fetchGroups = async () => {
 
   try {
     const {data} = await useFetch<FacetsResponse>(`https://development.demo.geonode.org/api/v2/facets/group?page=${groupsPage.value}&page_size=${groupsPageSize}`);
-    console.log("data", data.value)
-    if (data.value) {
-      const newGroups = data.value.topics.items;
-      if (newGroups.length > 0) {
-        groupsList.value.push(...newGroups);
-        groupsPage.value++;
-      } else {
-        groupsHasMore.value = false;
-      }
+    if (data.value?.topics?.items.length) {
+      catalogueStore.groupsList.push(...data.value.topics.items)
+      groupsPage.value++
+    } else {
+      groupsHasMore.value = false;
     }
   } catch (error) {
     console.error('Error fetching groups:', error);
@@ -575,22 +573,33 @@ const handleGroupsScroll = ({to}: ScrollEvent) => {
 
 watch(() => leftDrawerOpen.value, (value) => {
   if (value) {
-    if (!categoriesList.value.length) fetchCategories()
-    if (!keywordsList.value.length) fetchKeywords()
-    if (!regionsList.value.length) fetchRegions()
-    if (!ownersList.value.length) fetchOwners()
+    if (!catalogueStore.categoriesList.length) fetchCategories()
+    if (!catalogueStore.keywordsList.length) fetchKeywords()
+    if (!catalogueStore.regionsList.length) fetchRegions()
+    if (!catalogueStore.ownersList.length) fetchOwners()
     if (!groupsList.value.length) fetchGroups()
   }
 })
 
-// Inicializamos el estado de 'ticked' cuando se monta el componente
 onMounted(() => {
-  initializeTickedFromQuery()
+  setTimeout(() => {
+    initializeTickedFromQuery()
+  }, 100)
 })
 
-// Observamos los cambios en 'ticked' para actualizar la URL
-watch([ticked, search, categoriesSelected, keywordsSelected, regionsSelected, ownersSelected, groupsSelected, () => catalogueStore.filterUsingExtent, () => catalogueStore.filterExtent], () => {
-  updateQueryParams()
-})
+watch(
+    [
+      ticked,
+      search,
+      () => catalogueStore.filterUsingExtent,
+      () => catalogueStore.filterExtent
+    ],
+    () => {
+      setTimeout(() => {
+        updateQueryParams()
+      }, 3000)
+    },
+    { immediate: true, deep: true }
+)
 
 </script>
