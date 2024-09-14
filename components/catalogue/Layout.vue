@@ -67,7 +67,8 @@
                         emit-value
                         map-options
                         @clear="catalogueStore.categoriesSelected = []"
-                        @update:model-value="updateQueryParams"
+                        @blur="updateQueryParams"
+                        :input-debounce="500"
                         multiple use-input class="full-width" @virtual-scroll="handleCategoriesScroll"
                         :loading="categoriesLoading"/>
             </div>
