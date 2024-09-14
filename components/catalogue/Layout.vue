@@ -164,7 +164,7 @@
 
 <script setup lang="ts">
 import type {LocationQueryValue} from 'vue-router'
-import type {FacetItem, FacetsResponse, ScrollEvent} from "@/interfaces/catalogue"
+import type {FacetsResponse, ResourceTreeNode, ScrollEvent} from "@/interfaces/catalogue"
 
 const catalogueStore = useCatalogueStore()
 const router = useRouter()
@@ -196,8 +196,6 @@ const ownersPage = ref(0)
 const ownersPageSize = 20
 const ownersHasMore = ref(true)
 
-const groupsList = ref<FacetItem[]>([])
-const groupsSelected = ref<LocationQueryValue[]>([])
 const groupsLoading = ref(false)
 const groupsPage = ref(0)
 const groupsPageSize = 20
@@ -205,6 +203,12 @@ const groupsHasMore = ref(true)
 
 const filter = ref([1])
 const viewMode = ref("grid")
+
+
+router.beforeEach((to, from, next) => {
+  catalogueStore.hasPreviousRoute = !!from.name;
+  next();
+});
 
 const childLayoutHeight = computed(() => {
   return $q.screen.height - 117
@@ -220,10 +224,12 @@ const leftDrawerWidth = computed(() => {
   }
 })
 
-const resourceTreeNodes = [
-  {value: 'my-resources', label: 'My resources'},
-  {value: 'favorite', label: 'Favorites'},
+const resourceTreeNodes: ResourceTreeNode[] = [
+  {value: 'my-resources', label: 'My resources', showIfUserIsLoggedIn: true},
+  {value: 'favorite', label: 'Favorites', showIfUserIsLoggedIn: true},
   {value: 'featured', label: 'Featured'},
+  {value: 'unpublished', label: 'Unpublished', showIfUserIsLoggedIn: true},
+  {value: 'pending-approval', label: 'Pending approval', showIfUserIsLoggedIn: true},
   {
     value: 'dataset', label: 'Datasets', children: [
       {value: 'store-vector', label: 'Vector'},
@@ -237,7 +243,7 @@ const resourceTreeNodes = [
   {value: 'mapviewer', label: 'Maps Viewers'},
   {value: 'document', label: 'Documents'},
   {value: 'geostory', label: 'GeoStories'},
-  {value: 'dashboard', label: 'dashboards'},
+  {value: 'dashboard', label: 'Dashboards'},
   {value: 'remote', label: 'Remote'},
 ]
 
@@ -257,8 +263,6 @@ const updateQueryParams = () => {
   // Obtener los nodos hijos del tipo 'dataset'
   const datasetNode = resourceTreeNodes.find(node => node.value === 'dataset')
   let datasetChildren: any[] = []
-
-  console.log("datasetNode", datasetNode)
 
   if (datasetNode && datasetNode.children) {
     datasetChildren = datasetNode.children.map(child => child.value)
@@ -303,9 +307,7 @@ const updateQueryParams = () => {
 
   if (!!catalogueStore.categoriesSelected && catalogueStore.categoriesSelected.length > 0) {
     queryParams[`filter{category.identifier.in}`] = catalogueStore.categoriesSelected
-    console.log("si")
   } else {
-    console.log("no")
     delete queryParams[`filter{category.identifier.in}`]
   }
 
@@ -346,7 +348,6 @@ const updateQueryParams = () => {
 
 // Función para inicializar el estado de 'ticked' según los query params
 const initializeTickedFromQuery = async () => {
-  console.log("initializeTickedFromQuery route.query", route.query)
   const queryParamsTicked: LocationQueryValue | LocationQueryValue[] | undefined = route.query.f
   const queryParamsSearch: string | undefined = typeof route.query.q === 'string' ? route.query.q : undefined;
   const queryParamsCategories: LocationQueryValue | LocationQueryValue[] | undefined = route.query['filter{category.identifier.in}']
@@ -379,7 +380,6 @@ const initializeTickedFromQuery = async () => {
   }
 
   if (queryParamsCategories) {
-    console.log("queryParamsCategories IF", queryParamsCategories)
     catalogueStore.categoriesSelected = Array.isArray(queryParamsCategories) ? queryParamsCategories : [queryParamsCategories]
 
     setTimeout(async () => {
@@ -428,11 +428,11 @@ const initializeTickedFromQuery = async () => {
   }
 
   if (queryParamsGroups) {
-    groupsSelected.value = Array.isArray(queryParamsGroups) ? queryParamsGroups : [queryParamsGroups]
+    catalogueStore.groupsSelected = Array.isArray(queryParamsGroups) ? queryParamsGroups : [queryParamsGroups]
 
     setTimeout(async () => {
-      while (!groupsSelected.value.every(selectedKey =>
-          groupsList.value.some(group => group.key === selectedKey))) {
+      while (catalogueStore.groupsSelected.every(selectedKey =>
+          catalogueStore.groupsList.some(group => group.key === selectedKey))) {
         await fetchGroups()
         if (!groupsHasMore.value) break
       }
@@ -454,6 +454,15 @@ const initializeTickedFromQuery = async () => {
       ],
     ]
   }
+
+  if (!queryParamsExtent) {
+    setTimeout(() => {
+      catalogueStore.filterUsingExtent = false
+      catalogueStore.filterExtent = [-180, -90, 180, 90]
+      console.log("catalogueStore.filterExtent", catalogueStore.filterExtent)
+    }, 300)
+  }
+
 }
 
 // Función para cargar categorías usando useFetch
@@ -584,7 +593,7 @@ const fetchGroups = async () => {
 };
 
 const handleGroupsScroll = ({to}: ScrollEvent) => {
-  if (!groupsLoading.value && groupsHasMore.value && to === groupsList.value.length - 1) {
+  if (!groupsLoading.value && groupsHasMore.value && to === catalogueStore.groupsList.length - 1) {
     fetchGroups();
   }
 }
@@ -595,17 +604,38 @@ watch(() => leftDrawerOpen.value, (value) => {
     if (!catalogueStore.keywordsList.length) fetchKeywords()
     if (!catalogueStore.regionsList.length) fetchRegions()
     if (!catalogueStore.ownersList.length) fetchOwners()
-    if (!groupsList.value.length) fetchGroups()
+    if (!catalogueStore.groupsList.length) fetchGroups()
   }
 })
 
 onMounted(() => {
-
-    setTimeout(() => {
+  setTimeout(() => {
+    if (catalogueStore.hasPreviousRoute === false) {
+      console.log("no previous route")
 
       initializeTickedFromQuery()
-    }, 200)
 
+    } else {
+      console.log("si previous route")
+      catalogueStore.categoriesSelected = []
+      catalogueStore.keywordsSelected = []
+      catalogueStore.regionsSelected = []
+      catalogueStore.ownersSelected = []
+      catalogueStore.groupsSelected = []
+
+      catalogueStore.filterUsingExtent = false
+      catalogueStore.filterExtent = [-180, -90, 180, 90]
+      catalogueStore.filterExtentPolygon = [
+        [
+          [-180, -90],
+          [-180, 90],
+          [180, 90],
+          [180, -90],
+          [-180, -90],
+        ]
+      ]
+    }
+  }, 100)
 })
 
 watch(
@@ -617,8 +647,8 @@ watch(
     ],
     () => {
       setTimeout(() => {
-          updateQueryParams()
-      }, 100)
+        updateQueryParams()
+      }, 200)
     }
 )
 

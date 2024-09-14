@@ -28,5 +28,6 @@ export interface ScrollEvent {
 export interface ResourceTreeNode {
     value: string;
     label: string;
-    children: ResourceTreeNode[];
+    showIfUserIsLoggedIn?: boolean;
+    children?: ResourceTreeNode[];
 }
