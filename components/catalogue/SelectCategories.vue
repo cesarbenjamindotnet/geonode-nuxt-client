@@ -43,10 +43,10 @@ const fetchCategories = async () => {
   const url = `https://development.demo.geonode.org/api/v2/facets/category?page=${dataPage.value}&page_size=${dataPageSize}`
 
   try {
-    const {data} = await useFetch<FacetsResponse>(url);
-    const {topics: {items = []} = {}} = data.value || {};
+    const {data} = await useFetch<FacetsResponse>(url)
+    const {topics: {items = []} = {}} = data.value || {}
     if (items.length) {
-      catalogueStore.categoriesList.push(...items)
+      catalogueStore.categoriesList.push(...items.filter(item => !catalogueStore.categoriesList.includes(item)))
       dataPage.value++
     } else {
       dataHasMore.value = false
@@ -68,7 +68,7 @@ const handleSelectScroll = ({to}: ScrollEvent) => {
   if (!dataLoading.value && dataHasMore.value && to === catalogueStore.categoriesList.length - 1) {
     fetchCategories();
   }
-};
+}
 
 const updateQueryParams = () => {
   /**
@@ -92,7 +92,7 @@ const initializeCategoriesFromQueryParams = async () => {
   /**
    * This function initializes the categoriesSelected property of the catalogueStore
    * based on the query parameters in the URL.
-   * If the 'categories' query parameter is present in the URL, it sets the categoriesSelected
+   * If the 'filter{category.identifier.in}' query parameter is present in the URL, it sets the categoriesSelected
    * property of the catalogueStore to the values in the query parameter.
    * It fetches the categories from the API if the categoriesSelected values are not present in the categoriesList.
    */

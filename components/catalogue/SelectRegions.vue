@@ -43,11 +43,10 @@ const fetchRegions = async () => {
   const url = `https://development.demo.geonode.org/api/v2/facets/region?page=${dataPage.value}&page_size=${dataPageSize}`
 
   try {
-    const {data} = await useFetch<FacetsResponse>(url);
-    const {topics: {items = []} = {}} = data.value || {};
+    const {data} = await useFetch<FacetsResponse>(url)
+    const {topics: {items = []} = {}} = data.value || {}
     if (items.length) {
-      console.log("items:", items)
-      catalogueStore.regionsList.push(...items)
+      catalogueStore.regionsList.push(...items.filter(item => !catalogueStore.regionsList.includes(item)))
       dataPage.value++
     } else {
       dataHasMore.value = false
@@ -93,7 +92,7 @@ const initializeRegionsFromQueryParams = async () => {
   /**
    * This function initializes the regionsSelected property of the catalogueStore
    * based on the query parameters in the URL.
-   * If the 'regions' query parameter is present in the URL, it sets the regionsSelected
+   * If the 'filter{regions.code.in}' query parameter is present in the URL, it sets the regionsSelected
    * property of the catalogueStore to the values in the query parameter.
    * It fetches the regions from the API if the regionsSelected values are not present in the regionsList.
    */

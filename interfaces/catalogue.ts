@@ -17,7 +17,7 @@ export interface FacetsResponse {
 
 export interface FacetItem {
     count: number;
-    key: string;
+    key: string | number;
     label: string;
 }
 

@@ -46,8 +46,7 @@ const fetchKeywords = async () => {
     const {data} = await useFetch<FacetsResponse>(url);
     const {topics: {items = []} = {}} = data.value || {};
     if (items.length) {
-      console.log("items:", items)
-      catalogueStore.keywordsList.push(...items)
+      catalogueStore.keywordsList.push(...items.filter(item => !catalogueStore.keywordsList.includes(item)))
       dataPage.value++
     } else {
       dataHasMore.value = false
@@ -69,7 +68,7 @@ const handleSelectScroll = ({to}: ScrollEvent) => {
   if (!dataLoading.value && dataHasMore.value && to === catalogueStore.keywordsList.length - 1) {
     fetchKeywords();
   }
-};
+}
 
 const updateQueryParams = () => {
   /**
@@ -93,7 +92,7 @@ const initializeKeywordsFromQueryParams = async () => {
   /**
    * This function initializes the keywordsSelected property of the catalogueStore
    * based on the query parameters in the URL.
-   * If the 'keywords' query parameter is present in the URL, it sets the keywordsSelected
+   * If the 'filter{keywords.slug.in}' query parameter is present in the URL, it sets the keywordsSelected
    * property of the catalogueStore to the values in the query parameter.
    * It fetches the keywords from the API if the keywordsSelected values are not present in the keywordsList.
    */

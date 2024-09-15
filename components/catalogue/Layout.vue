@@ -62,34 +62,10 @@
 
             <CatalogueSelectRegions />
 
-            <div class="row">
-              <b>Owner</b>
-            </div>
-            <div class="row q-pb-md" style="margin-top: 4px;">
-              <p>{{ catalogueStore.ownersSelected }}</p>
-              <q-select outlined dense v-model="catalogueStore.ownersSelected" :options="catalogueStore.ownersList"
-                        label="Select Owner"
-                        option-value="key" :option-label="(item) => item.label + ' (' + item.count + ')'" multiple
-                        use-input use-chips clearable emit-value map-options
-                        @clear="catalogueStore.ownersSelected = []"
-                        @update:model-value="updateQueryParams"
-                        popup-no-route-dismiss
-                        class="full-width" @scroll="handleOwnersScroll" :loading="ownersLoading"/>
-            </div>
-            <div class="row">
-              <b>Group</b>
-            </div>
-            <div class="row q-pb-md" style="margin-top: 4px;">
-              <p>{{ catalogueStore.groupsSelected }}</p>
-              <q-select outlined dense v-model="catalogueStore.groupsSelected" :options="catalogueStore.groupsList"
-                        label="Select Group"
-                        option-value="key" :option-label="(item) => item.label + ' (' + item.count + ')'" multiple
-                        use-input use-chips clearable emit-value map-options
-                        @clear="catalogueStore.groupsSelected = []"
-                        @update:model-value="updateQueryParams"
-                        popup-no-route-dismiss
-                        class="full-width" @scroll="handleGroupsScroll" :loading="groupsLoading"/>
-            </div>
+            <CatalogueSelectOwners />
+
+            <CatalogueSelectGroups />
+
             <div class="row">
               <q-toggle
                   v-model="catalogueStore.filterUsingExtent"
@@ -136,16 +112,6 @@ const $q = useQuasar()
 
 const tickedResourceTreeNodes = ref<LocationQueryValue[]>([])
 
-
-const ownersLoading = ref(false)
-const ownersPage = ref(0)
-const ownersPageSize = 20
-const ownersHasMore = ref(true)
-
-const groupsLoading = ref(false)
-const groupsPage = ref(0)
-const groupsPageSize = 20
-const groupsHasMore = ref(true)
 
 const filter = ref([1])
 const viewMode = ref("grid")
@@ -268,17 +234,6 @@ const updateQueryParams = () => {
     delete queryParams.f
   }
 
-  if (!!catalogueStore.ownersSelected && catalogueStore.ownersSelected.length > 0) {
-    queryParams[`filter{owner.pk.in}`] = catalogueStore.ownersSelected
-  } else {
-    delete queryParams[`filter{owner.pk.in}`]
-  }
-
-  if (catalogueStore.groupsSelected && catalogueStore.groupsSelected.length > 0) {
-    queryParams[`filter{group.in}`] = catalogueStore.groupsSelected
-  } else {
-    delete queryParams[`filter{group.in}`]
-  }
 
   if (catalogueStore.filterUsingExtent) {
     const [xmin, ymin, xmax, ymax] = catalogueStore.filterExtent
@@ -295,8 +250,6 @@ const updateQueryParams = () => {
 const initializeTickedFromQuery = async () => {
   const queryParamsTicked: LocationQueryValue | LocationQueryValue[] | undefined = route.query.f
   const queryParamsSearch: string | undefined = typeof route.query.q === 'string' ? route.query.q : undefined;
-  const queryParamsOwners: LocationQueryValue | LocationQueryValue[] | undefined = route.query['filter{owner.pk.in}']
-  const queryParamsGroups: LocationQueryValue | LocationQueryValue[] | undefined = route.query['filter{group.in}']
   const queryParamsExtent: LocationQueryValue | LocationQueryValue[] | undefined = route.query.extent
 
   if (Object.keys(route.query).length > 0) {
@@ -319,30 +272,6 @@ const initializeTickedFromQuery = async () => {
 
   if (queryParamsSearch) {
     catalogueStore.filterInputSearch = queryParamsSearch
-  }
-
-  if (queryParamsOwners) {
-    catalogueStore.ownersSelected = Array.isArray(queryParamsOwners) ? queryParamsOwners : [queryParamsOwners]
-
-    setTimeout(async () => {
-      while (!catalogueStore.ownersSelected.every(selectedKey =>
-          catalogueStore.ownersList.some(owner => owner.key === selectedKey))) {
-        await fetchOwners()
-        if (!ownersHasMore.value) break
-      }
-    }, 300)
-  }
-
-  if (queryParamsGroups) {
-    catalogueStore.groupsSelected = Array.isArray(queryParamsGroups) ? queryParamsGroups : [queryParamsGroups]
-
-    setTimeout(async () => {
-      while (catalogueStore.groupsSelected.every(selectedKey =>
-          catalogueStore.groupsList.some(group => group.key === selectedKey))) {
-        await fetchGroups()
-        if (!groupsHasMore.value) break
-      }
-    }, 300)
   }
 
   if (queryParamsExtent && typeof queryParamsExtent === 'string') {
@@ -371,66 +300,6 @@ const initializeTickedFromQuery = async () => {
 
 }
 
-
-const fetchOwners = async () => {
-  if (ownersLoading.value || !ownersHasMore.value) return;
-  ownersLoading.value = true;
-
-  try {
-    const {data} = await useFetch<FacetsResponse>(`https://development.demo.geonode.org/api/v2/facets/owner?page=${ownersPage.value}&page_size=${ownersPageSize}`);
-    const {topics: {items = []} = {}} = data.value || {};
-    if (items.length) {
-      catalogueStore.ownersList.push(...items)
-      ownersPage.value++
-    } else {
-      ownersHasMore.value = false;
-    }
-  } catch (error) {
-    console.error('Error fetching owners:', error);
-  } finally {
-    ownersLoading.value = false;
-  }
-}
-
-const handleOwnersScroll = ({to}: ScrollEvent) => {
-  if (!ownersLoading.value && ownersHasMore.value && to === catalogueStore.ownersList.length - 1) {
-    fetchOwners();
-  }
-}
-
-const fetchGroups = async () => {
-  if (groupsLoading.value || !groupsHasMore.value) return;
-  groupsLoading.value = true;
-
-  try {
-    const {data} = await useFetch<FacetsResponse>(`https://development.demo.geonode.org/api/v2/facets/group?page=${groupsPage.value}&page_size=${groupsPageSize}`);
-    const {topics: {items = []} = {}} = data.value || {};
-    if (items.length) {
-      catalogueStore.groupsList.push(...items)
-      groupsPage.value++
-    } else {
-      groupsHasMore.value = false;
-    }
-  } catch (error) {
-    console.error('Error fetching groups:', error);
-  } finally {
-    groupsLoading.value = false;
-  }
-};
-
-const handleGroupsScroll = ({to}: ScrollEvent) => {
-  if (!groupsLoading.value && groupsHasMore.value && to === catalogueStore.groupsList.length - 1) {
-    fetchGroups();
-  }
-}
-
-watch(() => catalogueStore.leftDrawerOpen, () => {
-  if (catalogueStore.leftDrawerOpen) {
-    if (!catalogueStore.ownersList.length) fetchOwners()
-    if (!catalogueStore.groupsList.length) fetchGroups()
-  }
-})
-
 onMounted(() => {
   if (Object.keys(route.query).length > 0) {
     setTimeout(() => {
@@ -446,8 +315,6 @@ onMounted(() => {
 
     } else {
       console.log("si previous route")
-      catalogueStore.ownersSelected = []
-      catalogueStore.groupsSelected = []
 
       catalogueStore.filterUsingExtent = false
       catalogueStore.filterExtent = [-180, -90, 180, 90]

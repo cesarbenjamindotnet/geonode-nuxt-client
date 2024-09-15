@@ -26,9 +26,9 @@ export const useCatalogueStore = defineStore('catalogue', {
         regionsList: [] as FacetItem[],
         regionsSelected: [] as LocationQueryValue[],
         ownersList: [] as FacetItem[],
-        ownersSelected: [] as LocationQueryValue[],
+        ownersSelected: [] as LocationQueryValue[] | number[],
         groupsList: [] as FacetItem[],
-        groupsSelected: [] as LocationQueryValue[],
+        groupsSelected: [] as LocationQueryValue[] | number[],
         resourceTreeNodes: [
             {value: 'my-resources', label: 'My resources', showIfUserIsLoggedIn: true},
             {value: 'favorite', label: 'Favorites', showIfUserIsLoggedIn: true},
