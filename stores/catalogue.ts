@@ -53,6 +53,8 @@ export const useCatalogueStore = defineStore('catalogue', {
         ] as ResourceTreeNode[],
 
         filterInputSearch: undefined as undefined | string,
+        filterInputDateFrom: undefined as undefined | string,
+        filterInputDateTo: undefined as undefined | string,
     }),
     getters: {
         getFilterUsingExtent: state => state.filterUsingExtent,

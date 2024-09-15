@@ -66,6 +66,10 @@
 
             <CatalogueSelectGroups />
 
+            <CatalogueDateFrom />
+
+            <CatalogueDateTo />
+
             <div class="row">
               <q-toggle
                   v-model="catalogueStore.filterUsingExtent"
