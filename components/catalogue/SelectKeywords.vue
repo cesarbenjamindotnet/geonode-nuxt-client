@@ -11,6 +11,7 @@
               emit-value
               map-options
               @clear="catalogueStore.keywordsSelected = []"
+              @input-value="inputValue"
               @update:model-value="updateQueryParams"
               popup-no-route-dismiss
               multiple use-input class="full-width" @virtual-scroll="handleSelectScroll"
@@ -30,6 +31,7 @@ const dataLoading = ref(false)
 const dataPage = ref(0)
 const dataPageSize = 20
 const dataHasMore = ref(true)
+const topic = ref<string>('');
 
 const fetchKeywords = async () => {
   /**
@@ -40,7 +42,8 @@ const fetchKeywords = async () => {
 
   if (dataLoading.value || !dataHasMore.value) return
   dataLoading.value = true
-  const url = `https://development.demo.geonode.org/api/v2/facets/keyword?page=${dataPage.value}&page_size=${dataPageSize}`
+  const topicQuery = topic.value ? `&topic_contains=${topic.value}` : ''
+  const url = `https://development.demo.geonode.org/api/v2/facets/keyword?page=${dataPage.value}&page_size=${dataPageSize}${topicQuery}`
 
   try {
     const {data} = await useFetch<FacetsResponse>(url);
@@ -65,8 +68,29 @@ const handleSelectScroll = ({to}: ScrollEvent) => {
    * calls the fetchDataItems function to load more keywords.
    */
 
+  console.log("to", to)
+
   if (!dataLoading.value && dataHasMore.value && to === catalogueStore.keywordsList.length - 1) {
     fetchKeywords();
+  }
+}
+
+const inputValue = (val: string) => {
+  /**
+   * This function filters the keywordsList based on the input value.
+   * It updates the keywordsList in the catalogueStore with the filtered list of keywords.
+   */
+
+  topic.value = val
+  if (!val) {
+    dataPage.value = 0
+    dataHasMore.value = true
+    fetchKeywords()
+  } else {
+    catalogueStore.keywordsList = []
+    dataPage.value = 0
+    dataHasMore.value = true
+    fetchKeywords()
   }
 }
 

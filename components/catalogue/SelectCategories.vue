@@ -11,6 +11,7 @@
               emit-value
               map-options
               @clear="catalogueStore.categoriesSelected = []"
+              @input-value="inputValue"
               @update:model-value="updateQueryParams"
               popup-no-route-dismiss
               multiple use-input class="full-width" @virtual-scroll="handleSelectScroll"
@@ -30,6 +31,7 @@ const dataLoading = ref(false)
 const dataPage = ref(0)
 const dataPageSize = 20
 const dataHasMore = ref(true)
+const topic = ref<string>('');
 
 const fetchCategories = async () => {
   /**
@@ -40,7 +42,8 @@ const fetchCategories = async () => {
 
   if (dataLoading.value || !dataHasMore.value) return
   dataLoading.value = true
-  const url = `https://development.demo.geonode.org/api/v2/facets/category?page=${dataPage.value}&page_size=${dataPageSize}`
+  const topicQuery = topic.value ? `&topic_contains=${topic.value}` : ''
+  const url = `https://development.demo.geonode.org/api/v2/facets/category?page=${dataPage.value}&page_size=${dataPageSize}${topicQuery}`
 
   try {
     const {data} = await useFetch<FacetsResponse>(url)
@@ -62,11 +65,30 @@ const handleSelectScroll = ({to}: ScrollEvent) => {
   /**
    * This function is called when the user scrolls the select component.
    * It checks if the user has reached the end of the list of categories and
-   * calls the fetchDataItems function to load more categories.
+   * calls the fetchCategories function to load more categories.
    */
 
   if (!dataLoading.value && dataHasMore.value && to === catalogueStore.categoriesList.length - 1) {
     fetchCategories();
+  }
+}
+
+const inputValue = (val: string) => {
+  /**
+   * This function filters the categoriesList based on the input value.
+   * It updates the categoriesList in the catalogueStore with the filtered list of categories.
+   */
+
+  topic.value = val
+  if (!val) {
+    dataPage.value = 0
+    dataHasMore.value = true
+    fetchCategories()
+  } else {
+    catalogueStore.categoriesList = []
+    dataPage.value = 0
+    dataHasMore.value = true
+    fetchCategories()
   }
 }
 

@@ -11,6 +11,7 @@
               emit-value
               map-options
               @clear="catalogueStore.groupsSelected = []"
+              @input-value="inputValue"
               @update:model-value="updateQueryParams"
               popup-no-route-dismiss
               multiple use-input class="full-width" @virtual-scroll="handleSelectScroll"
@@ -30,6 +31,7 @@ const dataLoading = ref(false)
 const dataPage = ref(0)
 const dataPageSize = 20
 const dataHasMore = ref(true)
+const topic = ref<string>('');
 
 const fetchGroups = async () => {
   /**
@@ -40,7 +42,8 @@ const fetchGroups = async () => {
 
   if (dataLoading.value || !dataHasMore.value) return
   dataLoading.value = true
-  const url = `https://development.demo.geonode.org/api/v2/facets/group?page=${dataPage.value}&page_size=${dataPageSize}`
+  const topicQuery = topic.value ? `&topic_contains=${topic.value}` : ''
+  const url = `https://development.demo.geonode.org/api/v2/facets/group?page=${dataPage.value}&page_size=${dataPageSize}${topicQuery}`
 
   try {
     const {data} = await useFetch<FacetsResponse>(url)
@@ -62,11 +65,30 @@ const handleSelectScroll = ({to}: ScrollEvent) => {
   /**
    * This function is called when the user scrolls the select component.
    * It checks if the user has reached the end of the list of groups and
-   * calls the fetchDataItems function to load more groups.
+   * calls the fetchGroups function to load more groups.
    */
 
   if (!dataLoading.value && dataHasMore.value && to === catalogueStore.groupsList.length - 1) {
     fetchGroups();
+  }
+}
+
+const inputValue = (val: string) => {
+  /**
+   * This function filters the groupsList based on the input value.
+   * It updates the groupsList in the catalogueStore with the filtered list of groups.
+   */
+
+  topic.value = val
+  if (!val) {
+    dataPage.value = 0
+    dataHasMore.value = true
+    fetchGroups()
+  } else {
+    catalogueStore.groupsList = []
+    dataPage.value = 0
+    dataHasMore.value = true
+    fetchGroups()
   }
 }
 
