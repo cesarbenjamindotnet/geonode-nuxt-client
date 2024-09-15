@@ -245,7 +245,6 @@ const updateQueryParams = () => {
 // Función para inicializar el estado de 'ticked' según los query params
 const initializeTickedFromQuery = async () => {
   const queryParamsTicked: LocationQueryValue | LocationQueryValue[] | undefined = route.query.f
-  const queryParamsExtent: LocationQueryValue | LocationQueryValue[] | undefined = route.query.extent
 
   if (Object.keys(route.query).length > 0) {
     catalogueStore.leftDrawerOpen = true
@@ -265,30 +264,6 @@ const initializeTickedFromQuery = async () => {
     })
   }
 
-  if (queryParamsExtent && typeof queryParamsExtent === 'string') {
-    console.log("queryParamsExtent", queryParamsExtent)
-    const [xmin, ymin, xmax, ymax] = queryParamsExtent.split(',')
-    catalogueStore.filterUsingExtent = true
-    catalogueStore.filterExtent = [parseFloat(xmin), parseFloat(ymin), parseFloat(xmax), parseFloat(ymax)]
-    catalogueStore.filterExtentPolygon = [
-      [
-        [parseFloat(xmin), parseFloat(ymin)],
-        [parseFloat(xmin), parseFloat(ymax)],
-        [parseFloat(xmax), parseFloat(ymax)],
-        [parseFloat(xmax), parseFloat(ymin)],
-        [parseFloat(xmin), parseFloat(ymin)],
-      ],
-    ]
-  }
-
-  if (!queryParamsExtent) {
-    setTimeout(() => {
-      catalogueStore.filterUsingExtent = false
-      catalogueStore.filterExtent = [-180, -90, 180, 90]
-      console.log("catalogueStore.filterExtent", catalogueStore.filterExtent)
-    }, 300)
-  }
-
 }
 
 onMounted(() => {
@@ -306,18 +281,6 @@ onMounted(() => {
 
     } else {
       console.log("si previous route")
-
-      catalogueStore.filterUsingExtent = false
-      catalogueStore.filterExtent = [-180, -90, 180, 90]
-      catalogueStore.filterExtentPolygon = [
-        [
-          [-180, -90],
-          [-180, 90],
-          [180, 90],
-          [180, -90],
-          [-180, -90],
-        ]
-      ]
     }
   }, 100)
 })

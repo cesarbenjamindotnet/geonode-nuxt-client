@@ -116,21 +116,30 @@ const initializeExtentFromQueryParams = () => {
 }
 
 onMounted(() => {
+  if (!catalogueStore.hasPreviousRoute) {
+    setTimeout(async () => {
+      await initializeExtentFromQueryParams()
+    }, 200)
+  } else {
+    catalogueStore.filterUsingExtent = false
+    catalogueStore.filterExtent = [-180, -90, 180, 90]
+    catalogueStore.filterExtentPolygon = [
+      [
+        [-180, -90],
+        [-180, 90],
+        [180, 90],
+        [180, -90],
+        [-180, -90],
+      ],
+    ]
+  }
+
   setTimeout(() => {
     mounted.value = true
     if (mounted.value && olViewRef.value) {
       olViewRef.value.fit(catalogueStore.filterExtent, {duration: 400})
     }
-  }, 200);
-
-  if (!catalogueStore.hasPreviousRoute) {
-    setTimeout(async () => {
-      await initializeExtentFromQueryParams()
-    }, 300)
-  } else {
-    catalogueStore.filterInputSearch = undefined
-  }
-
+  }, 300);
 })
 
 // Watch for changes on the filterInputSearch property of the catalogueStore,
