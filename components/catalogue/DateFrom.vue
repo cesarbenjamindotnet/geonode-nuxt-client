@@ -27,6 +27,8 @@
 </template>
 
 <script setup lang="ts">
+import type {LocationQueryValue} from "vue-router";
+
 const catalogueStore = useCatalogueStore()
 const router = useRouter()
 const route = useRoute()
@@ -49,6 +51,20 @@ const updateQueryParams = () => {
   }
 
   router.push({query: queryParams})
+}
+
+const initializeDateFromFromQueryParams = () => {
+  /**
+   * This function initializes the filterInputDateFrom property of the catalogueStore with the value of the 'filter{date.gte}'
+   * query parameter in the URL. If the 'filter{date.gte}' query parameter is not present, it sets the filterInputDateFrom
+   * property to an empty string.
+   */
+
+  if (route.query['filter{date.gte}']) {
+    catalogueStore.filterInputDateFrom = route.query['filter{date.gte}']?.toString()
+  } else {
+    catalogueStore.filterInputDateFrom = undefined
+  }
 }
 
 const validateDate = (val) => {
@@ -82,6 +98,16 @@ const openDatePopup = () => {
     popupProxy.value.show(); // Muestra el popup
   }
 }
+
+onMounted(() => {
+  if (!catalogueStore.hasPreviousRoute) {
+    setTimeout(async () => {
+      await initializeDateFromFromQueryParams()
+    }, 400)
+  } else {
+    catalogueStore.filterInputDateFrom = undefined
+  }
+})
 
 // Watch for changes on the filterInputSearch property of the catalogueStore,
 // When the filterInputSearch property changes, it calls the updateQueryParams function

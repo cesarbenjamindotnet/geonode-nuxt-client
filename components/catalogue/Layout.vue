@@ -56,19 +56,19 @@
               />
             </div>
 
-            <CatalogueSelectCategories />
+            <CatalogueSelectCategories/>
 
-            <CatalogueSelectKeywords />
+            <CatalogueSelectKeywords/>
 
-            <CatalogueSelectRegions />
+            <CatalogueSelectRegions/>
 
-            <CatalogueSelectOwners />
+            <CatalogueSelectOwners/>
 
-            <CatalogueSelectGroups />
+            <CatalogueSelectGroups/>
 
-            <CatalogueDateFrom />
+            <CatalogueDateFrom/>
 
-            <CatalogueDateTo />
+            <CatalogueDateTo/>
 
             <div class="row">
               <q-toggle
@@ -79,9 +79,9 @@
                   unchecked-icon="clear"
               />
             </div>
-            <div class="row" style="margin-top: 4px;">
-              <CatalogueFilterExtentMap/>
-            </div>
+
+            <CatalogueFilterExtentMap/>
+
             <p><!-- end spacer --></p>
 
           </div>
@@ -238,14 +238,6 @@ const updateQueryParams = () => {
     delete queryParams.f
   }
 
-
-  if (catalogueStore.filterUsingExtent) {
-    const [xmin, ymin, xmax, ymax] = catalogueStore.filterExtent
-    queryParams.extent = `${xmin},${ymin},${xmax},${ymax}`
-  } else {
-    delete queryParams.extent
-  }
-
   // Navegamos a la URL con los nuevos query params
   router.push({query: queryParams})
 }
@@ -253,7 +245,6 @@ const updateQueryParams = () => {
 // Función para inicializar el estado de 'ticked' según los query params
 const initializeTickedFromQuery = async () => {
   const queryParamsTicked: LocationQueryValue | LocationQueryValue[] | undefined = route.query.f
-  const queryParamsSearch: string | undefined = typeof route.query.q === 'string' ? route.query.q : undefined;
   const queryParamsExtent: LocationQueryValue | LocationQueryValue[] | undefined = route.query.extent
 
   if (Object.keys(route.query).length > 0) {
@@ -272,10 +263,6 @@ const initializeTickedFromQuery = async () => {
         return false
       })
     })
-  }
-
-  if (queryParamsSearch) {
-    catalogueStore.filterInputSearch = queryParamsSearch
   }
 
   if (queryParamsExtent && typeof queryParamsExtent === 'string') {
@@ -338,8 +325,6 @@ onMounted(() => {
 watch(
     [
       tickedResourceTreeNodes,
-      () => catalogueStore.filterUsingExtent,
-      () => catalogueStore.filterExtent
     ],
     () => {
       setTimeout(() => {

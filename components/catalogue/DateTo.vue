@@ -51,6 +51,20 @@ const updateQueryParams = () => {
   router.push({query: queryParams})
 }
 
+const initializeDateToFromQueryParams = () => {
+  /**
+   * This function initializes the filterInputDateTo property of the catalogueStore with the value of the 'filter{date.lte}'
+   * query parameter in the URL. If the 'filter{date.lte}' query parameter is not present, it sets the filterInputDateTo
+   * property to an empty string.
+   */
+
+  if (route.query['filter{date.lte}']) {
+    catalogueStore.filterInputDateTo = route.query['filter{date.lte}']?.toString()
+  } else {
+    catalogueStore.filterInputDateTo = undefined
+  }
+}
+
 const validateDate = (val) => {
   if (!val) {
     return true; // No hacer validación si no hay valor
@@ -82,6 +96,16 @@ const openDatePopup = () => {
     popupProxy.value.show(); // Muestra el popup
   }
 }
+
+onMounted(() => {
+  if (!catalogueStore.hasPreviousRoute) {
+    setTimeout(async () => {
+      await initializeDateToFromQueryParams()
+    }, 400)
+  } else {
+    catalogueStore.filterInputDateTo = undefined
+  }
+})
 
 // Watch for changes on the filterInputSearch property of the catalogueStore,
 // When the filterInputSearch property changes, it calls the updateQueryParams function
