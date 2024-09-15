@@ -46,7 +46,7 @@ const fetchKeywords = async () => {
     const {data} = await useFetch<FacetsResponse>(url);
     const {topics: {items = []} = {}} = data.value || {};
     if (items.length) {
-      catalogueStore.keywordsList.push(...items.filter(item => !catalogueStore.keywordsList.includes(item)))
+      catalogueStore.keywordsList.push(...items.filter(item => !catalogueStore.keywordsList.some(keyword => keyword.key === item.key)))
       dataPage.value++
     } else {
       dataHasMore.value = false

@@ -46,7 +46,7 @@ const fetchOwners = async () => {
     const {data} = await useFetch<FacetsResponse>(url)
     const {topics: {items = []} = {}} = data.value || {}
     if (items.length) {
-      catalogueStore.ownersList.push(...items.filter(item => !catalogueStore.ownersList.includes(item)))
+      catalogueStore.ownersList.push(...items.filter(item => !catalogueStore.ownersList.some(owner => owner.key === item.key)))
       dataPage.value++
     } else {
       dataHasMore.value = false

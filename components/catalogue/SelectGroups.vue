@@ -46,7 +46,7 @@ const fetchGroups = async () => {
     const {data} = await useFetch<FacetsResponse>(url)
     const {topics: {items = []} = {}} = data.value || {}
     if (items.length) {
-      catalogueStore.groupsList.push(...items.filter(item => !catalogueStore.groupsList.includes(item)))
+      catalogueStore.groupsList.push(...items.filter(item => !catalogueStore.groupsList.some(group => group.key === item.key)))
       dataPage.value++
     } else {
       dataHasMore.value = false

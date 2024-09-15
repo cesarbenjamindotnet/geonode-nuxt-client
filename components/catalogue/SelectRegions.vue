@@ -46,7 +46,7 @@ const fetchRegions = async () => {
     const {data} = await useFetch<FacetsResponse>(url)
     const {topics: {items = []} = {}} = data.value || {}
     if (items.length) {
-      catalogueStore.regionsList.push(...items.filter(item => !catalogueStore.regionsList.includes(item)))
+      catalogueStore.regionsList.push(...items.filter(item => !catalogueStore.regionsList.some(region => region.key === item.key)))
       dataPage.value++
     } else {
       dataHasMore.value = false
