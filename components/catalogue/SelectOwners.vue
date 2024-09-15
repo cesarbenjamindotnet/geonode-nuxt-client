@@ -24,6 +24,7 @@ import type {FacetsResponse, ScrollEvent} from "@/interfaces/catalogue"
 import type {LocationQueryValue} from "vue-router";
 
 const catalogueStore = useCatalogueStore()
+const authStore = useAuthStore()
 const router = useRouter()
 const route = useRoute()
 
@@ -45,8 +46,14 @@ const fetchOwners = async () => {
   const topicQuery = topic.value ? `&topic_contains=${topic.value}` : ''
   const url = `https://development.demo.geonode.org/api/v2/facets/owner?page=${dataPage.value}&page_size=${dataPageSize}${topicQuery}`
 
+  let headers = {}
+  if (authStore.isAuthenticated) {
+    // headers = {Authorization: `Bearer ${authStore.token.access_token}`}
+    // TODO: implementar esto cuando tenga mejor armado el backend
+  }
+
   try {
-    const {data} = await useFetch<FacetsResponse>(url)
+    const {data} = await useFetch<FacetsResponse>(url, {headers: headers})
     const {topics: {items = []} = {}} = data.value || {}
     if (items.length) {
       catalogueStore.ownersList.push(...items.filter(item => !catalogueStore.ownersList.some(owner => owner.key === item.key)))
@@ -67,8 +74,6 @@ const handleSelectScroll = ({to}: ScrollEvent) => {
    * It checks if the user has reached the end of the list of owners and
    * calls the fetchOwners function to load more owners.
    */
-
-  console.log("to", to)
 
   if (!dataLoading.value && dataHasMore.value && to === catalogueStore.ownersList.length - 1) {
     fetchOwners();

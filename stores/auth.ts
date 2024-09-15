@@ -6,8 +6,8 @@ import {defineStore} from 'pinia';
 export const useAuthStore = defineStore('auth', {
     state: () => ({
         isAuthenticated: false,
-        token: null,
-        user: null,
+        token: null as null | any,
+        user: null as null | any,
     }),
     actions: {
         setToken(token: any) {
