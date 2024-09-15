@@ -1,4 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import {defineQuasarConfig} from './quasar.config'
 
 export default defineNuxtConfig({
     app: {
@@ -7,7 +8,7 @@ export default defineNuxtConfig({
             meta: [
                 {
                     name: 'description',
-                    content: 'Geonode WebApp Client Made with Nuxt3 and VueJS 3 (As replacement Geonode Mapstore Client)'
+                    content: 'Geonode WebApp Client Made with Nuxt3 and VueJS 3 (As replacement Geonode MapStore Client)'
                 }
             ],
             link: [
@@ -26,25 +27,7 @@ export default defineNuxtConfig({
             'composables/**',
         ]
     },
-    quasar: {
-        config: {
-            brand: {
-                primary: '#1976D2',
-                secondary: '#26A69A',
-                accent: '#9C27B0',
-                dark: '#1D1D1D',
-                "dark-page": '#121212',
-                positive: '#21BA45',
-                negative: '#C10015',
-                info: '#31CCEC',
-                warning: '#F2C037'
-            },
-        },
-        iconSet: 'material-icons',
-        extras: {
-            fontIcons: ['mdi-v5']
-        }
-    },
+    quasar: defineQuasarConfig(),
     vue: {
         compilerOptions: {}
     },
@@ -68,6 +51,7 @@ export default defineNuxtConfig({
     },
     runtimeConfig: {
         public: {
+            quasarBrand: defineQuasarConfig().config.brand,
             NUXT_BASE_URL: process.env.NUXT_BASE_URL || 'http://localhost:3000',
             GEOSERVER_BASEURL: process.env.NUXT_GEOSERVER_BASEURL || 'http://localhost:8080/geoserver',
             GEONODE_BASEURL: process.env.NUXT_GEONODE_BASEURL || 'http://localhost:8080',

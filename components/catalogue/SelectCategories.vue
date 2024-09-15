@@ -3,7 +3,6 @@
     <b>Category</b>
   </div>
   <div class="row q-pb-md" style="margin-top: 4px;">
-    <p>{{ catalogueStore.categoriesSelected }}</p>
     <q-select outlined dense v-model="catalogueStore.categoriesSelected"
               :options="catalogueStore.categoriesList" label="Select categories"
               use-chips clearable
@@ -14,12 +13,117 @@
               @clear="catalogueStore.categoriesSelected = []"
               @update:model-value="updateQueryParams"
               popup-no-route-dismiss
-              multiple use-input class="full-width" @virtual-scroll="handleCategoriesScroll"
-              :loading="categoriesLoading"/>
+              multiple use-input class="full-width" @virtual-scroll="handleSelectScroll"
+              :loading="dataLoading"/>
   </div>
 </template>
 
 <script setup lang="ts">
+import type {FacetsResponse, ScrollEvent} from "@/interfaces/catalogue"
+import type {LocationQueryValue} from "vue-router";
+
 const catalogueStore = useCatalogueStore()
+const router = useRouter()
+const route = useRoute()
+
+const dataLoading = ref(false)
+const dataPage = ref(0)
+const dataPageSize = 20
+const dataHasMore = ref(true)
+
+const fetchCategories = async () => {
+  /**
+   * This function fetches categories from the API and adds them to the categoriesList array in the catalogueStore.
+   * It updates the categoriesPage value to fetch the next page of categories.
+   * If there are no more categories to fetch, it sets the categoriesHasMore value to false.
+   */
+
+  if (dataLoading.value || !dataHasMore.value) return
+  dataLoading.value = true
+  const url = `https://development.demo.geonode.org/api/v2/facets/category?page=${dataPage.value}&page_size=${dataPageSize}`
+
+  try {
+    const {data} = await useFetch<FacetsResponse>(url);
+    const {topics: {items = []} = {}} = data.value || {};
+    if (items.length) {
+      catalogueStore.categoriesList.push(...items)
+      dataPage.value++
+    } else {
+      dataHasMore.value = false
+    }
+  } catch (error) {
+    console.error('Error fetching data:', error)
+  } finally {
+    dataLoading.value = false
+  }
+}
+
+const handleSelectScroll = ({to}: ScrollEvent) => {
+  /**
+   * This function is called when the user scrolls the select component.
+   * It checks if the user has reached the end of the list of categories and
+   * calls the fetchDataItems function to load more categories.
+   */
+
+  if (!dataLoading.value && dataHasMore.value && to === catalogueStore.categoriesList.length - 1) {
+    fetchCategories();
+  }
+};
+
+const updateQueryParams = () => {
+  /**
+   * This function updates the query parameters in the URL based on the changes on the categoriesSelected property
+   * of the catalogueStore. If the categoriesSelected is empty, it removes the 'categories' query parameter from the URL.
+   * When the categoriesSelected is not empty, it adds the 'categories' query parameter to the URL.
+   */
+
+  const queryParams = {...route.query}
+
+  if (!!catalogueStore.categoriesSelected && catalogueStore.categoriesSelected.length > 0) {
+    queryParams[`filter{category.identifier.in}`] = catalogueStore.categoriesSelected
+  } else {
+    delete queryParams[`filter{category.identifier.in}`]
+  }
+
+  router.push({query: queryParams})
+}
+
+const initializeCategoriesFromQueryParams = async () => {
+  /**
+   * This function initializes the categoriesSelected property of the catalogueStore
+   * based on the query parameters in the URL.
+   * If the 'categories' query parameter is present in the URL, it sets the categoriesSelected
+   * property of the catalogueStore to the values in the query parameter.
+   * It fetches the categories from the API if the categoriesSelected values are not present in the categoriesList.
+   */
+
+  const queryParamsCategories: LocationQueryValue | LocationQueryValue[] | undefined = route.query['filter{category.identifier.in}']
+
+  if (queryParamsCategories) {
+    catalogueStore.categoriesSelected = Array.isArray(queryParamsCategories) ? queryParamsCategories : [queryParamsCategories]
+
+    while (!catalogueStore.categoriesSelected.every(selectedKey =>
+        catalogueStore.categoriesList.some(category => category.key === selectedKey))) {
+      await fetchCategories()
+      if (!dataHasMore.value) break
+    }
+  }
+}
+
+onMounted(() => {
+  if (!catalogueStore.hasPreviousRoute) {
+    setTimeout(async () => {
+      await initializeCategoriesFromQueryParams()
+    }, 800)
+  } else {
+    catalogueStore.categoriesSelected = []
+  }
+})
+
+watch(() => catalogueStore.leftDrawerOpen, () => {
+  if (catalogueStore.leftDrawerOpen) {
+    if (!catalogueStore.categoriesList.length) fetchCategories()
+  }
+})
 
 </script>

@@ -21,7 +21,8 @@
     </q-header>
 
     <q-page-container>
-      <q-drawer v-model="leftDrawerOpen" side="left" bordered behavior="desktop" :width="leftDrawerWidth">
+      <q-drawer v-model="catalogueStore.leftDrawerOpen" side="left" bordered behavior="desktop"
+                :width="leftDrawerWidth">
         <!-- drawer content -->
         <q-toolbar>
           <span class="text-grey-9"><q-icon name="mdi-filter" style="top: -1.5px"/></span>
@@ -41,10 +42,10 @@
 
             <CatalogueInputSearch/>
 
-            <div class="row">
+            <div v-if="false" class="row">
               <b>Resources</b>
             </div>
-            <div class="row q-pb-md" style="margin-top: 0">
+            <div v-if="false" class="row q-pb-md" style="margin-top: 0">
               <q-tree
                   :nodes="filteredResourceTreeNodes"
                   v-model:ticked="tickedResourceTreeNodes"
@@ -54,59 +55,20 @@
                   no-connectors
               />
             </div>
-            <div class="row">
-              <b>Category</b>
-            </div>
-            <div class="row q-pb-md" style="margin-top: 4px;">
-              <p>{{ catalogueStore.categoriesSelected }}</p>
-              <q-select outlined dense v-model="catalogueStore.categoriesSelected"
-                        :options="catalogueStore.categoriesList" label="Select categories"
-                        use-chips clearable
-                        option-value="key"
-                        :option-label="(item) => item.label + ' (' + item.count + ')'"
-                        emit-value
-                        map-options
-                        @clear="catalogueStore.categoriesSelected = []"
-                        @update:model-value="updateQueryParams"
-                        popup-no-route-dismiss
-                        multiple use-input class="full-width" @virtual-scroll="handleCategoriesScroll"
-                        :loading="categoriesLoading"/>
-            </div>
-            <div class="row">
-              <b>Keyword</b>
-            </div>
-            <div class="row q-pb-md" style="margin-top: 4px;">
-              <p>{{ catalogueStore.keywordsSelected }}</p>
-              <q-select outlined dense v-model="catalogueStore.keywordsSelected" :options="catalogueStore.keywordsList"
-                        label="Select keywords"
-                        option-value="key" :option-label="(item) => item.label + ' (' + item.count + ')'" multiple
-                        use-input use-chips clearable emit-value map-options
-                        @clear="catalogueStore.keywordsSelected = []"
-                        @update:model-value="updateQueryParams"
-                        popup-no-route-dismiss
-                        class="full-width" @virtual-scroll="handleKeywordsScroll" :loading="keywordsLoading"/>
-            </div>
-            <div class="row">
-              <b>Region</b>
-            </div>
-            <div class="row q-pb-md" style="margin-top: 4px;">
-              <p>{{ catalogueStore.regionsSelected }}</p>
-              <q-select outlined dense v-model="catalogueStore.regionsSelected" :options="catalogueStore.regionsList"
-                        label="Select keywords"
-                        option-value="key" :option-label="(item) => item.label + ' (' + item.count + ')'" multiple
-                        use-input use-chips clearable emit-value map-options
-                        @clear="catalogueStore.regionsSelected = []"
-                        @update:model-value="updateQueryParams"
-                        popup-no-route-dismiss
-                        class="full-width" @scroll="handleRegionsScroll" :loading="regionsLoading"/>
-            </div>
+
+            <CatalogueSelectCategories />
+
+            <CatalogueSelectKeywords />
+
+            <CatalogueSelectRegions />
+
             <div class="row">
               <b>Owner</b>
             </div>
             <div class="row q-pb-md" style="margin-top: 4px;">
               <p>{{ catalogueStore.ownersSelected }}</p>
               <q-select outlined dense v-model="catalogueStore.ownersSelected" :options="catalogueStore.ownersList"
-                        label="Select keywords"
+                        label="Select Owner"
                         option-value="key" :option-label="(item) => item.label + ' (' + item.count + ')'" multiple
                         use-input use-chips clearable emit-value map-options
                         @clear="catalogueStore.ownersSelected = []"
@@ -120,7 +82,7 @@
             <div class="row q-pb-md" style="margin-top: 4px;">
               <p>{{ catalogueStore.groupsSelected }}</p>
               <q-select outlined dense v-model="catalogueStore.groupsSelected" :options="catalogueStore.groupsList"
-                        label="Select keywords"
+                        label="Select Group"
                         option-value="key" :option-label="(item) => item.label + ' (' + item.count + ')'" multiple
                         use-input use-chips clearable emit-value map-options
                         @clear="catalogueStore.groupsSelected = []"
@@ -172,24 +134,8 @@ const router = useRouter()
 const route = useRoute()
 const $q = useQuasar()
 
-const leftDrawerOpen = ref(false)
-
 const tickedResourceTreeNodes = ref<LocationQueryValue[]>([])
 
-const categoriesLoading = ref(false)
-const categoriesPage = ref(0)
-const categoriesPageSize = 20
-const categoriesHasMore = ref(true)
-
-const keywordsLoading = ref(false)
-const keywordsPage = ref(0)
-const keywordsPageSize = 20
-const keywordsHasMore = ref(true)
-
-const regionsLoading = ref(false)
-const regionsPage = ref(0)
-const regionsPageSize = 20
-const regionsHasMore = ref(true)
 
 const ownersLoading = ref(false)
 const ownersPage = ref(0)
@@ -271,7 +217,7 @@ const filteredResourceTreeNodes = computed(() => {
 });
 
 const toggleLeftDrawer = () => {
-  leftDrawerOpen.value = !leftDrawerOpen.value
+  catalogueStore.leftDrawerOpen = !catalogueStore.leftDrawerOpen
 }
 
 const toggleViewMode = () => {
@@ -281,7 +227,6 @@ const toggleViewMode = () => {
 // Función para actualizar los query params en la URL cuando se seleccionan nodos
 const updateQueryParams = () => {
   const queryParams = {...route.query}
-  console.log("updateQueryParams queryParams", queryParams)
 
   // Obtener los nodos hijos del tipo 'dataset'
   const datasetNode = resourceTreeNodes.find(node => node.value === 'dataset')
@@ -323,24 +268,6 @@ const updateQueryParams = () => {
     delete queryParams.f
   }
 
-  if (!!catalogueStore.categoriesSelected && catalogueStore.categoriesSelected.length > 0) {
-    queryParams[`filter{category.identifier.in}`] = catalogueStore.categoriesSelected
-  } else {
-    delete queryParams[`filter{category.identifier.in}`]
-  }
-
-  if (!!catalogueStore.keywordsSelected && catalogueStore.keywordsSelected.length > 0) {
-    queryParams[`filter{keywords.slug.in}`] = catalogueStore.keywordsSelected
-  } else {
-    delete queryParams[`filter{keywords.slug.in}`]
-  }
-
-  if (!!catalogueStore.regionsSelected && catalogueStore.regionsSelected.length > 0) {
-    queryParams[`filter{regions.code.in}`] = catalogueStore.regionsSelected
-  } else {
-    delete queryParams[`filter{regions.code.in}`]
-  }
-
   if (!!catalogueStore.ownersSelected && catalogueStore.ownersSelected.length > 0) {
     queryParams[`filter{owner.pk.in}`] = catalogueStore.ownersSelected
   } else {
@@ -368,15 +295,12 @@ const updateQueryParams = () => {
 const initializeTickedFromQuery = async () => {
   const queryParamsTicked: LocationQueryValue | LocationQueryValue[] | undefined = route.query.f
   const queryParamsSearch: string | undefined = typeof route.query.q === 'string' ? route.query.q : undefined;
-  const queryParamsCategories: LocationQueryValue | LocationQueryValue[] | undefined = route.query['filter{category.identifier.in}']
-  const queryParamsKeywords: LocationQueryValue | LocationQueryValue[] | undefined = route.query['filter{keywords.slug.in}']
-  const queryParamsRegions: LocationQueryValue | LocationQueryValue[] | undefined = route.query['filter{regions.code.in}']
   const queryParamsOwners: LocationQueryValue | LocationQueryValue[] | undefined = route.query['filter{owner.pk.in}']
   const queryParamsGroups: LocationQueryValue | LocationQueryValue[] | undefined = route.query['filter{group.in}']
   const queryParamsExtent: LocationQueryValue | LocationQueryValue[] | undefined = route.query.extent
 
   if (Object.keys(route.query).length > 0) {
-    leftDrawerOpen.value = true
+    catalogueStore.leftDrawerOpen = true
   }
 
   if (queryParamsTicked) {
@@ -395,42 +319,6 @@ const initializeTickedFromQuery = async () => {
 
   if (queryParamsSearch) {
     catalogueStore.filterInputSearch = queryParamsSearch
-  }
-
-  if (queryParamsCategories) {
-    catalogueStore.categoriesSelected = Array.isArray(queryParamsCategories) ? queryParamsCategories : [queryParamsCategories]
-
-    setTimeout(async () => {
-      while (!catalogueStore.categoriesSelected.every(selectedKey =>
-          catalogueStore.categoriesList.some(category => category.key === selectedKey))) {
-        await fetchCategories()
-        if (!categoriesHasMore.value) break
-      }
-    }, 300)
-  }
-
-  if (queryParamsKeywords) {
-    catalogueStore.keywordsSelected = Array.isArray(queryParamsKeywords) ? queryParamsKeywords : [queryParamsKeywords]
-
-    setTimeout(async () => {
-      while (!catalogueStore.keywordsSelected.every(selectedKey =>
-          catalogueStore.keywordsList.some(keyword => keyword.key === selectedKey))) {
-        await fetchKeywords()
-        if (!keywordsHasMore.value) break
-      }
-    }, 300)
-  }
-
-  if (queryParamsRegions) {
-    catalogueStore.regionsSelected = Array.isArray(queryParamsRegions) ? queryParamsRegions : [queryParamsRegions]
-
-    setTimeout(async () => {
-      while (!catalogueStore.regionsSelected.every(selectedKey =>
-          catalogueStore.regionsList.some(region => region.key === selectedKey))) {
-        await fetchRegions()
-        if (!regionsHasMore.value) break
-      }
-    }, 300)
   }
 
   if (queryParamsOwners) {
@@ -483,86 +371,6 @@ const initializeTickedFromQuery = async () => {
 
 }
 
-// Función para cargar categorías usando useFetch
-const fetchCategories = async () => {
-  if (categoriesLoading.value || !categoriesHasMore.value) return
-  categoriesLoading.value = true
-
-  try {
-    const {data} = await useFetch<FacetsResponse>(`https://development.demo.geonode.org/api/v2/facets/category?page=${categoriesPage.value}&page_size=${categoriesPageSize}`);
-    const {topics: {items = []} = {}} = data.value || {};
-    if (items.length) {
-      catalogueStore.categoriesList.push(...items)
-      categoriesPage.value++
-    } else {
-      categoriesHasMore.value = false
-    }
-  } catch (error) {
-    console.error('Error fetching categories:', error)
-  } finally {
-    categoriesLoading.value = false
-  }
-}
-
-// Manejar el evento de scroll
-const handleCategoriesScroll = ({to}: ScrollEvent) => {
-  if (!categoriesLoading.value && categoriesHasMore.value && to === catalogueStore.categoriesList.length - 1) {
-    fetchCategories();
-  }
-};
-
-const fetchKeywords = async () => {
-  if (keywordsLoading.value || !keywordsHasMore.value) return
-  keywordsLoading.value = true
-
-  try {
-    const {data} = await useFetch<FacetsResponse>(`https://development.demo.geonode.org/api/v2/facets/keyword?page=${keywordsPage.value}&page_size=${keywordsPageSize}`);
-    const {topics: {items = []} = {}} = data.value || {};
-    if (items.length) {
-      catalogueStore.keywordsList.push(...items)
-      keywordsPage.value++
-    } else {
-      keywordsHasMore.value = false;
-    }
-  } catch (error) {
-    console.error('Error fetching keywords:', error)
-  } finally {
-    keywordsLoading.value = false
-  }
-};
-
-// Manejar el evento de scroll
-const handleKeywordsScroll = ({to}: ScrollEvent) => {
-  if (!keywordsLoading.value && keywordsHasMore.value && to === catalogueStore.keywordsList.length - 1) {
-    fetchKeywords();
-  }
-}
-
-const fetchRegions = async () => {
-  if (regionsLoading.value || !regionsHasMore.value) return
-  regionsLoading.value = true
-
-  try {
-    const {data} = await useFetch<FacetsResponse>(`https://development.demo.geonode.org/api/v2/facets/region?page=${regionsPage.value}&page_size=${regionsPageSize}`);
-    const {topics: {items = []} = {}} = data.value || {};
-    if (items.length) {
-      catalogueStore.regionsList.push(...items)
-      regionsPage.value++
-    } else {
-      regionsHasMore.value = false
-    }
-  } catch (error) {
-    console.error('Error fetching regions:', error)
-  } finally {
-    regionsLoading.value = false
-  }
-}
-
-const handleRegionsScroll = ({to}: ScrollEvent) => {
-  if (!regionsLoading.value && regionsHasMore.value && to === catalogueStore.regionsList.length - 1) {
-    fetchRegions();
-  }
-}
 
 const fetchOwners = async () => {
   if (ownersLoading.value || !ownersHasMore.value) return;
@@ -616,17 +424,20 @@ const handleGroupsScroll = ({to}: ScrollEvent) => {
   }
 }
 
-watch(() => leftDrawerOpen.value, (value) => {
-  if (value) {
-    if (!catalogueStore.categoriesList.length) fetchCategories()
-    if (!catalogueStore.keywordsList.length) fetchKeywords()
-    if (!catalogueStore.regionsList.length) fetchRegions()
+watch(() => catalogueStore.leftDrawerOpen, () => {
+  if (catalogueStore.leftDrawerOpen) {
     if (!catalogueStore.ownersList.length) fetchOwners()
     if (!catalogueStore.groupsList.length) fetchGroups()
   }
 })
 
 onMounted(() => {
+  if (Object.keys(route.query).length > 0) {
+    setTimeout(() => {
+      catalogueStore.leftDrawerOpen = true
+    }, 800)
+  }
+
   setTimeout(() => {
     if (catalogueStore.hasPreviousRoute === false) {
       console.log("no previous route")
@@ -635,9 +446,6 @@ onMounted(() => {
 
     } else {
       console.log("si previous route")
-      catalogueStore.categoriesSelected = []
-      catalogueStore.keywordsSelected = []
-      catalogueStore.regionsSelected = []
       catalogueStore.ownersSelected = []
       catalogueStore.groupsSelected = []
 

@@ -12,8 +12,8 @@
             <ol-feature>
               <ol-geom-polygon :coordinates="catalogueStore.filterExtentPolygon"></ol-geom-polygon>
               <ol-style>
-                <ol-style-fill :color="'rgb(28,131,177, 0.5)'"></ol-style-fill>
-                <ol-style-stroke :color="'#006dfc'" :width="2"></ol-style-stroke>
+                <ol-style-stroke :color="`${config.public.quasarBrand.accent}`"></ol-style-stroke>
+                <ol-style-fill :color="`${config.public.quasarBrand.primary}50`"></ol-style-fill>
               </ol-style>
             </ol-feature>
           </ol-source-vector>
@@ -25,13 +25,14 @@
 
 <script setup lang="ts">
 import {View} from 'ol'
-
 const olMapRef = ref(null)
 const olViewRef = ref<View | null>(null)
 const catalogueStore = useCatalogueStore()
 const center = ref([0, 0])
 const extent = ref([-180, -90, 180, 90])
 const mounted = ref(false)
+
+const config = useRuntimeConfig()
 
 onMounted(() => {
   setTimeout(() => {

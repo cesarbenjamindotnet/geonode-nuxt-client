@@ -6,6 +6,7 @@ import type {LocationQueryValue} from "vue-router";
 
 export const useCatalogueStore = defineStore('catalogue', {
     state: () => ({
+        leftDrawerOpen: false as boolean,
         hasPreviousRoute: false as boolean,
         filterUsingExtent: false as boolean,
         filterExtent: [-180, -90, 180, 90] as [number, number, number, number],
