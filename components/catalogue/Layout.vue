@@ -14,7 +14,7 @@
         <q-space/>
         <q-btn v-if="filterLoading" dense flat readonly no-caps disable class="no-pointer-events" loading>[]</q-btn>
         <q-btn v-else dense flat readonly no-caps disable class="no-pointer-events" :loading="filterLoading">
-          {{ totalResources }} resources
+          {{ resourcesCount }} resources found
         </q-btn>
         <q-btn dense flat round :icon="viewMode == 'grid' ? 'mdi-view-grid' : 'mdi-view-list'"
                @click="toggleViewMode"/>
@@ -96,7 +96,7 @@ const filter = ref([1])
 const viewMode = ref("grid")
 
 const pageSize = ref(24)
-const totalResources = ref<number>(0)
+const resourcesCount = ref<number>(0)
 const resources = ref<any[]>([])
 const urlQueryParams = ref<string>('')
 const hasQueryParams = ref<boolean>(false)
@@ -106,17 +106,15 @@ let timeout;
 
 router.beforeEach((to, from, next) => {
   catalogueStore.hasPreviousRoute = !!from.name
-  console.log("catalogueStore.hasPreviousRoute = !!from.name", catalogueStore.hasPreviousRoute)
   next()
 });
 
 router.afterEach((to, from) => {
-  console.log("afterEach", to)
-  console.log("afterEach", from)
   clearTimeout(timeout);
 
   timeout = setTimeout(async () => {
-    if (!filterLoading.value) {
+    if (!filterLoading.value && ["catalogue", "catalogue-slug"].includes(to.name as string)) {
+      console.log("to.path.name", to.name)
       const validResourceTypes = ["dataset", "map", "document", "geostory", "dashboard"]
       let resourceTypeFilter = ''
       urlQueryParams.value = ''
@@ -149,9 +147,6 @@ router.afterEach((to, from) => {
         queryParams = queryParams.replace("f=remote", "filter{resource_type.in}=remote")
       }
 
-      console.log("queryParams", queryParams)
-      console.log("to.fullPath", to.fullPath)
-
       const headers = {}
 
       if (`${resourceTypeFilter}${queryParams}` !== '') {
@@ -167,7 +162,7 @@ router.afterEach((to, from) => {
         $q.loadingBar.start()
         const {data} = await useFetch(url, {headers: headers})
         console.log("data", data.value)
-        totalResources.value = data.value.total
+        resourcesCount.value = data.value.total
         resources.value = data.value.resources
         $q.loadingBar.stop()
         filterLoading.value = false
@@ -240,14 +235,19 @@ const toggleViewMode = () => {
 }
 
 const badgeFilterResultsNumber = computed(() => {
-  console.log("totalResources.value", totalResources.value)
-  console.log("catalogueStore.filterLoading", filterLoading.value)
-  if (totalResources.value && !filterLoading.value) {
-
-    return totalResources.value.toString()
+  // Si filterLoading es true, devolver el punto "·"
+  if (filterLoading.value) {
+    return "·";
   }
-  return "·"
-})
+
+  // Si resourcesCount.value es 0 o más y filterLoading es false, devolver el valor de resourcesCount
+  if (resourcesCount.value >= 0) {
+    return resourcesCount.value.toString();
+  }
+
+  // Opcionalmente, puedes manejar el caso en que resourcesCount sea negativo (si es necesario)
+  return "·";
+});
 
 onMounted(() => {
   if (Object.keys(route.query).length > 0) {
