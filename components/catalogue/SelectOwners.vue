@@ -114,7 +114,7 @@ const updateQueryParams = () => {
     delete queryParams[`filter{owner.pk.in}`]
   }
 
-  router.push({query: queryParams})
+  router.replace({path: route.path, query: queryParams})
 }
 
 const initializeOwnersFromQueryParams = async () => {

@@ -1,4 +1,13 @@
 <template>
+  <div class="row">
+    <q-toggle
+        v-model="catalogueStore.filterUsingExtent"
+        checked-icon="mdi-map"
+        color="primary"
+        label="Extent"
+        unchecked-icon="clear"
+    />
+  </div>
   <div class="row" style="margin-top: 4px;">
     <q-card style="width: 100%;">
       <client-only>
@@ -72,7 +81,7 @@ const updateQueryParams = () => {
     delete queryParams.extent
   }
 
-  router.push({query: queryParams})
+  router.replace({path: route.path, query: queryParams})
 }
 
 const initializeExtentFromQueryParams = () => {

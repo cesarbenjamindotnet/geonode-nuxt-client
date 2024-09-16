@@ -1,11 +1,10 @@
 <template>
-
   <q-layout view="lHr Lpr fff" container :style="'height: ' + childLayoutHeight + 'px'">
-
     <q-header fixed>
       <q-toolbar class="bg-grey-2 text-grey-9">
         <q-btn dense @click="toggleLeftDrawer" no-caps color="primary" class="q-px-md">Filter
-          <q-badge :color="filter.length ? 'green' : 'grey-7'" rounded floating label="199"/>
+          <q-badge v-if="hasQueryParams" color="green" rounded floating
+                   :label="badgeFilterResultsNumber"/>
         </q-btn>
 
         <div class="q-px-sm">
@@ -13,6 +12,10 @@
         </div>
 
         <q-space/>
+        <q-btn v-if="filterLoading" dense flat readonly no-caps disable class="no-pointer-events" loading>[]</q-btn>
+        <q-btn v-else dense flat readonly no-caps disable class="no-pointer-events" :loading="filterLoading">
+          {{ totalResources }} resources
+        </q-btn>
         <q-btn dense flat round :icon="viewMode == 'grid' ? 'mdi-view-grid' : 'mdi-view-list'"
                @click="toggleViewMode"/>
 
@@ -29,32 +32,20 @@
           <span class="text-grey-9 text-bold">Filters</span>
           <q-space/>
           <div class="q-pr-sm">
-            <q-btn flat dense @click="toggleLeftDrawer" no-caps class="q-px-sm" text-color="grey-8">
+            <q-btn flat dense @click="clearFilters" no-caps class="q-px-sm" text-color="grey-8">
               Clear filters
             </q-btn>
           </div>
           <q-btn flat round dense size="sm" icon="close" @click="toggleLeftDrawer"/>
         </q-toolbar>
         <q-separator color="grey-2"/>
-        <!-- <p>{{ ticked }}</p> -->
+
         <div class="row q-pa-sm">
           <div class="col-auto full-width">
 
             <CatalogueInputSearch/>
 
-            <div v-if="false" class="row">
-              <b>Resources</b>
-            </div>
-            <div v-if="false" class="row q-pb-md" style="margin-top: 0">
-              <q-tree
-                  :nodes="filteredResourceTreeNodes"
-                  v-model:ticked="tickedResourceTreeNodes"
-                  node-key="value"
-                  tick-strategy="leaf"
-                  default-expand-all
-                  no-connectors
-              />
-            </div>
+            <CatalogueTreeResources/>
 
             <CatalogueSelectCategories/>
 
@@ -70,27 +61,16 @@
 
             <CatalogueDateTo/>
 
-            <div class="row">
-              <q-toggle
-                  v-model="catalogueStore.filterUsingExtent"
-                  checked-icon="mdi-map"
-                  color="primary"
-                  label="Extent"
-                  unchecked-icon="clear"
-              />
-            </div>
-
-            <CatalogueFilterExtentMap/>
+            <CatalogueMapExtent/>
 
             <p><!-- end spacer --></p>
-
           </div>
         </div>
       </q-drawer>
+
       <q-page padding>
-
-
-        <p>aaa</p>
+        <p>{{ urlQueryParams }}</p>
+        <p>{{ resources }}</p>
         <p>aaa</p>
         <p>aaa</p>
         <p>aaa</p>
@@ -105,8 +85,6 @@
 </template>
 
 <script setup lang="ts">
-import type {LocationQueryValue} from 'vue-router'
-import type {FacetsResponse, ResourceTreeNode, ScrollEvent} from "@/interfaces/catalogue"
 
 const catalogueStore = useCatalogueStore()
 const authStore = useAuthStore()
@@ -114,17 +92,100 @@ const router = useRouter()
 const route = useRoute()
 const $q = useQuasar()
 
-const tickedResourceTreeNodes = ref<LocationQueryValue[]>([])
-
-
 const filter = ref([1])
 const viewMode = ref("grid")
 
+const pageSize = ref(24)
+const totalResources = ref<number>(0)
+const resources = ref<any[]>([])
+const urlQueryParams = ref<string>('')
+const hasQueryParams = ref<boolean>(false)
+const filterLoading = ref<boolean>(false)
+
+let timeout;
 
 router.beforeEach((to, from, next) => {
-  catalogueStore.hasPreviousRoute = !!from.name;
-  next();
+  catalogueStore.hasPreviousRoute = !!from.name
+    next()
 });
+
+router.afterEach((to, from) => {
+  console.log("afterEach to", to)
+  console.log("afterEach from", from)
+  clearTimeout(timeout);
+
+  timeout = setTimeout(async () => {
+    console.log("afterEach catalogueStore.filterLoading", filterLoading.value)
+
+    if (!filterLoading.value) {
+      console.log("afterEach no loading")
+
+      const validResourceTypes = ["dataset", "map", "document", "geostory", "dashboard"]
+      let resourceTypeFilter = ''
+
+      if (to.params.slug && validResourceTypes.includes(<string>to.params.slug)) {
+        resourceTypeFilter = `&filter{resource_type.in}=${to.params.slug}`
+      }
+
+      let queryParams: string | undefined = ''
+      urlQueryParams.value = ''
+      if (to.fullPath.toString().includes('?')) {
+        queryParams = '&' + to.fullPath.toString().split('?').pop()
+        queryParams = queryParams.replace("f=my-resources", "filter{owner.pk}=1314")
+        queryParams = queryParams.replace("f=favorite", "favorite=true")
+        queryParams = queryParams.replace("f=featured", "filter{featured}=true")
+        queryParams = queryParams.replace("f=unpublished", "filter{is_published}=false")
+        queryParams = queryParams.replace("f=pending-approval", "filter{is_approved}=false")
+        queryParams = queryParams.replace("f=pending-approval", "filter{is_approved}=false")
+        queryParams = queryParams.replace("f=dataset", "filter{resource_type.in}=dataset")
+        queryParams = queryParams.replace("f=store-vector", "filter{subtype.in}=vector")
+        queryParams = queryParams.replace("f=store-raster", "filter{subtype.in}=raster")
+        queryParams = queryParams.replace("f=store-time-series", "filter{subtype.in}=vector_time")
+        queryParams = queryParams.replace("f=3dtiles", "filter{subtype.in}=3dtiles")
+        queryParams = queryParams.replace("f=tabular", "filter{subtype.in}=tabular")
+        queryParams = queryParams.replace("f=map", "filter{resource_type.in}=map")
+        queryParams = queryParams.replace("f=mapviewer", "filter{resource_type.in}=mapviewer")
+        queryParams = queryParams.replace("f=document", "filter{resource_type.in}=document")
+        queryParams = queryParams.replace("f=geostory", "filter{resource_type.in}=geostory")
+        queryParams = queryParams.replace("f=dashboard", "filter{resource_type.in}=dashboard")
+        queryParams = queryParams.replace("f=remote", "filter{resource_type.in}=remote")
+      }
+
+      const headers = {}
+
+
+      if (`${resourceTypeFilter}${queryParams}` !== '') {
+        urlQueryParams.value = `${resourceTypeFilter}${queryParams}&page_size=${pageSize.value}`
+      }
+
+      hasQueryParams.value = Object.keys(route.query).length > 0;
+
+      const url = `https://development.demo.geonode.org/api/v2/resources?api_preset=catalog_list&filter{metadata_only}=false${urlQueryParams.value}`
+
+      try {
+        filterLoading.value = true
+        $q.loadingBar.start()
+        const {data} = await useFetch(url, {headers: headers})
+        console.log("data", data.value)
+        totalResources.value = data.value.total
+        resources.value = data.value.resources
+        $q.loadingBar.stop()
+        filterLoading.value = false
+        console.log("finally filterLoading.value", filterLoading.value)
+      } catch (error) {
+        console.error('Error fetching data:', error)
+
+      } finally {
+        $q.loadingBar.stop()
+        filterLoading.value = false
+        console.log("finally catalogueStore.filterLoading", filterLoading.value)
+      }
+    }
+
+  }, 1200);
+
+});
+
 
 const childLayoutHeight = computed(() => {
   return $q.screen.height - 117
@@ -140,51 +201,11 @@ const leftDrawerWidth = computed(() => {
   }
 })
 
-const resourceTreeNodes: ResourceTreeNode[] = [
-  {value: 'my-resources', label: 'My resources', showIfUserIsLoggedIn: true},
-  {value: 'favorite', label: 'Favorites', showIfUserIsLoggedIn: true},
-  {value: 'featured', label: 'Featured'},
-  {value: 'unpublished', label: 'Unpublished', showIfUserIsLoggedIn: true},
-  {value: 'pending-approval', label: 'Pending approval', showIfUserIsLoggedIn: true},
-  {
-    value: 'dataset', label: 'Datasets', children: [
-      {value: 'store-vector', label: 'Vector'},
-      {value: 'store-raster', label: 'Raster'},
-      {value: 'store-time-series', label: 'Time series'},
-      {value: '3dtiles', label: '3D Tiles'},
-      {value: 'tabular', label: 'Tabular'},
-    ]
-  },
-  {value: 'map', label: 'Maps'},
-  {value: 'mapviewer', label: 'Maps Viewers'},
-  {value: 'document', label: 'Documents'},
-  {value: 'geostory', label: 'GeoStories'},
-  {value: 'dashboard', label: 'Dashboards'},
-  {value: 'remote', label: 'Remote'},
-]
-
-// Computed para filtrar los nodos
-const filteredResourceTreeNodes = computed(() => {
-  // Función recursiva para filtrar nodos hijos también
-  const filterNodes = (nodes: ResourceTreeNode[]) => {
-    return nodes
-        .filter((node) => {
-          // Filtrar nodos principales según el estado de autenticación
-          if (node.showIfUserIsLoggedIn && !authStore.user) {
-            return false;
-          }
-
-          // Si tiene hijos, filtrarlos también de manera recursiva
-          if (node.children) {
-            node.children = filterNodes(node.children);
-          }
-
-          return true;
-        });
-  };
-
-  return filterNodes(resourceTreeNodes);
-});
+const clearFilters = () => {
+  catalogueStore.hasPreviousRoute = false
+  router.replace({path: route.path, query: {}})
+  console.log("clearFilters")
+}
 
 const toggleLeftDrawer = () => {
   catalogueStore.leftDrawerOpen = !catalogueStore.leftDrawerOpen
@@ -194,77 +215,15 @@ const toggleViewMode = () => {
   viewMode.value = viewMode.value === "grid" ? "list" : "grid"
 }
 
-// Función para actualizar los query params en la URL cuando se seleccionan nodos
-const updateQueryParams = () => {
-  const queryParams = {...route.query}
+const badgeFilterResultsNumber = computed(() => {
+  console.log("totalResources.value", totalResources.value)
+    console.log("catalogueStore.filterLoading", filterLoading.value)
+  if (totalResources.value && !filterLoading.value) {
 
-  // Obtener los nodos hijos del tipo 'dataset'
-  const datasetNode = resourceTreeNodes.find(node => node.value === 'dataset')
-  let datasetChildren: any[] = []
-
-  if (datasetNode && datasetNode.children) {
-    datasetChildren = datasetNode.children.map(child => child.value)
+    return totalResources.value.toString()
   }
-
-  let datasetSelected = false
-
-  // Verificar si todos los hijos de 'dataset' están seleccionados
-  const datasetTicked = tickedResourceTreeNodes.value.filter(item => datasetChildren.includes(item))
-  const allDatasetChildrenSelected = datasetTicked.length === datasetChildren.length
-
-  // Creamos los query params f para cada nodo ticked
-  let filters: LocationQueryValue[]
-  filters = tickedResourceTreeNodes.value.reduce<LocationQueryValue[]>((acc, item) => {
-    if (datasetChildren.includes(item)) {
-      datasetSelected = true
-      if (!allDatasetChildrenSelected) {
-        acc.push(item) // Agregamos cada hijo si no están todos seleccionados
-      }
-    } else {
-      acc.push(item) // Para todos los nodos que no son hijos de dataset
-    }
-    return acc
-  }, [])
-
-  // Si hay al menos un hijo de dataset seleccionado o todos, agregamos 'dataset' si no está ya presente
-  if (datasetSelected && !filters.includes('dataset')) {
-    filters.push('dataset')
-  }
-
-  // Actualizamos el parámetro `f` solo si tiene valores seleccionados
-  if (filters.length > 0) {
-    queryParams.f = filters
-  } else {
-    delete queryParams.f
-  }
-
-  // Navegamos a la URL con los nuevos query params
-  router.push({query: queryParams})
-}
-
-// Función para inicializar el estado de 'ticked' según los query params
-const initializeTickedFromQuery = async () => {
-  const queryParamsTicked: LocationQueryValue | LocationQueryValue[] | undefined = route.query.f
-
-  if (Object.keys(route.query).length > 0) {
-    catalogueStore.leftDrawerOpen = true
-  }
-
-  if (queryParamsTicked) {
-    console.log("queryParamsTicked", queryParamsTicked)
-    const selectedValues = Array.isArray(queryParamsTicked) ? queryParamsTicked : [queryParamsTicked]
-    tickedResourceTreeNodes.value = selectedValues.filter((value) => {
-      return resourceTreeNodes.some(node => {
-        if (node.value === value) return true
-        if (node.children) {
-          return node.children.some(child => child.value === value)
-        }
-        return false
-      })
-    })
-  }
-
-}
+  return "·"
+})
 
 onMounted(() => {
   if (Object.keys(route.query).length > 0) {
@@ -272,28 +231,13 @@ onMounted(() => {
       catalogueStore.leftDrawerOpen = true
     }, 800)
   }
-
-  setTimeout(() => {
-    if (catalogueStore.hasPreviousRoute === false) {
-      console.log("no previous route")
-
-      initializeTickedFromQuery()
-
-    } else {
-      console.log("si previous route")
-    }
-  }, 100)
 })
 
 watch(
-    [
-      tickedResourceTreeNodes,
-    ],
-    () => {
-      setTimeout(() => {
-        updateQueryParams()
-      }, 200)
-    }
+  () => urlQueryParams.value, // Específica que quieres observar el valor del ref
+  (newVal) => {
+    console.log("urlQueryParams", newVal); // newVal será el valor actualizado
+  }
 )
 
 </script>

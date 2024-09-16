@@ -1,11 +1,3 @@
 <template>
-  <Catalogue/>
+  <CatalogueLayout />
 </template>
-
-<script setup lang="ts">
-
-</script>
-
-<style scoped>
-
-</style>

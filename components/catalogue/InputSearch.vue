@@ -26,7 +26,7 @@ const updateQueryParams = () => {
     delete queryParams.q
   }
 
-  router.push({query: queryParams})
+  router.replace({path: route.path, query: queryParams})
 }
 
 const initializeSearchFromQueryParams = () => {

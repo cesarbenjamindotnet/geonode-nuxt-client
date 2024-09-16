@@ -114,7 +114,7 @@ const updateQueryParams = () => {
     delete queryParams[`filter{group.in}`]
   }
 
-  router.push({query: queryParams})
+  router.replace({path: route.path, query: queryParams})
 }
 
 const initializeGroupsFromQueryParams = async () => {

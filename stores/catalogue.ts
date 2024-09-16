@@ -8,27 +8,11 @@ export const useCatalogueStore = defineStore('catalogue', {
     state: () => ({
         leftDrawerOpen: false as boolean,
         hasPreviousRoute: false as boolean,
-        filterUsingExtent: false as boolean,
-        filterExtent: [-180, -90, 180, 90] as [number, number, number, number],
-        filterExtentPolygon: [
-            [
-                [-180, -90],
-                [-180, 90],
-                [180, 90],
-                [180, -90],
-                [-180, -90],
-            ]
-        ] as number[][][],
-        categoriesList: [] as FacetItem[],
-        categoriesSelected: [] as LocationQueryValue[],
-        keywordsList: [] as FacetItem[],
-        keywordsSelected: [] as LocationQueryValue[],
-        regionsList: [] as FacetItem[],
-        regionsSelected: [] as LocationQueryValue[],
-        ownersList: [] as FacetItem[],
-        ownersSelected: [] as LocationQueryValue[] | number[],
-        groupsList: [] as FacetItem[],
-        groupsSelected: [] as LocationQueryValue[] | number[],
+        pageNumber: 0 as number,
+
+        filterData: [] as any[],
+
+        filterInputSearch: undefined as undefined | string,
         resourceTreeNodes: [
             {value: 'my-resources', label: 'My resources', showIfUserIsLoggedIn: true},
             {value: 'favorite', label: 'Favorites', showIfUserIsLoggedIn: true},
@@ -51,8 +35,29 @@ export const useCatalogueStore = defineStore('catalogue', {
             {value: 'dashboard', label: 'Dashboards'},
             {value: 'remote', label: 'Remote'},
         ] as ResourceTreeNode[],
+        resourceTreeNodesSelected: [] as LocationQueryValue[],
+        categoriesList: [] as FacetItem[],
+        categoriesSelected: [] as LocationQueryValue[],
+        keywordsList: [] as FacetItem[],
+        keywordsSelected: [] as LocationQueryValue[],
+        regionsList: [] as FacetItem[],
+        regionsSelected: [] as LocationQueryValue[],
+        ownersList: [] as FacetItem[],
+        ownersSelected: [] as LocationQueryValue[] | number[],
+        groupsList: [] as FacetItem[],
+        groupsSelected: [] as LocationQueryValue[] | number[],
+        filterUsingExtent: false as boolean,
+        filterExtent: [-180, -90, 180, 90] as [number, number, number, number],
+        filterExtentPolygon: [
+            [
+                [-180, -90],
+                [-180, 90],
+                [180, 90],
+                [180, -90],
+                [-180, -90],
+            ]
+        ] as number[][][],
 
-        filterInputSearch: undefined as undefined | string,
         filterInputDateFrom: undefined as undefined | string,
         filterInputDateTo: undefined as undefined | string,
     }),

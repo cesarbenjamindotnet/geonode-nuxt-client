@@ -116,7 +116,7 @@ const updateQueryParams = () => {
     delete queryParams[`filter{keywords.slug.in}`]
   }
 
-  router.push({query: queryParams})
+  router.replace({path: route.path, query: queryParams})
 }
 
 const initializeKeywordsFromQueryParams = async () => {

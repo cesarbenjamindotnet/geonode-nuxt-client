@@ -48,7 +48,7 @@ const updateQueryParams = () => {
     delete queryParams[`filter{date.lte}`]
   }
 
-  router.push({query: queryParams})
+  router.replace({path: route.path, query: queryParams})
 }
 
 const initializeDateToFromQueryParams = () => {

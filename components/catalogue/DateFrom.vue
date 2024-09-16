@@ -50,7 +50,7 @@ const updateQueryParams = () => {
     delete queryParams[`filter{date.gte}`]
   }
 
-  router.push({query: queryParams})
+  router.replace({path: route.path, query: queryParams})
 }
 
 const initializeDateFromFromQueryParams = () => {
