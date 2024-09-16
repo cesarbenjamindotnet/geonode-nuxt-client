@@ -69,6 +69,30 @@
       </q-drawer>
 
       <q-page padding>
+        <div class="row q-col-gutter-md">
+          <div
+              v-for="(item, index) in resources"
+              :key="index"
+              class="col-xs-12 col-sm-6 col-md-4 col-lg-3"
+          >
+            <q-card>
+
+                <q-img
+                    :src="item.thumbnail_url"
+                    :alt="item.title"
+                    basic
+                />
+
+              <q-card-section>
+                <div class="text">{{ item.title }}</div>
+              </q-card-section>
+              <q-card-section>
+                {{ item.description }}
+              </q-card-section>
+            </q-card>
+          </div>
+        </div>
+
         <p>{{ urlQueryParams }}</p>
         <p>{{ resources }}</p>
         <p>aaa</p>
@@ -197,7 +221,7 @@ const leftDrawerWidth = computed(() => {
 })
 
 const clearFilters = () => {
-  if (1===1) {
+  if (1 === 1) {
     catalogueStore.filterInputSearch = undefined
     catalogueStore.resourceTreeNodesSelected = []
     catalogueStore.categoriesSelected = []
