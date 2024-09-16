@@ -142,6 +142,7 @@ const initializeOwnersFromQueryParams = async () => {
 }
 
 onMounted(() => {
+
   if (!catalogueStore.hasPreviousRoute) {
     setTimeout(async () => {
       await initializeOwnersFromQueryParams()

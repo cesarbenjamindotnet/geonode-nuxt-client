@@ -32,7 +32,7 @@
           <span class="text-grey-9 text-bold">Filters</span>
           <q-space/>
           <div class="q-pr-sm">
-            <q-btn flat dense @click="clearFilters" no-caps class="q-px-sm" text-color="grey-8">
+            <q-btn v-if="hasQueryParams" flat dense @click="clearFilters" no-caps class="q-px-sm" text-color="grey-8">
               Clear filters
             </q-btn>
           </div>
@@ -106,29 +106,27 @@ let timeout;
 
 router.beforeEach((to, from, next) => {
   catalogueStore.hasPreviousRoute = !!from.name
-    next()
+  console.log("catalogueStore.hasPreviousRoute = !!from.name", catalogueStore.hasPreviousRoute)
+  next()
 });
 
 router.afterEach((to, from) => {
-  console.log("afterEach to", to)
-  console.log("afterEach from", from)
+  console.log("afterEach", to)
+  console.log("afterEach", from)
   clearTimeout(timeout);
 
   timeout = setTimeout(async () => {
-    console.log("afterEach catalogueStore.filterLoading", filterLoading.value)
-
     if (!filterLoading.value) {
-      console.log("afterEach no loading")
-
       const validResourceTypes = ["dataset", "map", "document", "geostory", "dashboard"]
       let resourceTypeFilter = ''
+      urlQueryParams.value = ''
 
       if (to.params.slug && validResourceTypes.includes(<string>to.params.slug)) {
         resourceTypeFilter = `&filter{resource_type.in}=${to.params.slug}`
       }
 
       let queryParams: string | undefined = ''
-      urlQueryParams.value = ''
+
       if (to.fullPath.toString().includes('?')) {
         queryParams = '&' + to.fullPath.toString().split('?').pop()
         queryParams = queryParams.replace("f=my-resources", "filter{owner.pk}=1314")
@@ -151,8 +149,10 @@ router.afterEach((to, from) => {
         queryParams = queryParams.replace("f=remote", "filter{resource_type.in}=remote")
       }
 
-      const headers = {}
+      console.log("queryParams", queryParams)
+      console.log("to.fullPath", to.fullPath)
 
+      const headers = {}
 
       if (`${resourceTypeFilter}${queryParams}` !== '') {
         urlQueryParams.value = `${resourceTypeFilter}${queryParams}&page_size=${pageSize.value}`
@@ -172,6 +172,7 @@ router.afterEach((to, from) => {
         $q.loadingBar.stop()
         filterLoading.value = false
         console.log("finally filterLoading.value", filterLoading.value)
+
       } catch (error) {
         console.error('Error fetching data:', error)
 
@@ -181,7 +182,6 @@ router.afterEach((to, from) => {
         console.log("finally catalogueStore.filterLoading", filterLoading.value)
       }
     }
-
   }, 1200);
 
 });
@@ -202,9 +202,33 @@ const leftDrawerWidth = computed(() => {
 })
 
 const clearFilters = () => {
-  catalogueStore.hasPreviousRoute = false
+  if (1===1) {
+    catalogueStore.filterInputSearch = undefined
+    catalogueStore.resourceTreeNodesSelected = []
+    catalogueStore.categoriesSelected = []
+    catalogueStore.keywordsSelected = []
+    catalogueStore.regionsSelected = []
+    catalogueStore.ownersSelected = []
+    catalogueStore.groupsSelected = []
+    catalogueStore.filterInputDateFrom = undefined
+    catalogueStore.filterInputDateTo = undefined
+    catalogueStore.filterUsingExtent = false
+    catalogueStore.filterExtent = [-180, -90, 180, 90]
+    catalogueStore.filterExtentPolygon = [
+      [
+        [-180, -90],
+        [-180, 90],
+        [180, 90],
+        [180, -90],
+        [-180, -90],
+      ]
+    ]
+  }
   router.replace({path: route.path, query: {}})
-  console.log("clearFilters")
+  setTimeout(() => {
+    console.log("clearFilters")
+    router.push(route.path)
+  }, 100)
 }
 
 const toggleLeftDrawer = () => {
@@ -217,7 +241,7 @@ const toggleViewMode = () => {
 
 const badgeFilterResultsNumber = computed(() => {
   console.log("totalResources.value", totalResources.value)
-    console.log("catalogueStore.filterLoading", filterLoading.value)
+  console.log("catalogueStore.filterLoading", filterLoading.value)
   if (totalResources.value && !filterLoading.value) {
 
     return totalResources.value.toString()
@@ -234,10 +258,10 @@ onMounted(() => {
 })
 
 watch(
-  () => urlQueryParams.value, // Específica que quieres observar el valor del ref
-  (newVal) => {
-    console.log("urlQueryParams", newVal); // newVal será el valor actualizado
-  }
+    () => urlQueryParams.value, // Específica que quieres observar el valor del ref
+    (newVal) => {
+      console.log("urlQueryParams", newVal); // newVal será el valor actualizado
+    }
 )
 
 </script>

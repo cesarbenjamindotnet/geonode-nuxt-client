@@ -72,6 +72,10 @@ const updateQueryParams = () => {
    * When the filterExtent is not empty, it adds the 'extent' query parameter to the URL.
    */
 
+  if (mounted.value && olViewRef.value) {
+    olViewRef.value.fit(catalogueStore.filterExtent, {duration: 100})
+  }
+
   const queryParams = {...route.query}
 
   if (catalogueStore.filterUsingExtent) {
