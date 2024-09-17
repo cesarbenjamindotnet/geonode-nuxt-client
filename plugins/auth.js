@@ -1,20 +1,20 @@
-
 export default defineNuxtPlugin(async (nuxtApp) => {
     const headers = useRequestHeaders(['cookie']);
-    const {status, data} = useAuth();
+    const { status, data } = useAuth();
     const authStore = useAuthStore();
 
     try {
-        if (status?.value === 'authenticated') {
+        if (status.value === 'authenticated') {
             authStore.isAuthenticated = true;
-            const {data: token} = await useFetch('/api/token', {headers});
-            console.log('Token:', token.value);
+
+            const { data: token } = await useFetch('/api/token', { headers });
 
             if (token) {
-                authStore.setToken(token.value);
+                authStore.setToken(token);
                 authStore.setUser(data.value.user);
+                console.log("token", token);
             } else {
-                authStore.clearAuth();
+                throw new Error('Failed to fetch token');
             }
         }
     } catch (error) {

@@ -1,4 +1,4 @@
-import type {QuasarIconSets} from 'quasar'
+import type { QuasarPlugins, QuasarIconSets } from 'quasar';
 
 export type QuasarFontIconSet =
     | "bootstrap-icons"
@@ -23,11 +23,27 @@ export type QuasarFontIconSet =
     | "mdi-v7"
     | "themify";
 
-export function defineQuasarConfig() {
+export function defineQuasarConfig(): {
+    iconSet: QuasarIconSets;
+    plugins: (keyof QuasarPlugins)[];
+    extras: { fontIcons: QuasarFontIconSet[] };
+    config: {
+        loadingBar: { color: string; size: string; position: "top" | "right" | "bottom" | "left" | undefined };
+        brand: {
+            primary: string;
+            secondary: string;
+            accent: string;
+            dark: string;
+            "dark-page": string;
+            positive: string;
+            negative: string;
+            info: string;
+            warning: string;
+        };
+    };
+} {
     return {
-        plugins: [
-            'LoadingBar',
-        ],
+        plugins: ['LoadingBar'],
         config: {
             brand: {
                 primary: '#1976D2',
@@ -41,14 +57,14 @@ export function defineQuasarConfig() {
                 warning: '#F2C037'
             },
             loadingBar: {
-                color: 'blue', // Color de la barra de carga
-                size: '3px',    // Tamaño de la barra
-                position: 'top' // Posición de la barra (top o bottom)
+                color: 'blue',
+                size: '3px',
+                position: 'top'
             }
         },
-        iconSet: 'material-icons' as QuasarIconSets,
+        iconSet: 'material-icons',
         extras: {
-            fontIcons: ['mdi-v5'] as QuasarFontIconSet[],
+            fontIcons: ['mdi-v5'],
         }
-    }
+    };
 }

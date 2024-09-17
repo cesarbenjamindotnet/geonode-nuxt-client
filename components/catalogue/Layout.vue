@@ -1,19 +1,23 @@
 <template>
   <q-layout view="lHr Lpr fff" container :style="'height: ' + childLayoutHeight + 'px'">
-    <q-header fixed>
-      <q-toolbar class="bg-grey-2 text-grey-9">
-        <q-btn dense @click="toggleLeftDrawer" no-caps color="primary" class="q-px-md">Filter
-          <q-badge v-if="hasQueryParams" color="green" rounded floating
-                   :label="badgeFilterResultsNumber"/>
-        </q-btn>
-
+    <q-header fixed class="bg-grey-2 text-grey-9">
+      <q-toolbar class="q-px-sm bg-grey-2 text-grey-9" style="max-width: 1460px; margin: 0 auto;">
         <div class="q-px-sm">
+          <q-btn dense @click="toggleLeftDrawer" no-caps color="primary" class="q-px-md">Filter
+            <q-badge v-if="hasQueryParams" color="green" rounded floating
+                     :label="badgeFilterResultsNumber"/>
+          </q-btn>
+        </div>
+        <div class="q-pr-sm">
           <q-btn dense no-caps class="q-px-md" color="grey-7">Order</q-btn>
         </div>
 
         <q-space/>
-        <q-btn v-if="filterLoading" dense flat readonly no-caps disable class="no-pointer-events" loading>[]</q-btn>
-        <q-btn v-else dense flat readonly no-caps disable class="no-pointer-events" :loading="filterLoading">
+        <q-btn v-if="catalogueStore.filterLoading" dense flat readonly no-caps disable class="no-pointer-events"
+               loading>[]
+        </q-btn>
+        <q-btn v-else dense flat readonly no-caps disable class="no-pointer-events"
+               :loading="catalogueStore.filterLoading">
           {{ resourcesCount }} resources found
         </q-btn>
         <q-btn dense flat round :icon="viewMode == 'grid' ? 'mdi-view-grid' : 'mdi-view-list'"
@@ -24,7 +28,8 @@
     </q-header>
 
     <q-page-container>
-      <q-drawer v-model="catalogueStore.leftDrawerOpen" side="left" bordered behavior="desktop"
+      <q-drawer v-model="catalogueStore.showLeftDrawer" side="left" bordered
+                behavior="desktop"
                 :width="leftDrawerWidth">
         <!-- drawer content -->
         <q-toolbar>
@@ -68,40 +73,60 @@
         </div>
       </q-drawer>
 
-      <q-page padding>
-        <div class="row q-col-gutter-md">
-          <div
-              v-for="(item, index) in resources"
-              :key="index"
-              class="col-xs-12 col-sm-6 col-md-4 col-lg-3"
-          >
-            <q-card>
+      <q-drawer v-model="catalogueStore.showRightDrawer" side="left" bordered behavior="desktop"
+                :width="leftDrawerWidth">
+        <!-- drawer content -->
+        <q-toolbar>
+          <span class="text-grey-9"><q-icon name="mdi-filter" style="top: -1.5px"/></span>
+          <span class="text-grey-9 text-bold">Filters</span>
+          <q-space/>
+          <div class="q-pr-sm">
+            <q-btn v-if="hasQueryParams" flat dense @click="clearFilters" no-caps class="q-px-sm" text-color="grey-8">
+              Clear filters
+            </q-btn>
+          </div>
+          <q-btn flat round dense size="sm" icon="close" @click="toggleLeftDrawer"/>
+        </q-toolbar>
+        <q-separator color="grey-2"/>
 
-                <q-img
-                    :src="item.thumbnail_url"
-                    :alt="item.title"
-                    basic
-                />
+        <div class="row q-pa-sm">
+          <div class="col-auto full-width">
 
-              <q-card-section>
-                <div class="text">{{ item.title }}</div>
-              </q-card-section>
-              <q-card-section>
-                {{ item.description }}
-              </q-card-section>
-            </q-card>
+            <CatalogueInputSearch/>
+
+            <CatalogueTreeResources/>
+
+            <CatalogueSelectCategories/>
+
+            <CatalogueSelectKeywords/>
+
+            <CatalogueSelectRegions/>
+
+            <CatalogueSelectOwners/>
+
+            <CatalogueSelectGroups/>
+
+            <CatalogueDateFrom/>
+
+            <CatalogueDateTo/>
+
+            <CatalogueMapExtent/>
+
+            <p><!-- end spacer --></p>
           </div>
         </div>
+      </q-drawer>
 
+      <q-page>
+
+        <CatalogueResourceGrid v-if="viewMode==='grid'"/>
+        <p v-else>{{ viewMode }}</p>
+
+        <!--
         <p>{{ urlQueryParams }}</p>
-        <p>{{ resources }}</p>
-        <p>aaa</p>
-        <p>aaa</p>
-        <p>aaa</p>
-        <p>aaa</p>
-        <p>aaa</p>
-        <p>aaa</p>
-        <p>aaa</p>
+        <p>{{ catalogueStore.resources }}</p>
+        -->
+
       </q-page>
     </q-page-container>
   </q-layout>
@@ -116,20 +141,22 @@ const router = useRouter()
 const route = useRoute()
 const $q = useQuasar()
 
-const filter = ref([1])
 const viewMode = ref("grid")
 
 const pageSize = ref(24)
 const resourcesCount = ref<number>(0)
-const resources = ref<any[]>([])
 const urlQueryParams = ref<string>('')
 const hasQueryParams = ref<boolean>(false)
-const filterLoading = ref<boolean>(false)
 
 let timeout;
 
 router.beforeEach((to, from, next) => {
   catalogueStore.hasPreviousRoute = !!from.name
+  console.log("beforeEach to path", to.path)
+  console.log("beforeEach from path", from.path)
+  if (to.path !== from.path) {
+    catalogueStore.resources = []
+  }
   next()
 });
 
@@ -137,8 +164,7 @@ router.afterEach((to, from) => {
   clearTimeout(timeout);
 
   timeout = setTimeout(async () => {
-    if (!filterLoading.value && ["catalogue", "catalogue-slug"].includes(to.name as string)) {
-      console.log("to.path.name", to.name)
+    if (!catalogueStore.filterLoading && ["catalogue", "catalogue-slug"].includes(to.name as string)) {
       const validResourceTypes = ["dataset", "map", "document", "geostory", "dashboard"]
       let resourceTypeFilter = ''
       urlQueryParams.value = ''
@@ -174,31 +200,31 @@ router.afterEach((to, from) => {
       const headers = {}
 
       if (`${resourceTypeFilter}${queryParams}` !== '') {
-        urlQueryParams.value = `${resourceTypeFilter}${queryParams}&page_size=${pageSize.value}`
+        urlQueryParams.value = `${resourceTypeFilter}${queryParams}`
       }
 
       hasQueryParams.value = Object.keys(route.query).length > 0;
 
-      const url = `https://development.demo.geonode.org/api/v2/resources?api_preset=catalog_list&filter{metadata_only}=false${urlQueryParams.value}`
+      const url = `https://development.demo.geonode.org/api/v2/resources?api_preset=catalog_list&filter{metadata_only}=false&page_size=${pageSize.value}${urlQueryParams.value}`
 
       try {
-        filterLoading.value = true
+        catalogueStore.filterLoading = true
         $q.loadingBar.start()
         const {data} = await useFetch(url, {headers: headers})
         console.log("data", data.value)
         resourcesCount.value = data.value.total
-        resources.value = data.value.resources
+        catalogueStore.resources = data.value.resources
         $q.loadingBar.stop()
-        filterLoading.value = false
-        console.log("finally filterLoading.value", filterLoading.value)
+        catalogueStore.filterLoading = false
+        console.log("tried filterLoading.value", catalogueStore.filterLoading)
 
       } catch (error) {
         console.error('Error fetching data:', error)
 
       } finally {
         $q.loadingBar.stop()
-        filterLoading.value = false
-        console.log("finally catalogueStore.filterLoading", filterLoading.value)
+        catalogueStore.filterLoading = false
+        console.log("finally catalogueStore.filterLoading", catalogueStore.filterLoading)
       }
     }
   }, 1200);
@@ -220,29 +246,32 @@ const leftDrawerWidth = computed(() => {
   }
 })
 
+const showResourceDetail = (resource: any) => {
+  console.log("showResourceDetail", resource)
+}
+
 const clearFilters = () => {
-  if (1 === 1) {
-    catalogueStore.filterInputSearch = undefined
-    catalogueStore.resourceTreeNodesSelected = []
-    catalogueStore.categoriesSelected = []
-    catalogueStore.keywordsSelected = []
-    catalogueStore.regionsSelected = []
-    catalogueStore.ownersSelected = []
-    catalogueStore.groupsSelected = []
-    catalogueStore.filterInputDateFrom = undefined
-    catalogueStore.filterInputDateTo = undefined
-    catalogueStore.filterUsingExtent = false
-    catalogueStore.filterExtent = [-180, -90, 180, 90]
-    catalogueStore.filterExtentPolygon = [
-      [
-        [-180, -90],
-        [-180, 90],
-        [180, 90],
-        [180, -90],
-        [-180, -90],
-      ]
+  catalogueStore.filterInputSearch = undefined
+  catalogueStore.resourceTreeNodesSelected = []
+  catalogueStore.categoriesSelected = []
+  catalogueStore.keywordsSelected = []
+  catalogueStore.regionsSelected = []
+  catalogueStore.ownersSelected = []
+  catalogueStore.groupsSelected = []
+  catalogueStore.filterInputDateFrom = undefined
+  catalogueStore.filterInputDateTo = undefined
+  catalogueStore.filterUsingExtent = false
+  catalogueStore.filterExtent = [-180, -90, 180, 90]
+  catalogueStore.filterExtentPolygon = [
+    [
+      [-180, -90],
+      [-180, 90],
+      [180, 90],
+      [180, -90],
+      [-180, -90],
     ]
-  }
+  ]
+
   router.replace({path: route.path, query: {}})
   setTimeout(() => {
     console.log("clearFilters")
@@ -251,7 +280,18 @@ const clearFilters = () => {
 }
 
 const toggleLeftDrawer = () => {
-  catalogueStore.leftDrawerOpen = !catalogueStore.leftDrawerOpen
+  catalogueStore.showLeftDrawer = !catalogueStore.showLeftDrawer
+  if (catalogueStore.showLeftDrawer) {
+    catalogueStore.showRightDrawer = false
+  }
+}
+
+
+const toggleRightDrawer = () => {
+  catalogueStore.showRightDrawer = !catalogueStore.showRightDrawer
+  if (catalogueStore.showRightDrawer) {
+    catalogueStore.showLeftDrawer = false
+  }
 }
 
 const toggleViewMode = () => {
@@ -260,7 +300,7 @@ const toggleViewMode = () => {
 
 const badgeFilterResultsNumber = computed(() => {
   // Si filterLoading es true, devolver el punto "·"
-  if (filterLoading.value) {
+  if (catalogueStore.filterLoading) {
     return "·";
   }
 
@@ -274,18 +314,16 @@ const badgeFilterResultsNumber = computed(() => {
 });
 
 onMounted(() => {
+  catalogueStore.showRightDrawer = false
   if (Object.keys(route.query).length > 0) {
     setTimeout(() => {
-      catalogueStore.leftDrawerOpen = true
+      catalogueStore.showLeftDrawer = true
     }, 800)
   }
 })
 
-watch(
-    () => urlQueryParams.value, // Específica que quieres observar el valor del ref
-    (newVal) => {
-      console.log("urlQueryParams", newVal); // newVal será el valor actualizado
-    }
-)
-
 </script>
+
+<style lang="scss" scoped>
+
+</style>

@@ -140,7 +140,7 @@ const initializeTickedFromQuery = async () => {
   const datasetCategories = ["store-vector", "store-raster", "store-time-series", "3dtiles", "tabular"]
 
   if (Object.keys(route.query).length > 0) {
-    catalogueStore.leftDrawerOpen = true
+    catalogueStore.showLeftDrawer = true
   }
 
   if (queryParamsTicked) {

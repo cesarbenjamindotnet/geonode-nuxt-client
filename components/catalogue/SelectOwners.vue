@@ -152,8 +152,8 @@ onMounted(() => {
   }
 })
 
-watch(() => catalogueStore.leftDrawerOpen, () => {
-  if (catalogueStore.leftDrawerOpen) {
+watch(() => catalogueStore.showLeftDrawer, () => {
+  if (catalogueStore.showLeftDrawer) {
     if (!catalogueStore.ownersList.length) fetchOwners()
   }
 })
