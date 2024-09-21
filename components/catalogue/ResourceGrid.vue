@@ -4,8 +4,8 @@
         v-for="(resource, index) in catalogueStore.resources"
         :key="index"
         :class="{
-                'col-xs-12 col-sm-6 col-md-4 col-lg-3': !catalogueStore.showLeftDrawer,
-                'col-xs-12 col-sm-6 col-md-6 col-lg-4': catalogueStore.showLeftDrawer
+                'col-xs-12 col-sm-6 col-md-4 col-lg-3': !catalogueStore.showLeftDrawer && !catalogueStore.showResourceDetailDrawer,
+                'col-xs-12 col-sm-6 col-md-6 col-lg-4': catalogueStore.showLeftDrawer || catalogueStore.showResourceDetailDrawer
               }"
     >
       <NuxtLink style="text-decoration:none; cursor: pointer" @click="showResourceInfo(resource)">
