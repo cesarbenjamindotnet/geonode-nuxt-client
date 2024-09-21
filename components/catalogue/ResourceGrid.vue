@@ -8,7 +8,7 @@
                 'col-xs-12 col-sm-6 col-md-6 col-lg-4': catalogueStore.showLeftDrawer
               }"
     >
-      <NuxtLink style="text-decoration:none; cursor: alias" @click="showResourceInfo(resource)">
+      <NuxtLink style="text-decoration:none; cursor: pointer" @click="showResourceInfo(resource)">
         <q-card class="q-card-flex hover-card">
 
           <div class="card-img-wrapper">
@@ -48,13 +48,13 @@
             </div>
           </q-card-section>
           <q-card-actions>
-            <q-btn flat dense no-caps color="primary" class="q-mr-auto" @click.stop="viewUser">
+            <q-btn flat dense no-caps color="primary" class="q-mr-auto" @click.stop="viewUser" style="cursor: context-menu">
               <q-avatar size="23px" style="padding-right: 12px;">
                 <img :src="resource.owner.avatar" :alt="resource.owner.username">
               </q-avatar>
               <span class="q-px-sm">{{ resource.owner.username }}</span>
             </q-btn>
-            <q-btn dense no-caps color="primary" class="q-ml-auto" @click.stop="viewResource"><span class="q-px-sm">View</span></q-btn>
+            <q-btn dense no-caps color="primary" class="q-ml-auto" @click.stop="viewResource"><span class="q-px-sm" style="cursor: context-menu">View</span></q-btn>
           </q-card-actions>
         </q-card>
       </NuxtLink>
@@ -71,6 +71,9 @@ const $q = useQuasar()
 
 const showResourceInfo = (resource: any) => {
   console.log("showResourceInfo", resource)
+  catalogueStore.resourceSelected = resource
+  catalogueStore.showLeftDrawer = false
+  catalogueStore.showResourceDetailDrawer = true
 }
 
 const viewUser = (resource: any) => {
@@ -107,6 +110,7 @@ const generatePlaceholderImage = () => {
   return canvas.toDataURL('image/png');
 }
 
+//TODO: Convertir a un composable
 const getResourceTypeIcon = (resource_type: string) => {
   console.log("getResourceTypeIcon", resource_type)
   if (resource_type === 'dataset') return 'mdi-database';

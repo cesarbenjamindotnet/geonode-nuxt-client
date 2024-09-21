@@ -3,21 +3,18 @@
 import {defineStore} from 'pinia';
 import type {FacetItem, ResourceTreeNode} from "@/interfaces/catalogue";
 import type {LocationQueryValue} from "vue-router";
+import type {Router, RouteLocationNormalized} from 'vue-router';
 
 export const useCatalogueStore = defineStore('catalogue', {
     state: () => ({
         showLeftDrawer: false as boolean,
-        showRightDrawer: false as boolean,
+        showResourceDetailDrawer: false as boolean,
+        hasQueryParams: false as boolean,
         hasPreviousRoute: false as boolean,
         filterLoading: false as boolean,
         resourcesCount: 0 as number,
-        resources: [] as any[],
 
         pageNumber: 0 as number,
-
-        filterData: [] as any[],
-
-        filterInputSearch: undefined as undefined | string,
         resourceTreeNodes: [
             {value: 'my-resources', label: 'My resources', showIfUserIsLoggedIn: true},
             {value: 'favorite', label: 'Favorites', showIfUserIsLoggedIn: true},
@@ -41,6 +38,14 @@ export const useCatalogueStore = defineStore('catalogue', {
             {value: 'remote', label: 'Remote'},
         ] as ResourceTreeNode[],
         resourceTreeNodesSelected: [] as LocationQueryValue[],
+
+        resources: [] as any[],
+        resourceSelected: undefined as undefined | any,
+
+
+        filterData: [] as any[],
+        filterInputSearch: undefined as undefined | string,
+
         categoriesList: [] as FacetItem[],
         categoriesSelected: [] as LocationQueryValue[],
         keywordsList: [] as FacetItem[],
@@ -70,9 +75,37 @@ export const useCatalogueStore = defineStore('catalogue', {
         getFilterUsingExtent: state => state.filterUsingExtent,
     },
     actions: {
-        clearFilter() {
-            // TODO: implementar que se use esta función para cerrar sesión
-            this.filterExtent = [-180, -90, 180, 90];
-        },
+        clearFilters(router: Router, route: RouteLocationNormalized) {
+            this.filterInputSearch = undefined
+            this.resourceTreeNodesSelected = []
+            this.categoriesSelected = []
+            this.keywordsSelected = []
+            this.regionsSelected = []
+            this.ownersSelected = []
+            this.groupsSelected = []
+            this.filterInputDateFrom = undefined
+            this.filterInputDateTo = undefined
+            this.filterUsingExtent = false
+            this.filterExtent = [-180, -90, 180, 90]
+            this.filterExtentPolygon = [
+                [
+                    [-180, -90],
+                    [-180, 90],
+                    [180, 90],
+                    [180, -90],
+                    [-180, -90],
+                ]
+            ]
+
+            router.replace({path: route.path, query: {}}).then(r => {
+                console.log("clearFilters -> r", r)
+                router.push(route.path).then(p => {
+                    console.log("clearFilters -> p", p)
+                })
+            })
+            setTimeout(() => {
+                console.log("clearFilters -> route", route) // TODO: remove si el push de arriba funciona, si no, pasar el push para acá
+            }, 100)
+        }
     },
 });
