@@ -16,7 +16,7 @@
       <q-btn flat dense size="md" icon="close" @click="catalogueStore.showResourceDetailDrawer = false"/>
     </q-toolbar>
     <q-separator color="grey-2"/>
-    <div class="bg-yellow-2 text-center align-center" style="min-width: 640px; min-height: 300px;">
+    <div class="bg-yellow-2 text-center content-center align-center full-width" style="min-height: 300px;">
       <p>{{ catalogueStore.resourceSelected.title }}</p>
     </div>
     <q-separator color="grey-2"/>
@@ -47,8 +47,10 @@
 
       <div class="col-auto full-width" v-if="resourceData">
         <p>a dataset from
-          <NuxtLink to="/catalogue" style="text-decoration: none" v-if="resourceData && resourceData.owner">{{ resourceData.owner.username }}</NuxtLink>
-          / September 18th 2024
+          <NuxtLink to="/catalogue" style="text-decoration: none" v-if="resourceData && resourceData.owner">
+            {{ resourceData.owner.username }}
+          </NuxtLink>
+          / {{ formattedDate }}
         </p>
 
         <q-tabs
@@ -65,10 +67,10 @@
           <q-tab name="linked-resources">linked resources</q-tab>
           <q-tab name="assets">Assets</q-tab>
         </q-tabs>
-        <q-separator />
-        <q-tab-panels v-model="tab" animated class="q-px-none">
+        <q-separator/>
+        <q-tab-panels v-model="tab" animated class="q-pa-none">
 
-          <q-tab-panel name="info">
+          <q-tab-panel name="info" class="q-px-none">
             <CatalogueResourceDetailInfo :resourceData="resourceData"/>
           </q-tab-panel>
           <q-tab-panel name="location">
@@ -101,6 +103,7 @@
 
 
 <script setup lang="ts">
+import { date } from 'quasar'
 const catalogueStore = useCatalogueStore()
 const $q = useQuasar()
 
@@ -108,12 +111,12 @@ const resourceData = ref({})
 const tab = ref('info')
 
 const rightDrawerWidth = computed(() => {
-  if ($q.screen.width < 640 && $q.screen.width >= 300) {
+  if ($q.screen.width < 540 && $q.screen.width >= 300) {
     return 300
   } else if ($q.screen.width < 300) {
     return $q.screen.width
   } else {
-    return 640
+    return 540
   }
 })
 
@@ -135,6 +138,13 @@ const getResourceDetailData = async (pk: string) => {
     console.log("resourceData", resourceData.value)
   }
 }
+
+const formattedDate = computed(() => {
+  if (resourceData.value && resourceData.value.date) {
+    return date.formatDate(resourceData.value.date, 'MMMM Do, YYYY');
+  }
+  return '';
+});
 
 onMounted(async () => {
   console.log("onMounted catalogueStore.resourceSelected", catalogueStore.resourceSelected)
