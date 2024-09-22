@@ -60,17 +60,16 @@
             :breakpoint="0"
         >
           <q-tab name="info">Info</q-tab>
-          <q-tab name="location">location</q-tab>
-          <q-tab name="attributes">attributes</q-tab>
-          <q-tab name="linked">linked resources</q-tab>
-          <q-tab name="assets">assets</q-tab>
+          <q-tab name="location">Location</q-tab>
+          <q-tab name="attributes">Attributes</q-tab>
+          <q-tab name="linked-resources">linked resources</q-tab>
+          <q-tab name="assets">Assets</q-tab>
         </q-tabs>
         <q-separator />
-        <q-tab-panels v-model="tab" animated>
+        <q-tab-panels v-model="tab" animated class="q-px-none">
 
           <q-tab-panel name="info">
-            <div class="text-h6">info</div>
-            info Lorem ipsum dolor sit amet consectetur adipisicing elit.
+            <CatalogueResourceDetailInfo :resourceData="resourceData"/>
           </q-tab-panel>
           <q-tab-panel name="location">
             <div class="text-h6">location</div>
@@ -80,8 +79,8 @@
             <div class="text-h6">attributes</div>
             attributes Lorem ipsum dolor sit amet consectetur adipisicing elit.
           </q-tab-panel>
-          <q-tab-panel name="linked">
-            <div class="text-h6">linked</div>
+          <q-tab-panel name="linked-resources">
+            <div class="text-h6">linked resources</div>
             linked Lorem ipsum dolor sit amet consectetur adipisicing elit.
           </q-tab-panel>
           <q-tab-panel name="assets">
@@ -128,10 +127,13 @@ const getResourceTypeIcon = (resource_type: string) => {
   return 'mdi-file-outline';
 }
 
-const getResourceDetailData = async (pk) => {
+const getResourceDetailData = async (pk: string) => {
   console.log("getResourceDetailData", pk)
-  const response = await useFetch(`https://development.demo.geonode.org/api/v2/resources/${pk}?api_preset=viewer_common`)
-  resourceData.value = response.data.value.resource
+  const response = await useFetch<any>(`https://development.demo.geonode.org/api/v2/resources/${pk}?api_preset=viewer_common`)
+  if (response.data.value && response.data.value.resource) {
+    resourceData.value = response.data.value.resource
+    console.log("resourceData", resourceData.value)
+  }
 }
 
 onMounted(async () => {
