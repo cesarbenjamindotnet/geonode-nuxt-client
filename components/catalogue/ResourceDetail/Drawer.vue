@@ -8,10 +8,13 @@
       behavior="desktop"
   >
     <q-toolbar>
-      <span class="text-grey-9 q-pr-sm"><q-icon
-          :name="getResourceTypeIcon(catalogueStore.resourceSelected.resource_type)" size="20px"
-          style="top: -1.5px"/></span>
-      <span class="text-grey-9 " style="font-size: 18px;">{{ catalogueStore.resourceSelected.title }}</span>
+      <span class="text-grey-9 q-pr-sm">
+        <q-icon :name="getResourceTypeIcon(catalogueStore.resourceSelected.resource_type)" size="20px"
+                style="top: -1.5px"/>
+      </span>
+      <span class="text-grey-9 ellipsis" style="font-size: 18px;">
+        {{ catalogueStore.resourceSelected.title }}
+      </span>
       <q-space/>
       <q-btn flat dense size="md" icon="close" @click="catalogueStore.showResourceDetailDrawer = false"/>
     </q-toolbar>
@@ -45,8 +48,23 @@
 
     <div class="row q-pb-md q-px-md">
 
-      <div class="col-auto full-width" v-if="resourceData">
-        <p>a dataset from
+
+      <div class="col-auto full-width" v-if="!!resourceData && resourceData.pk">
+        <p>
+          <span class="q-pr-xs">
+          <q-avatar size="20px" style="padding-right: 12px;">
+            <img :src="resourceData.owner.avatar" :alt="resourceData.owner.username">
+          </q-avatar>
+            </span>
+          a
+          <span
+              class="clickable text-primary"
+              style="cursor: pointer; text-decoration: underline;"
+              @click="updateQueryParam(resourceData.resource_type)"
+          >
+    {{ resourceData.resource_type }}
+  </span>
+          from
           <NuxtLink to="/catalogue" style="text-decoration: none" v-if="resourceData && resourceData.owner">
             {{ resourceData.owner.username }}
           </NuxtLink>
@@ -103,8 +121,11 @@
 
 
 <script setup lang="ts">
-import { date } from 'quasar'
+import {date} from 'quasar'
+
 const catalogueStore = useCatalogueStore()
+const route = useRoute()
+const router = useRouter()
 const $q = useQuasar()
 
 const resourceData = ref({})
@@ -130,6 +151,7 @@ const getResourceTypeIcon = (resource_type: string) => {
   return 'mdi-file-outline';
 }
 
+
 const getResourceDetailData = async (pk: string) => {
   console.log("getResourceDetailData", pk)
   const response = await useFetch<any>(`https://development.demo.geonode.org/api/v2/resources/${pk}?api_preset=viewer_common`)
@@ -137,6 +159,12 @@ const getResourceDetailData = async (pk: string) => {
     resourceData.value = response.data.value.resource
     console.log("resourceData", resourceData.value)
   }
+}
+
+const updateQueryParam = (resourceType) => {
+  const queryParam = { ...route.query, f: resourceType };
+  console.log("updateQueryParam", queryParam)
+  router.push({ path: route.path, query: queryParam });
 }
 
 const formattedDate = computed(() => {

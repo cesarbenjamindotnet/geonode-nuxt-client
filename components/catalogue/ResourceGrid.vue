@@ -112,7 +112,6 @@ const generatePlaceholderImage = () => {
 
 //TODO: Convertir a un composable
 const getResourceTypeIcon = (resource_type: string) => {
-  console.log("getResourceTypeIcon", resource_type)
   if (resource_type === 'dataset') return 'mdi-database';
   if (resource_type === 'map') return 'mdi-map';
   if (resource_type === 'document') return 'mdi-file-document-outline';

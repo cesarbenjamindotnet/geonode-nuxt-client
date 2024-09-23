@@ -94,6 +94,7 @@ const filteredResourceTreeNodes = computed(() => {
 
 const updateQueryParams = () => {
   const queryParams = {...route.query}
+  console.log("updateQueryParams", catalogueStore.resourceTreeNodesSelected)
 
   // Obtener los nodos hijos del tipo 'dataset'
   const datasetNode = resourceTreeNodes.find(node => node.value === 'dataset')

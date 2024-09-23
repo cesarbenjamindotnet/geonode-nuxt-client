@@ -7,7 +7,7 @@
       <span class="text-grey-9 text-bold">Filters</span>
       <q-space/>
       <div class="q-pr-sm">
-        <q-btn v-if="catalogueStore.hasQueryParams" flat dense @click="catalogueStore.clearFilters" no-caps
+        <q-btn v-if="catalogueStore.hasQueryParams" flat dense @click="catalogueStore.clearFilters(router, route)" no-caps
                class="q-px-sm" text-color="grey-8">
           Clear filters
         </q-btn>

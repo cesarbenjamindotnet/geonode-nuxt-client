@@ -98,7 +98,6 @@ export const useCatalogueStore = defineStore('catalogue', {
             ]
 
             router.replace({path: route.path, query: {}}).then(r => {
-                console.log("clearFilters -> r", r)
                 router.push(route.path).then(p => {
                     console.log("clearFilters -> p", p)
                 })
