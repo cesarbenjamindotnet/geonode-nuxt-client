@@ -59,15 +59,19 @@
           a
           <span
               class="clickable text-primary"
-              style="cursor: pointer; text-decoration: underline;"
-              @click="updateQueryParam(resourceData.resource_type)"
+              style="cursor: pointer; text-decoration: none;"
+              @click="addResourceTypeQueryParam(resourceData.resource_type)"
           >
-    {{ resourceData.resource_type }}
-  </span>
+            {{ resourceData.resource_type }}
+          </span>
           from
-          <NuxtLink to="/catalogue" style="text-decoration: none" v-if="resourceData && resourceData.owner">
+          <span
+              class="clickable text-primary"
+              style="cursor: pointer; text-decoration: none;"
+              @click="addOwnerQueryParam(resourceData.owner.pk)"
+          >          
             {{ resourceData.owner.username }}
-          </NuxtLink>
+          </span>
           / {{ formattedDate }}
         </p>
 
@@ -91,9 +95,8 @@
           <q-tab-panel name="info" class="q-px-none">
             <CatalogueResourceDetailInfo :resourceData="resourceData"/>
           </q-tab-panel>
-          <q-tab-panel name="location">
-            <div class="text-h6">location</div>
-            location Lorem ipsum dolor sit amet consectetur adipisicing elit.
+          <q-tab-panel name="location" class="q-px-none">
+            <CatalogueResourceDetailLocation :resourceData="resourceData"/>
           </q-tab-panel>
           <q-tab-panel name="attributes">
             <div class="text-h6">attributes</div>
@@ -110,8 +113,9 @@
 
         </q-tab-panels>
 
-
-        <p>kk</p>
+        <br>
+        <q-separator/>
+        <br>
         <p>{{ resourceData }}</p>
       </div>
     </div>
@@ -122,7 +126,9 @@
 
 <script setup lang="ts">
 import {date} from 'quasar'
+import type {FacetsResponse} from "~/interfaces/catalogue";
 
+const authStore = useAuthStore()
 const catalogueStore = useCatalogueStore()
 const route = useRoute()
 const router = useRouter()
@@ -161,10 +167,41 @@ const getResourceDetailData = async (pk: string) => {
   }
 }
 
-const updateQueryParam = (resourceType) => {
-  const queryParam = { ...route.query, f: resourceType };
-  console.log("updateQueryParam", queryParam)
-  router.push({ path: route.path, query: queryParam });
+const addResourceTypeQueryParam = (resourceType) => {
+  const queryParam = {...route.query, f: resourceType};
+  let headers = {}
+  if (authStore.isAuthenticated) {
+    // headers = {Authorization: `Bearer ${authStore.token.access_token}`}
+    // TODO: implementar esto cuando tenga mejor armado el backend
+  }
+
+  if (!catalogueStore.resourceTreeNodesSelected.includes(resourceType)) {
+    catalogueStore.resourceTreeNodesSelected.push(resourceType);
+  }
+  console.log("addQueryParam", queryParam)
+  console.log("catalogueStore.resourceTreeNodesSelected", catalogueStore.resourceTreeNodesSelected)
+  router.push({path: route.path, query: queryParam});
+}
+
+const addOwnerQueryParam = async (ownerPk) => {
+  const queryParam = {...route.query, 'filter{owner.pk.in}': ownerPk};
+  let headers = {}
+  if (authStore.isAuthenticated) {
+    // headers = {Authorization: `Bearer ${authStore.token.access_token}`}
+    // TODO: implementar esto cuando tenga mejor armado el backend
+  }
+
+  const url = `https://development.demo.geonode.org/api/v2/facets/owner?key=${ownerPk}`
+  const {data} = await useFetch<FacetsResponse>(url, {headers: headers})
+  const {topics: {items = []} = {}} = data.value || {}
+  if (items.length) {
+    const owner = items.filter(item => item.key === ownerPk).pop()
+    if (!catalogueStore.ownersSelected.includes(owner)) {
+      catalogueStore.ownersSelected.push(owner);
+    }
+    console.log("addQueryParam", queryParam)
+    await router.push({path: route.path, query: queryParam});
+  }
 }
 
 const formattedDate = computed(() => {
