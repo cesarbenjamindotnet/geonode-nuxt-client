@@ -12,7 +12,7 @@
         </div>
       </div>
       <q-table
-          :rows="itemsList"
+          :rows="resourceExtent"
           row-key="name"
           wrap-cells
           dense
@@ -49,13 +49,13 @@
           <span style="font-size: 12.4px;" class="text-grey-9">Center ({{ resourceData.extent.srid }})</span>
         </div>
         <div class="col-auto">
-          <q-btn flat dense no-caps color="grey-9" class="q-ml-auto" @click="copyBoundigBoxToClipboard">
+          <q-btn flat dense no-caps color="grey-9" class="q-ml-auto" @click="copyCenterToClipboard">
             <q-icon name="mdi-content-copy" size="18px"/>
           </q-btn>
         </div>
       </div>
       <q-table
-          :rows="itemsList"
+          :rows="resourceCenter"
           row-key="name"
           wrap-cells
           dense
@@ -86,16 +86,20 @@
         </template>
       </q-table>
       <q-separator/>
-
     </div>
-    <div class="col-7 q-pa-sm">
-      <div class="col-auto full-height bg-green"></div>
+    <div class="col-7 q-pl-sm q-pt-sm">
+      <CatalogueResourceDetailLocationMap :resourceExtent="resourceData.extent" :key="resourceData.extent"/>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import {date as quasarDate} from 'quasar';
+const props = defineProps({
+  resourceData: {
+    type: Object,
+    required: true
+  }
+})
 
 interface Column {
   name: string;
@@ -107,13 +111,6 @@ interface Column {
   format?: (val: any) => string;
   classes?: string;
 }
-
-const props = defineProps({
-  resourceData: {
-    type: Object,
-    required: true
-  }
-})
 
 const columns: Column[] = [
   {
@@ -138,7 +135,7 @@ const columns: Column[] = [
   }
 ]
 
-const itemsList = computed<{ name: string; label: string; value: any }[]>(() => {
+const resourceExtent = computed<{ name: string; label: string; value: any }[]>(() => {
   const [xMin, yMin, xMax, yMax] = props.resourceData.extent.coords
 
   return [
@@ -149,13 +146,36 @@ const itemsList = computed<{ name: string; label: string; value: any }[]>(() => 
   ]
 })
 
+const resourceCenter = computed<{ name: string; label: string; value: any }[]>(() => {
+  const [xMin, yMin, xMax, yMax] = props.resourceData.extent.coords
+
+  const x = (xMin + xMax) / 2;
+  const y = (yMin + yMax) / 2;
+
+  return [
+    {name: 'lon', label: 'Lon', value: x.toFixed(8)},
+    {name: 'lat', label: 'Lat', value: y.toFixed(8)},
+  ]
+})
+
 const copyBoundigBoxToClipboard = () => {
   const [xMin, yMin, xMax, yMax] = props.resourceData.extent.coords
   const srid = props.resourceData.extent.srid.split(":").pop()
-  const wkt = `SRID=${srid};POLYGON((${xMin} ${yMin}, ${xMin} ${yMax}, ${xMax} ${yMax}, ${xMax} ${yMin}, ${xMin} ${yMin}))`;
-  console.log("wkt", wkt)
-  navigator.clipboard.writeText(wkt);
+  const wkt = `SRID=${srid};POLYGON((${xMin} ${yMin}, ${xMin} ${yMax}, ${xMax} ${yMax}, ${xMax} ${yMin}, ${xMin} ${yMin}))`
+  navigator.clipboard.writeText(wkt)
 }
+
+const copyCenterToClipboard = () => {
+  const [xMin, yMin, xMax, yMax] = props.resourceData.extent.coords
+  const srid = props.resourceData.extent.srid.split(":").pop()
+
+  const x = (xMin + xMax) / 2
+  const y = (yMin + yMax) / 2
+
+  const wkt = `SRID=${srid};POINT(${x} ${y})`
+  navigator.clipboard.writeText(wkt)
+}
+
 
 onMounted(() => {
   // alert("Info OnMounted")
