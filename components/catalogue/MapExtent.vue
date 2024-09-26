@@ -11,7 +11,7 @@
   <div class="row" style="margin-top: 4px;">
     <q-card style="width: 100%;">
       <client-only>
-        <ol-map v-if="true" ref="olMapRef" style="height: 192px; width: 100%;" @moveend="moveEnd">
+        <ol-map ref="olMapRef" style="height: 192px; width: 100%;" @moveend="moveEnd">
           <ol-view ref="olViewRef" :center="center" :zoom="-4" :projection="'EPSG:4326'"
                    :extent="extent"/>
           <ol-tile-layer>
@@ -22,7 +22,7 @@
               <ol-feature>
                 <ol-geom-polygon :coordinates="catalogueStore.filterExtentPolygon"></ol-geom-polygon>
                 <ol-style>
-                  <ol-style-stroke :color="`${config.public.quasarBrand.accent}`"></ol-style-stroke>
+                  <ol-style-stroke :color="`${config.public.quasarBrand.accent}`" :width="2"></ol-style-stroke>
                   <ol-style-fill :color="`${config.public.quasarBrand.primary}50`"></ol-style-fill>
                 </ol-style>
               </ol-feature>

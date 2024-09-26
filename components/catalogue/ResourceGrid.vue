@@ -70,7 +70,7 @@ const route = useRoute()
 const $q = useQuasar()
 
 const showResourceInfo = (resource: any) => {
-  console.log("showResourceInfo", resource)
+  // console.log("showResourceInfo", resource)
   catalogueStore.resourceSelected = resource
   catalogueStore.showLeftDrawer = false
   catalogueStore.showResourceDetailDrawer = true
