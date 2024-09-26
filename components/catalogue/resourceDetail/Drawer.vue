@@ -85,7 +85,7 @@
         >
           <q-tab name="info">Info</q-tab>
           <q-tab name="location">Location</q-tab>
-          <q-tab name="attributes">Attributes</q-tab>
+          <q-tab name="attributes" v-if="catalogueStore.resourceSelected.resource_type === 'dataset'">Attributes</q-tab>
           <q-tab name="linked-resources">linked resources</q-tab>
           <q-tab name="assets">Assets</q-tab>
         </q-tabs>
@@ -98,9 +98,8 @@
           <q-tab-panel name="location" class="q-px-none">
             <CatalogueResourceDetailLocation :resourceData="resourceData"/>
           </q-tab-panel>
-          <q-tab-panel name="attributes">
-            <div class="text-h6">attributes</div>
-            attributes Lorem ipsum dolor sit amet consectetur adipisicing elit.
+          <q-tab-panel name="attributes" v-if="catalogueStore.resourceSelected.resource_type === 'dataset'">
+            <CatalogueResourceDetailAttributes :resourceData="resourceData"/>
           </q-tab-panel>
           <q-tab-panel name="linked-resources">
             <div class="text-h6">linked resources</div>
@@ -158,11 +157,30 @@ const getResourceTypeIcon = (resource_type: string) => {
 }
 
 
-const getResourceDetailData = async (pk: string) => {
-  console.log("getResourceDetailData", pk)
-  const response = await useFetch<any>(`https://development.demo.geonode.org/api/v2/resources/${pk}?api_preset=viewer_common`)
-  if (response.data.value && response.data.value.resource) {
-    resourceData.value = response.data.value.resource
+const getResourceDetailData = async (resourceSelected: any) => {
+  console.log("getResourceDetailData", resourceSelected)
+  let presets = ''
+  let resource_type = 'resources'
+
+  if (resourceSelected.resource_type === 'dataset') {
+    resource_type = 'datasets'
+  }
+
+  if (resourceSelected.resource_type === 'dataset') {
+    presets += '&api_preset=dataset_viewer'
+  }
+
+  const response = await useFetch<any>(`https://development.demo.geonode.org/api/v2/${resource_type}/${resourceSelected.pk}?api_preset=viewer_common${presets}`)
+  console.log("response", response.data.value)
+  console.log("resource_type", resourceSelected.resource_type)
+  if (response.data.value) {
+    if (resourceSelected.resource_type === 'dataset') {
+      resource_type = 'dataset'
+    } else {
+      resource_type = 'resource'
+    }
+
+    resourceData.value = response.data.value[resource_type]
     console.log("resourceData", resourceData.value)
   }
 }
@@ -214,15 +232,20 @@ const formattedDate = computed(() => {
 onMounted(async () => {
   console.log("onMounted catalogueStore.resourceSelected", catalogueStore.resourceSelected)
   if (catalogueStore.resourceSelected) {
-    await getResourceDetailData(catalogueStore.resourceSelected.pk)
+    await getResourceDetailData(catalogueStore.resourceSelected)
   }
 })
 
-watch(() => catalogueStore.resourceSelected, async (newValue) => {
-  console.log("watch catalogueStore.resourceSelected", newValue)
+watch(() => catalogueStore.resourceSelected, async (newValue, oldValue) => {
+  console.log("watch catalogueStore.resourceSelected newValue", newValue.resource_type)
+  console.log("watch catalogueStore.resourceSelected oldValue", oldValue.resource_type)
   if (newValue) {
-    await getResourceDetailData(newValue.pk)
+    if (newValue.resource_type !== oldValue.resource_type) {
+      tab.value = 'info'
+    }
+    await getResourceDetailData(newValue)
   }
+
 })
 
 </script>
