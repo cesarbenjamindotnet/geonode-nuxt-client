@@ -14,7 +14,7 @@
           <div class="col-auto q-pl-xs q-pt-xs" v-show="!isSmallScreen">
             <span class="q-pl-xs text-h6 ">
               <NuxtLink to="/" class="text-grey-10" style="text-decoration: none;">
-                Geonode
+                Zoo
               </NuxtLink>
             </span>
           </div>
@@ -29,7 +29,6 @@
       </div>
       <div class="col-auto">
         <div class="row">
-          <q-btn dense flat icon="mdi-dots-vertical" @click="showHeaderMenu = true"></q-btn>
           <div class="q-pt-sm" style="padding-top: 36px;">
             <LayoutSharedHeaderMenu :show="showHeaderMenu" @hide="showHeaderMenu = false"/>
           </div>
@@ -82,29 +81,17 @@
       </div>
     </q-toolbar>
 
-    <div v-if="route.path === '/'"
-         class="row bg-primary text-white justify-center q-pa-sm content-center bg-light-blue-10">
-      <div class="col-auto content-center text-center" style="min-height: 258px;">
-        <p class="text-h1 q-pt-md">Geonode</p>
-        <p class="text-h6">Sharing geospatial data and maps.</p>
-      </div>
-    </div>
-
     <div class="row">
       <div class="col-auto">
         <q-tabs dense align="left">
-          <q-route-tab no-caps to="/catalogue/all" label="All Resources"/>
-          <q-route-tab no-caps to="/catalogue/dataset" label="Datasets"/>
-          <q-route-tab no-caps to="/catalogue/map" label="Maps"/>
-          <q-route-tab no-caps to="/catalogue/document" label="Documents"/>
-          <q-route-tab no-caps to="/catalogue/geostory" label="GeoStories"/>
-          <q-route-tab no-caps to="/catalogue/dashboard" label="Dashboards"/>
+          <q-route-tab no-caps to="/link/one" label="One link"/>
+          <q-route-tab no-caps to="/link/two" label="Another"/>
         </q-tabs>
       </div>
       <q-space/>
       <div class="col-auto">
         <q-tabs dense align="left">
-          <q-tab no-caps label="Add resource">
+          <q-tab no-caps label="Processes">
             <q-menu>
               <q-list dense>
                 <q-item clickable v-close-popup class="q-px-lg">

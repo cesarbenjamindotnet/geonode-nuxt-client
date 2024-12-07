@@ -1,0 +1,30 @@
+FROM keycloak:latest
+
+# Enable health and metrics support
+ENV KC_HEALTH_ENABLED=true
+ENV KC_METRICS_ENABLED=true
+# ENV KC_HOSTNAME_URL=https://localhost:8443
+
+# Configure a database vendor
+# ENV KC_DB=postgres
+# ENV KC_DB_URL=jdbc:postgresql://database-host:5432/keycloak
+# ENV KC_DB_USERNAME=keycloak
+# ENV KC_DB_PASSWORD=keycloakpassword
+# ENV KC_HOSTNAME_URL=localhost
+# ENV KEYCLOAK_FEATURES=token-exchange
+
+ENV KC_DB=${KC_DB}
+ENV KC_DB_URL=${KC_DB_URL}
+ENV KC_DB_USERNAME=${KC_DB_USERNAME}
+ENV KC_DB_PASSWORD=${KC_DB_PASSWORD}
+ENV KC_HOSTNAME_URL=${KC_HOSTNAME_URL}
+ENV KEYCLOAK_FEATURES=token-exchange
+
+WORKDIR /opt/keycloak
+
+# Expose the necessary ports
+EXPOSE 8080 8443
+# EXPOSE 8080
+
+# Start Keycloak in development mode
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start", "--proxy=edge", "--features=token-exchange", "--hostname-strict=true"]

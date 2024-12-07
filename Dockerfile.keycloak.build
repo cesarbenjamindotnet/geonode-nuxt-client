@@ -1,0 +1,22 @@
+FROM quay.io/keycloak/keycloak:latest
+
+# Configure a database vendor
+ENV KC_DB=postgres
+ENV KEYCLOAK_FEATURES=token-exchange
+
+WORKDIR /opt/keycloak
+
+# Ensure correct permissions
+USER root
+RUN chown -R keycloak:keycloak /opt/keycloak
+
+# Switch back to the keycloak user
+USER keycloak
+
+RUN /opt/keycloak/bin/kc.sh build
+
+# Expose necessary ports
+EXPOSE 8080 8443
+
+# Start Keycloak
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start"]

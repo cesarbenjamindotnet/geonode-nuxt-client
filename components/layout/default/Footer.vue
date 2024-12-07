@@ -1,10 +1,6 @@
 <template>
   <q-footer bordered class="bg-white text-grey-9 q-py-xs q-px-sm">
     <div class="row justify-center q-gutter-lg">
-      <!-- TODO: Add configurable and dynamic links to the footer -->
-      <div class="col-auto">
-        <NuxtLink href="https://geonode.org" target="_blank" style="text-decoration: none;">geonode.org</NuxtLink>
-      </div>
       <div class="col-auto">
         <NuxtLink to="/developer" style="text-decoration: none;">Developers</NuxtLink>
       </div>
