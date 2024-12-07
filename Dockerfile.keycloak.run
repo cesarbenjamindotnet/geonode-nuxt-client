@@ -1,4 +1,4 @@
-FROM keycloak:latest
+FROM gcr.io/mty-id-dev/github.com/gobiernodigitalmonterrey/keycloak:latest
 
 # Enable health and metrics support
 ENV KC_HEALTH_ENABLED=true
