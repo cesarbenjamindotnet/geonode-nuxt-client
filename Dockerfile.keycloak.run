@@ -1,9 +1,8 @@
 FROM us-central1-docker.pkg.dev/maptail/cloud-run-source-deploy/geonode-nuxt-client/build-keycloak:latest
 
 # Enable health and metrics support
-ENV KC_HEALTH_ENABLED=true
-ENV KC_METRICS_ENABLED=true
-
+# ENV KC_HEALTH_ENABLED=true
+# ENV KC_METRICS_ENABLED=true
 # Configure a database vendor
 # ENV KC_DB=postgres
 # ENV KC_DB_URL=jdbc:postgresql://database-host:5432/keycloak
@@ -11,8 +10,7 @@ ENV KC_METRICS_ENABLED=true
 # ENV KC_DB_PASSWORD=keycloakpassword
 # ENV KC_HOSTNAME_URL=localhost
 # ENV KEYCLOAK_FEATURES=token-exchange
-
-ENV KEYCLOAK_FEATURES=token-exchange
+# ENV KEYCLOAK_FEATURES=token-exchange
 
 WORKDIR /opt/keycloak
 
