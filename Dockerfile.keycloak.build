@@ -20,4 +20,4 @@ RUN /opt/keycloak/bin/kc.sh build
 EXPOSE 8080 8443
 
 # Start Keycloak
-ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start" "--proxy-headers=forwarded", "--features=token-exchange", "--hostname=https://build-keycloak-162127822228.us-central1.run.app" "--http-enabled=true"]
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start", "--proxy-headers=forwarded", "--features=token-exchange", "--hostname=https://build-keycloak-162127822228.us-central1.run.app" "--http-enabled=true"]
