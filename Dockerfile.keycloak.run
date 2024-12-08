@@ -18,6 +18,7 @@ WORKDIR /opt/keycloak
 
 # Expose the necessary ports
 # EXPOSE 8080 8443
+
 EXPOSE 8080
 
 # Start Keycloak in development mode
