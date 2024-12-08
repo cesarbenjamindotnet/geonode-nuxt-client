@@ -9,6 +9,7 @@ WORKDIR /opt/keycloak
 # Ensure correct permissions
 USER root
 RUN chown -R keycloak:keycloak /opt/keycloak
+RUN chmod +x /opt/keycloak/bin/kc.sh
 
 # Switch back to the keycloak user
 USER keycloak
