@@ -15,9 +15,9 @@ FROM us-central1-docker.pkg.dev/maptail/cloud-run-source-deploy/geonode-nuxt-cli
 WORKDIR /opt/keycloak
 
 # Expose the necessary ports
-# EXPOSE 8080 8443
-EXPOSE 8080
+EXPOSE 8080 8443
+# EXPOSE 8080
 
 # Start Keycloak in development mode
 # ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start", "--proxy-headers=forwarded", "--features=token-exchange", "--hostname=https://run-keycloak-162127822228.us-central1.run.app", "--http-enabled=true", "--optimized"]
-ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start", "--proxy-headers=forwarded", "--hostname=https://run-keycloak-162127822228.us-central1.run.app", "--http-enabled=true", "--optimized"]
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start", "--proxy-headers=xforwarded", "--hostname=https://run-keycloak-162127822228.us-central1.run.app", "--http-enabled=true", ]
