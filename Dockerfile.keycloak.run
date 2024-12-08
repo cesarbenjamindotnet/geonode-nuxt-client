@@ -27,4 +27,4 @@ EXPOSE 8080 8443
 # EXPOSE 8080
 
 # Start Keycloak in development mode
-ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start", "--proxy-headers=forwarded", "--features=token-exchange", "--hostname=http://localhost" "--http-port=${PORT}"]
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start", "--proxy-headers=forwarded", "--features=token-exchange", "--hostname=https://build-keycloak-162127822228.us-central1.run.app", "--http-enabled=true"]
