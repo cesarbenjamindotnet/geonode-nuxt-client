@@ -1,11 +1,20 @@
 FROM quay.io/keycloak/keycloak:latest
 
+# Define build arguments
+ARG KC_DB
+ARG KC_DB_URL
+ARG KC_DB_USERNAME
+ARG KC_DB_PASSWORD
+
 # Configure a database vendor
 ENV KEYCLOAK_FEATURES=token-exchange
 ENV KC_DB=postgres
-ENV KC_DB_URL=jdbc:postgresql://database-host:5432/keycloak
-ENV KC_DB_USERNAME=keycloak
-ENV KC_DB_PASSWORD=keycloakpassword
+
+# Set environment variables using build arguments
+ENV KC_DB=${KC_DB}
+ENV KC_DB_URL=${KC_DB_URL}
+ENV KC_DB_USERNAME=${KC_DB_USERNAME}
+ENV KC_DB_PASSWORD=${KC_DB_PASSWORD}
 
 WORKDIR /opt/keycloak
 
