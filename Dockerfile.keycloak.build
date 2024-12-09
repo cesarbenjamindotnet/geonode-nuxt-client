@@ -2,6 +2,10 @@ FROM quay.io/keycloak/keycloak:latest
 
 # Configure a database vendor
 ENV KEYCLOAK_FEATURES=token-exchange
+ENV KC_DB=postgres
+ENV KC_DB_URL=jdbc:postgresql://database-host:5432/keycloak
+ENV KC_DB_USERNAME=keycloak
+ENV KC_DB_PASSWORD=keycloakpassword
 
 WORKDIR /opt/keycloak
 
@@ -16,7 +20,6 @@ USER keycloak
 RUN /opt/keycloak/bin/kc.sh build
 
 # Expose necessary ports
-# EXPOSE 8080 8443
 EXPOSE 8080
 
 # Start Keycloak
