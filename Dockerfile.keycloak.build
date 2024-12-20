@@ -35,5 +35,3 @@ EXPOSE 8080
 
 # Start Keycloak with admin credentials
 ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start-dev", "--proxy-headers=xforwarded", "--hostname=https://build-keycloak-162127822228.us-central1.run.app", "--http-enabled=true", "--verbose"]
-
-bootstrap-admin user --username admin --password admin
