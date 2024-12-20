@@ -1,11 +1,10 @@
-# Usar Ubuntu 24.04 LTS como imagen base
+# Usar Ubuntu 24.04 LTS como base
 FROM ubuntu:24.04
 
-# Información del mantenedor
 LABEL maintainer="tu_correo@example.com"
 
-# Configuración de entorno para evitar interacciones durante la instalación
 ENV DEBIAN_FRONTEND=noninteractive
+ENV PORT=8080
 
 # Actualizar el sistema e instalar dependencias necesarias
 RUN apt-get update && \
@@ -45,15 +44,15 @@ RUN ln -s /usr/lib/cgi-bin/zoo_loader.cgi /var/www/html/zoo_loader.cgi && \
     a2enmod cgi && \
     service apache2 restart
 
-# Copiar archivo de configuración personalizado (asegúrate de tener este archivo en el mismo directorio que el Dockerfile)
+# Copiar archivo de configuración personalizado
 COPY zoo.cfg /usr/local/etc/zoo-project/zoo.cfg
 
-# Crear directorio para los servicios de ZooProject y ajustar permisos
+# Crear directorio para los servicios y ajustar permisos
 RUN mkdir -p /usr/local/share/zoo-services && \
     chown www-data:www-data /usr/local/share/zoo-services
 
-# Exponer el puerto 80 para acceder al servicio
-EXPOSE 80
+# Exponer el puerto definido por la variable de entorno
+EXPOSE 8080
 
-# Comando para iniciar Apache en primer plano
-CMD ["apachectl", "-D", "FOREGROUND"]
+# Iniciar Apache en primer plano y escuchar en el puerto definido por la variable `PORT`
+CMD ["sh", "-c", "apachectl -D FOREGROUND -k start -e info -E /dev/stderr -DFOREGROUND"]
