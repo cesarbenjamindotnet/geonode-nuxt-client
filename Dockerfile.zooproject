@@ -31,7 +31,7 @@ RUN apt-get update && \
 # Descargar y compilar ZooProject
 RUN mkdir /zoo && \
     cd /zoo && \
-    git clone https://github.com/ZooProject/ZooProject.git . && \
+    git clone https://github.com/ZOO-Project/ZOO-Project.git . && \
     mkdir build && \
     cd build && \
     cmake .. && \
