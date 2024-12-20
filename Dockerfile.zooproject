@@ -6,6 +6,10 @@ LABEL maintainer="tu_correo@example.com"
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PORT=8080
 
+# Prevenir que los servicios se inicien automáticamente durante la construcción
+RUN echo '#!/bin/sh\nexit 101' > /usr/sbin/policy-rc.d && chmod +x /usr/sbin/policy-rc.d
+
+
 # Actualizar el sistema e instalar dependencias necesarias
 RUN apt-get update && \
     apt-get install -y \
@@ -50,6 +54,9 @@ COPY zoo.cfg /usr/local/etc/zoo-project/zoo.cfg
 # Crear directorio para los servicios y ajustar permisos
 RUN mkdir -p /usr/local/share/zoo-services && \
     chown www-data:www-data /usr/local/share/zoo-services
+
+# Reactivar la ejecución de servicios después de la construcción
+RUN rm /usr/sbin/policy-rc.d
 
 # Exponer el puerto definido por la variable de entorno
 EXPOSE 8080
