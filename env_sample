@@ -1,0 +1,4 @@
+NUXT_OIDC_ISSUER = http://keycloak:8080/realms/zooproject
+NUXT_OIDC_CLIENT_ID = nuxt-zooproject
+NUXT_OIDC_CLIENT_SECRET = eyjxK---secret---hEb5l
+NUXT_ZOO_BASEURL = http://localhost
