@@ -46,8 +46,8 @@ export function defineQuasarConfig(): {
         plugins: ['LoadingBar'],
         config: {
             brand: {
-                primary: '#1976D2',
-                secondary: '#26A69A',
+                primary: '#663e05',
+                secondary: '#fefdeb',
                 accent: '#9C27B0',
                 dark: '#1D1D1D',
                 "dark-page": '#121212',

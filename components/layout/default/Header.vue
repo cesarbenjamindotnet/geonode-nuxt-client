@@ -6,15 +6,16 @@
 
           <div class="col-auto">
             <NuxtLink to="/">
-              <q-avatar>
-                <img width="128" src="https://cdn.quasar.dev/logo-v2/svg/logo-dark.svg">
+              <q-avatar square >
+                <q-img src="https://zoo-project.org/img/zoo-sun-logo-big.png" width="128"/>
               </q-avatar>
+
             </NuxtLink>
           </div>
           <div class="col-auto q-pl-xs q-pt-xs" v-show="!isSmallScreen">
             <span class="q-pl-xs text-h6 ">
               <NuxtLink to="/" class="text-grey-10" style="text-decoration: none;">
-                Zoo
+                Zoo-Project
               </NuxtLink>
             </span>
           </div>
@@ -91,36 +92,8 @@
       <q-space/>
       <div class="col-auto">
         <q-tabs dense align="left">
-          <q-tab no-caps label="Processes">
-            <q-menu>
-              <q-list dense>
-                <q-item clickable v-close-popup class="q-px-lg">
-                  <q-item-section class="q-px-sm">Upload dataset</q-item-section>
-                </q-item>
-                <q-item clickable v-close-popup>
-                  <q-item-section class="q-px-sm">Upload document</q-item-section>
-                </q-item>
-                <q-separator/>
-                <q-item clickable v-close-popup>
-                  <q-item-section class="q-px-sm">Create dataset</q-item-section>
-                </q-item>
-                <q-item clickable v-close-popup>
-                  <q-item-section class="q-px-sm">Create map</q-item-section>
-                </q-item>
-                <q-item clickable v-close-popup>
-                  <q-item-section class="q-px-sm">Create geostory</q-item-section>
-                </q-item>
-                <q-item clickable v-close-popup>
-                  <q-item-section class="q-px-sm">Create dashboard</q-item-section>
-                </q-item>
-                <q-separator/>
-                <q-item clickable v-close-popup>
-                  <q-item-section class="q-px-sm">Connect remote service</q-item-section>
-                </q-item>
-
-              </q-list>
-            </q-menu>
-          </q-tab>
+          <q-route-tab v-if="authStore.user" no-caps to="/ogc-api" label="OGC API"/>
+          <q-route-tab v-if="authStore.user" no-caps to="/jobs" label="Jobs"/>
           <q-route-tab no-caps to="/about" label="About"/>
         </q-tabs>
       </div>
