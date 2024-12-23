@@ -85,8 +85,8 @@
     <div class="row">
       <div class="col-auto">
         <q-tabs dense align="left">
-          <q-route-tab no-caps to="/link/one" label="One link"/>
-          <q-route-tab no-caps to="/link/two" label="Another"/>
+          <q-route-tab no-caps to="/one" label="One page"/>
+          <q-route-tab no-caps to="/another" label="Another"/>
         </q-tabs>
       </div>
       <q-space/>

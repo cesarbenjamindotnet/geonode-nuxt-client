@@ -58,6 +58,10 @@ export default defineNuxtConfig({
             GEONODE_FORCE_SCRIPT_NAME: process.env.NUXT_GEONODE_FORCE_SCRIPT_NAME || '',
             GEONODE_ADMIN_PATH: process.env.NUXT_GEONODE_ADMIN_PATH || '/admin',
             NUXT_ZOO_BASEURL: process.env.NUXT_ZOO_BASEURL || 'http://localhost',
+            NUXT_OIDC_ISSUER: process.env.NUXT_OIDC_ISSUER || 'http://localhost:8080/realms/zooproject',
+            NUXT_OIDC_CLIENT_ID: process.env.NUXT_OIDC_CLIENT_ID || 'keycloak',
+            NUXT_OIDC_CLIENT_SECRET: process.env.NUXT_OIDC_CLIENT_SECRET || 'keycloak-secret',
+            NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || 'NEXTAUTH_SECRET',
         }
     }
 })

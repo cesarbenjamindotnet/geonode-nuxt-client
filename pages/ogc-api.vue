@@ -24,11 +24,23 @@ const data = ref(null)
 
 const fetchData = async () => {
   try {
-    const response = await fetch(`${config.public.NUXT_ZOO_BASEURL}/ogc-api/`, {
+    let response = await fetch(`${config.public.NUXT_ZOO_BASEURL}/ogc-api/`, {
       headers: {
         Authorization: `Bearer ${authStore.token.access_token}`
       }
     })
+
+    if (response.status === 401 && authStore.isAuthenticated) {
+      // Refresh the token
+      await authStore.refreshToken()
+      // Retry the request with the new token
+      response = await fetch(`${config.public.NUXT_ZOO_BASEURL}/ogc-api/`, {
+        headers: {
+          Authorization: `Bearer ${authStore.token.access_token}`
+        }
+      })
+    }
+
     if (response.ok) {
       data.value = await response.json()
     } else {
@@ -38,6 +50,7 @@ const fetchData = async () => {
     console.error('Error fetching data:', error)
   }
 }
+
 onMounted(() => {
   fetchData()
 })

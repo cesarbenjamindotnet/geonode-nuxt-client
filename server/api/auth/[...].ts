@@ -5,6 +5,8 @@ const APP_BASEURL = process.env.NUXT_APP_BASEURL || '';
 const OIDC_WELL_KNOWN_URL = `${process.env.NUXT_OIDC_ISSUER}/.well-known/openid-configuration/`;
 const GEONODE_API_V2_USERS_URL = `${APP_BASEURL}/api/v2/users`;
 
+const config = useRuntimeConfig()
+
 interface RefreshToken {
     access_token: string;
     expires_in: number;
@@ -87,7 +89,7 @@ function isTokenExpired(expiresAt: any) {
 }
 
 export default NuxtAuthHandler({
-    secret: useRuntimeConfig().authSecret || process.env.NEXTAUTH_SECRET,
+    secret: config.public.NEXTAUTH_SECRET.toString() || 'default-secret',
 
     providers: [
         {

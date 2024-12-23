@@ -32,18 +32,38 @@ const handleLogout = async () => {
 
     console.log("response: ", response)
 
-    const logoutUrl = `${config.public.GEONODE_BASEURL}/api/v2/geonuxt/logout`
-    const returnUrl = `${config.public.NUXT_BASE_URL}`
+    // const logoutUrl = `${config.public.NUXT_OIDC_ISSUER}/protocol/openid-connect/logout`
+    // const returnUrl = window.location.origin
 
-    const redirectLogoutUrl = `${logoutUrl}?next=${returnUrl}`
-    console.log("redirectLogoutUrl: ", redirectLogoutUrl)
+    // const redirectLogoutUrl = `${logoutUrl}?redirect_uri=${encodeURIComponent(returnUrl)}`
+    // console.log("redirectLogoutUrl: ", redirectLogoutUrl)
 
     await signOut({
       redirect: false,
     })
+        .then(() => {
+          console.log("User signed out")
+          fetch(`${config.public.NUXT_OIDC_ISSUER}/protocol/openid-connect/logout`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+              client_id: config.public.NUXT_OIDC_CLIENT_ID.toString(),
+              client_secret: config.public.NUXT_OIDC_CLIENT_SECRET.toString(),
+              refresh_token: authStore.token.refresh_token
+            })
+          }).then((response) => {
+            console.log("response: ", response)
+            authStore.clearAuth()
+            router.push({path: '/'})
+          }).catch((error) => {
+            console.error("Error signing out: ", error)
+          })
 
-    window.location.href = redirectLogoutUrl
+          // window.location.href = redirectLogoutUrl
 
+        })
   } catch (error) {
     console.error(error)
   }
