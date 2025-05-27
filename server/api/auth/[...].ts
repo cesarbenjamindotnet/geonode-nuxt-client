@@ -40,7 +40,7 @@ async function refreshAccessToken(token: any) {
             method: "POST",
             body: new URLSearchParams({
                 client_id: process.env.NUXT_GEONODE_CLIENT_ID || "",
-                client_secret: process.env.NUXT_GEONODE_CLIENT_SECRET || "",
+                client_secret: process.env.NUXT_GEONODE_CLIENT_SECRET || "client_secret",
                 refresh_token: token.refresh_token || "",
                 grant_type: "refresh_token",
             }),
