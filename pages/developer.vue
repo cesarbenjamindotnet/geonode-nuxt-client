@@ -50,7 +50,7 @@
 <code>
 <span class="keyword">from</span> owslib.csw <span class="keyword">import</span> CatalogueServiceWeb
 <span class="keyword">from</span> owslib.fes <span class="keyword">import</span> PropertyIsLike
-csw = <span class="class-name">CatalogueServiceWeb</span>(<span class="string">'{{config.public.NUXT_GEONODE_BASEURL}}/catalogue/csw'</span>)
+csw = <span class="class-name">CatalogueServiceWeb</span>(<span class="string">'{{config.public.NUXT_PUBLIC_GEONODE_BASEURL}}/catalogue/csw'</span>)
 anytext = <span class="class-name">PropertyIsLike</span>(<span class="string">'csw:AnyText'</span>, <span class="string">'birds'</span>)
 csw.getrecords2(constraints=[anytext])
 <span class="keyword">print</span>(csw.results)
@@ -62,7 +62,7 @@ csw.getrecords2(constraints=[anytext])
 <code>
 let geonodeLayer = new <span class="class-name">OpenLayers.Layer.WMS</span>(
     <span class="string">"GeoNode Risk Data"</span>,
-    <span class="string">"{{config.public.NUXT_GEONODE_BASEURL}}/geoserver/wms"</span>,
+    <span class="string">"{{config.public.NUXT_PUBLIC_GEONODE_BASEURL}}/geoserver/wms"</span>,
     {layers: <span class="string">"risk:nicaragua_admin"</span>}
   );</code>
         </pre>
@@ -70,12 +70,12 @@ let geonodeLayer = new <span class="class-name">OpenLayers.Layer.WMS</span>(
         <p>To include a GeoNode map layer in a Google Map, include the dataset name in the URL template.</p>
         <pre class="custom-code">
 <code>
-const tileUrl = <span class="string">"{{config.public.NUXT_GEONODE_BASEURL}}/geoserver/gwc/service/gmaps?layers=risk:nicaragua_admin&zoom={Z}&x={X}&y={Y}"</span>;
+const tileUrl = <span class="string">"{{config.public.NUXT_PUBLIC_GEONODE_BASEURL}}/geoserver/gwc/service/gmaps?layers=risk:nicaragua_admin&zoom={Z}&x={X}&y={Y}"</span>;
 let tilelayer = new <span class="class-name">GTileLayer</span>(null, null, null, {tileUrlTemplate: tileUrl});</code>
         </pre>
         <p class="text-h6">Shapefile/GeoJSON/GML Output</p>
         <p>To get data from the GeoNode web services use the WFS protocol. For example, to get the full Nicaraguan admin boundaries use:</p>
-        <p><code class="bg-grey-4 q-px-xs">{{config.public.NUXT_GEONODE_BASEURL}}/geoserver/wfs?request=GetFeature&typeName=risk:nicaragua_admin&outputformat=SHAPE-ZIP</code></p>
+        <p><code class="bg-grey-4 q-px-xs">{{config.public.NUXT_PUBLIC_GEONODE_BASEURL}}/geoserver/wfs?request=GetFeature&typeName=risk:nicaragua_admin&outputformat=SHAPE-ZIP</code></p>
         <p>Changing output format to <code class="bg-grey-4 q-px-xs">json</code>, <code class="bg-grey-4 q-px-xs">GML2</code>, <code class="bg-grey-4 q-px-xs">GML3</code>, or <code class="bg-grey-4 q-px-xs">csv</code> will get data in those formats. The WFS protocol also can handle more precise queries, specifying a bounding box or various spatial and non-spatial filters based on the attributes of the data.</p>
         <p class="text-h6">GeoTools Example Code</p>
         <p>Create a DataStore and extract a FeatureType from it, then run a Query. It is all documented on the wiki at <a href="https://geotools.org" target="_blank">https://geotools.org</a>.</p>

@@ -1,7 +1,7 @@
 import {NuxtAuthHandler} from '#auth';
 
 // Configuración de constantes
-const GEONODE_BASEURL = process.env.NUXT_GEONODE_BASEURL || '';
+const GEONODE_BASEURL = process.env.NUXT_PUBLIC_GEONODE_BASEURL || '';
 const GEONODE_WELL_KNOWN_URL = `${process.env.NUXT_GEONODE_ISSUER}/.well-known/openid-configuration/`;
 const GEONODE_API_V2_USERS_URL = `${GEONODE_BASEURL}/api/v2/users`;
 

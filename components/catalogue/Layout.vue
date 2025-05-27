@@ -118,7 +118,7 @@ router.afterEach((to, from) => {
 
       catalogueStore.hasQueryParams = Object.keys(route.query).length > 0;
 
-      const url = `${config.public.NUXT_GEONODE_BASEURL}/api/v2/resources?api_preset=catalog_list&filter{metadata_only}=false&page_size=${pageSize.value}${urlQueryParams.value}`
+      const url = `${config.public.NUXT_PUBLIC_GEONODE_BASEURL}/api/v2/resources?api_preset=catalog_list&filter{metadata_only}=false&page_size=${pageSize.value}${urlQueryParams.value}`
 
       try {
         catalogueStore.filterLoading = true

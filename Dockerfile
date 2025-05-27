@@ -18,4 +18,5 @@ ENV PORT=3000
 
 EXPOSE 3000
 
-CMD ["node", ".output/server/index.mjs"]
+# Cambia el comando de inicio para usar nuxi
+CMD ["npx", "nuxi", "start", ".output"]

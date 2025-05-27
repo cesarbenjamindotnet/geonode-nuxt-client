@@ -170,7 +170,7 @@ const getResourceDetailData = async (resourceSelected: any) => {
     presets += '&api_preset=dataset_viewer'
   }
 
-  const response = await useFetch<any>(`${config.public.GEONODE_BASEURL}/api/v2/${resource_type}/${resourceSelected.pk}?api_preset=viewer_common${presets}`)
+  const response = await useFetch<any>(`${config.public.NUXT_PUBLIC_GEONODE_BASEURL}/api/v2/${resource_type}/${resourceSelected.pk}?api_preset=viewer_common${presets}`)
   console.log("response", response.data.value)
   console.log("resource_type", resourceSelected.resource_type)
   if (response.data.value) {
@@ -209,7 +209,7 @@ const addOwnerQueryParam = async (ownerPk) => {
     // TODO: implementar esto cuando tenga mejor armado el backend
   }
 
-  const url = `${config.public.GEONODE_BASEURL}/api/v2/facets/owner?key=${ownerPk}`
+  const url = `${config.public.NUXT_PUBLIC_GEONODE_BASEURL}/api/v2/facets/owner?key=${ownerPk}`
   const {data} = await useFetch<FacetsResponse>(url, {headers: headers})
   const {topics: {items = []} = {}} = data.value || {}
   if (items.length) {
