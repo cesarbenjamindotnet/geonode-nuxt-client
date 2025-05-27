@@ -14,5 +14,4 @@ ENV PORT=3000
 
 EXPOSE 3000
 
-# Inicia la app en modo producción
-CMD ["npx", "nuxi", "start", ".output"]
+CMD ["node", ".output/server/index.mjs"]
