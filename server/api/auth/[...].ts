@@ -91,8 +91,8 @@ export default NuxtAuthHandler({
 
     providers: [
         {
-            id: 'geonode',
-            name: 'GeoNode',
+            id: process.env.NUXT_GEONODE_CLIENT_ID || 'geonode',
+            name: 'SIGICSSO',
             type: 'oauth',
             issuer: process.env.NUXT_GEONODE_ISSUER,
             wellKnown: GEONODE_WELL_KNOWN_URL,
@@ -100,7 +100,7 @@ export default NuxtAuthHandler({
             clientSecret: process.env.NUXT_GEONODE_CLIENT_SECRET || '',
             authorization: {
                 params: {
-                    scope: 'openid read write',
+                    scope: 'openid profile email',
                 },
             },
             async profile(profile: any, token: any) {

@@ -7,14 +7,14 @@
           <div class="col-auto">
             <NuxtLink to="/">
               <q-avatar>
-                <img width="128" src="https://cdn.quasar.dev/logo-v2/svg/logo-dark.svg">
+                <img width="128" src="https://nuxt.com/assets/design-kit/icon-green.svg">
               </q-avatar>
             </NuxtLink>
           </div>
           <div class="col-auto q-pl-xs q-pt-xs" v-show="!isSmallScreen">
             <span class="q-pl-xs text-h6 ">
               <NuxtLink to="/" class="text-grey-10" style="text-decoration: none;">
-                Geonode
+                Geonode nuxt client
               </NuxtLink>
             </span>
           </div>
@@ -83,7 +83,7 @@
     </q-toolbar>
 
     <div v-if="route.path === '/'"
-         class="row bg-primary text-white justify-center q-pa-sm content-center bg-light-blue-10">
+         class="row bg-primary text-white justify-center q-pa-sm content-center bg-secondary">
       <div class="col-auto content-center text-center" style="min-height: 258px;">
         <p class="text-h1 q-pt-md">Geonode</p>
         <p class="text-h6">Sharing geospatial data and maps.</p>
