@@ -53,10 +53,10 @@ export default defineNuxtConfig({
         public: {
             quasarBrand: defineQuasarConfig().config.brand,
             NUXT_BASE_URL: process.env.NUXT_BASE_URL || 'http://localhost:3000',
-            GEOSERVER_BASEURL: process.env.NUXT_GEOSERVER_BASEURL || 'http://localhost:8080/geoserver',
-            GEONODE_BASEURL: process.env.NUXT_GEONODE_BASEURL || 'http://localhost:8080',
-            GEONODE_FORCE_SCRIPT_NAME: process.env.NUXT_GEONODE_FORCE_SCRIPT_NAME || '',
-            GEONODE_ADMIN_PATH: process.env.NUXT_GEONODE_ADMIN_PATH || '/admin',
+            NUXT_GEOSERVER_BASEURL: process.env.NUXT_GEOSERVER_BASEURL || 'http://localhost:8080/geoserver',
+            NUXT_GEONODE_BASEURL: process.env.NUXT_GEONODE_BASEURL || 'http://localhost:8080',
+            NUXT_GEONODE_FORCE_SCRIPT_NAME: process.env.NUXT_GEONODE_FORCE_SCRIPT_NAME || '',
+            NUXT_GEONODE_ADMIN_PATH: process.env.NUXT_GEONODE_ADMIN_PATH || '/admin',
         }
     }
 })

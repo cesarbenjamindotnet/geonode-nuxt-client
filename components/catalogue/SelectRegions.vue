@@ -44,7 +44,7 @@ const fetchRegions = async () => {
   if (dataLoading.value || !dataHasMore.value) return
   dataLoading.value = true
   const topicQuery = topic.value ? `&topic_contains=${topic.value}` : ''
-  const url = `${config.public.GEONODE_BASEURL}/api/v2/facets/region?page=${dataPage.value}&page_size=${dataPageSize}${topicQuery}`
+  const url = `${config.public.NUXT_GEONODE_BASEURL}/api/v2/facets/region?page=${dataPage.value}&page_size=${dataPageSize}${topicQuery}`
 
   let headers = {}
   if (authStore.isAuthenticated) {

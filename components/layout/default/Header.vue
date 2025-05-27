@@ -107,7 +107,7 @@
           <q-tab no-caps label="Add resource">
             <q-menu>
               <q-list dense>
-                <q-item clickable v-close-popup class="q-px-lg">
+                <q-item clickable v-close-popup class="q-px-lg" tag="router-link" to="/upload/dataset">
                   <q-item-section class="q-px-sm">Upload dataset</q-item-section>
                 </q-item>
                 <q-item clickable v-close-popup>
@@ -144,8 +144,8 @@
 <script setup lang="ts">
 const config = useRuntimeConfig()
 const showHeaderMenu = ref(false)
-const geoserverUrl = config.public.GEOSERVER_BASEURL
-const geonodeAdminUrl = `${config.public.GEONODE_BASEURL}/${config.public.GEONODE_BASE_URL}/${config.public.GEONODE_BASE_URL}`
+const geoserverUrl = config.public.NUXT_GEOSERVER_BASEURL
+const geonodeAdminUrl = `${config.public.NUXT_GEONODE_BASEURL}/${config.public.GEONODE_BASE_URL}/${config.public.GEONODE_BASE_URL}`
 const isLoggedUser = ref(false) // TODO: Implement user authentication and pinia storage of user data
 const loggedUser = ref({email: 'mathereall@gmail.com'}) // TODO: Implement user authentication and pinia storage of user data
 
