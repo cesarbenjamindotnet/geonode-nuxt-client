@@ -23,6 +23,7 @@
 import type {FacetsResponse, ScrollEvent} from "@/interfaces/catalogue"
 import type {LocationQueryValue} from "vue-router";
 
+const config = useRuntimeConfig()
 const catalogueStore = useCatalogueStore()
 const authStore = useAuthStore()
 const router = useRouter()
@@ -44,7 +45,7 @@ const fetchCategories = async () => {
   if (dataLoading.value || !dataHasMore.value) return
   dataLoading.value = true
   const topicQuery = topic.value ? `&topic_contains=${topic.value}` : ''
-  const url = `https://development.demo.geonode.org/api/v2/facets/category?page=${dataPage.value}&page_size=${dataPageSize}${topicQuery}`
+  const url = `${config.public.GEONODE_BASEURL}/api/v2/facets/category?page=${dataPage.value}&page_size=${dataPageSize}${topicQuery}`
 
   let headers = {}
   if (authStore.isAuthenticated) {

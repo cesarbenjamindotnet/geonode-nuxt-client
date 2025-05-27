@@ -48,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-
+const config = useRuntimeConfig()
 const catalogueStore = useCatalogueStore()
 const authStore = useAuthStore()
 const router = useRouter()
@@ -118,7 +118,7 @@ router.afterEach((to, from) => {
 
       catalogueStore.hasQueryParams = Object.keys(route.query).length > 0;
 
-      const url = `https://development.demo.geonode.org/api/v2/resources?api_preset=catalog_list&filter{metadata_only}=false&page_size=${pageSize.value}${urlQueryParams.value}`
+      const url = `${config.public.GEONODE_BASEURL}/api/v2/resources?api_preset=catalog_list&filter{metadata_only}=false&page_size=${pageSize.value}${urlQueryParams.value}`
 
       try {
         catalogueStore.filterLoading = true
