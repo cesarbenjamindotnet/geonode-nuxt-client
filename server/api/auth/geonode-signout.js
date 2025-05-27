@@ -10,8 +10,8 @@ export default defineEventHandler(async (event) => {
 
     // URL del endpoint para revocar el token en Django OAuth Toolkit
     const revokeTokenURL = `${process.env.NUXT_PUBLIC_GEONODE_BASEURL}/o/revoke_token/`;
-    const clientId = `${process.env.NUXT_GEONODE_CLIENT_ID}`;         // Obtén el client_id de forma segura
-    const clientSecret = `${process.env.NUXT_GEONODE_CLIENT_SECRET}`; // Obtén el client_secret de forma segura
+    const clientId = `${process.env.NUXT_OIDC_CLIENT_ID}`;         // Obtén el client_id de forma segura
+    const clientSecret = `${process.env.NUXT_OIDC_CLIENT_SECRET}`; // Obtén el client_secret de forma segura
 
     // Hacer la solicitud desde el servidor para revocar el token
     try {

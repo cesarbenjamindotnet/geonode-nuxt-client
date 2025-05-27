@@ -39,7 +39,7 @@ export default defineNuxtConfig({
     auth: {
         isEnabled: true,
         disableServerSideAuth: false,
-        baseURL: 'http://localhost:3000/api/auth',
+        baseURL: `${process.env.NUXT_BASE_URL}/api/auth`,
         provider: {
             type: 'authjs',
             trustHost: true,
@@ -52,11 +52,14 @@ export default defineNuxtConfig({
     runtimeConfig: {
         public: {
             quasarBrand: defineQuasarConfig().config.brand,
-            NUXT_BASE_URL: process.env.NUXT_BASE_URL || 'http://localhost:3000',
-            NUXT_PUBLIC_GEOSERVER_BASEURL: process.env.NUXT_PUBLIC_GEOSERVER_BASEURL || 'http://localhost:8080/geoserver',
-            NUXT_PUBLIC_GEONODE_BASEURL: process.env.NUXT_PUBLIC_GEONODE_BASEURL || 'http://localhost:8080',
-            NUXT_PUBLIC_GEONODE_FORCE_SCRIPT_NAME: process.env.NUXT_PUBLIC_GEONODE_FORCE_SCRIPT_NAME || '',
-            NUXT_PUBLIC_GEONODE_ADMIN_PATH: process.env.NUXT_PUBLIC_GEONODE_ADMIN_PATH || '/admin',
-        }
+            NUXT_BASE_URL: '',
+            NUXT_PUBLIC_GEOSERVER_BASEURL: '',
+            NUXT_PUBLIC_GEONODE_BASEURL: '',
+            NUXT_PUBLIC_GEONODE_FORCE_SCRIPT_NAME: '',
+            NUXT_PUBLIC_GEONODE_ADMIN_PATH: '/admin',
+        },
+        NUXT_OIDC_ISSUER: '',
+        NUXT_OIDC_CLIENT_ID: '',
+        NUXT_OIDC_CLIENT_SECRET: '',
     }
 })

@@ -2,7 +2,7 @@ import {NuxtAuthHandler} from '#auth';
 
 // Configuración de constantes
 const GEONODE_BASEURL = process.env.NUXT_PUBLIC_GEONODE_BASEURL || '';
-const GEONODE_WELL_KNOWN_URL = `${process.env.NUXT_GEONODE_ISSUER}/.well-known/openid-configuration/`;
+const GEONODE_WELL_KNOWN_URL = `${process.env.NUXT_OIDC_ISSUER}/.well-known/openid-configuration/`;
 const GEONODE_API_V2_USERS_URL = `${GEONODE_BASEURL}/api/v2/users`;
 
 interface RefreshToken {
@@ -33,14 +33,14 @@ interface UserData {
 // Función para refrescar el token de acceso
 async function refreshAccessToken(token: any) {
     try {
-        const refreshedToken = await $fetch<RefreshToken>(`${process.env.NUXT_GEONODE_ISSUER}/token/`, {
+        const refreshedToken = await $fetch<RefreshToken>(`${process.env.NUXT_OIDC_ISSUER}/token/`, {
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
             },
             method: "POST",
             body: new URLSearchParams({
-                client_id: process.env.NUXT_GEONODE_CLIENT_ID || "",
-                client_secret: process.env.NUXT_GEONODE_CLIENT_SECRET || "client_secret",
+                client_id: process.env.NUXT_OIDC_CLIENT_ID || "",
+                client_secret: process.env.NUXT_OIDC_CLIENT_SECRET || "client_secret",
                 refresh_token: token.refresh_token || "",
                 grant_type: "refresh_token",
             }),
@@ -77,7 +77,7 @@ async function fetchUserData(url: any, token: any) {
 }
 
 // Verificación de variables de entorno
-if (!process.env.NUXT_GEONODE_ISSUER || !process.env.NUXT_GEONODE_CLIENT_ID || !process.env.NUXT_GEONODE_CLIENT_SECRET) {
+if (!process.env.NUXT_OIDC_ISSUER || !process.env.NUXT_OIDC_CLIENT_ID || !process.env.NUXT_OIDC_CLIENT_SECRET) {
     throw new Error('Missing required environment variables for GeoNode authentication');
 }
 
@@ -91,13 +91,13 @@ export default NuxtAuthHandler({
 
     providers: [
         {
-            id: process.env.NUXT_GEONODE_CLIENT_ID || 'geonode',
+            id: process.env.NUXT_OIDC_CLIENT_ID || 'geonode',
             name: 'SIGICSSO',
             type: 'oauth',
-            issuer: process.env.NUXT_GEONODE_ISSUER,
+            issuer: process.env.NUXT_OIDC_ISSUER,
             wellKnown: GEONODE_WELL_KNOWN_URL,
-            clientId: process.env.NUXT_GEONODE_CLIENT_ID || '',
-            clientSecret: process.env.NUXT_GEONODE_CLIENT_SECRET || '',
+            clientId: process.env.NUXT_OIDC_CLIENT_ID || '',
+            clientSecret: process.env.NUXT_OIDC_CLIENT_SECRET || '',
             authorization: {
                 params: {
                     scope: 'openid profile email',
