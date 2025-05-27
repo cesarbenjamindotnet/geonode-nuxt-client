@@ -61,5 +61,6 @@ export default defineNuxtConfig({
         NUXT_OIDC_ISSUER: '',
         NUXT_OIDC_CLIENT_ID: '',
         NUXT_OIDC_CLIENT_SECRET: '',
+        NEXTAUTH_SECRET: '',
     }
 })
