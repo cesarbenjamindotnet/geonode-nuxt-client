@@ -1,35 +1,39 @@
-FROM node:22-alpine
-
-ARG NUXT_PUBLIC_BASE_URL
-ARG AUTH_ORIGIN
-ARG NUXT_PUBLIC_GEOSERVER_BASEURL
-ARG NUXT_PUBLIC_GEONODE_BASEURL
-ARG NUXT_PUBLIC_GEONODE_FORCE_SCRIPT_NAME
-ARG NUXT_PUBLIC_GEONODE_ADMIN_PATH
-
-ENV NUXT_PUBLIC_BASE_URL=$NUXT_PUBLIC_BASE_URL
-ENV AUTH_ORIGIN=$AUTH_ORIGIN
-ENV NUXT_PUBLIC_GEOSERVER_BASEURL=$NUXT_PUBLIC_GEOSERVER_BASEURL
-ENV NUXT_PUBLIC_GEONODE_BASEURL=$NUXT_PUBLIC_GEONODE_BASEURL
-ENV NUXT_PUBLIC_GEONODE_FORCE_SCRIPT_NAME=$NUXT_PUBLIC_GEONODE_FORCE_SCRIPT_NAME
-ENV NUXT_PUBLIC_GEONODE_ADMIN_PATH=$NUXT_PUBLIC_GEONODE_ADMIN_PATH
+# 🏗️ Stage 1: build
+FROM node:22-alpine AS builder
 
 WORKDIR /app
-COPY . .
 
-# Asegúrate de instalar dependencias
+# Copia los archivos necesarios para el build
+COPY package.json package-lock.json ./
 RUN npm install
 
-# Usa variables en tiempo de ejecución
+COPY . .
+
+# ⚠️ NO uses variables de entorno aquí para runtimeConfig
+# Nuxt las debe obtener en tiempo de ejecución (desde Cloud Run)
+
+RUN npm run build
+
+
+# 🏁 Stage 2: producción
+FROM node:22-alpine
+
+WORKDIR /app
+
+# Copia solo lo necesario del build anterior
+COPY --from=builder /app/.output .output
+COPY --from=builder /app/package.json .
+COPY --from=builder /app/package-lock.json .
+
+# Instala dependencias necesarias para correr
+RUN npm install --omit=dev  # o `--production` en versiones más viejas
+
+# Configuración para Nuxt en Cloud Run
 ENV HOST=0.0.0.0
 ENV PORT=3000
 ENV NODE_ENV=production
 
-# El build se ejecuta en tiempo de despliegue,
-# y usará las variables de entorno definidas en Cloud Run
-RUN npm run build
-
 EXPOSE 3000
 
-# CMD ["node", ".output/server/index.mjs"]
-CMD ["npm", "run", "start"]
+# Inicia Nuxt
+CMD ["node", ".output/server/index.mjs"]
