@@ -2,8 +2,8 @@ import {NuxtAuthHandler} from '#auth';
 
 // Configuración de constantes
 const GEONODE_BASEURL = process.env.NUXT_PUBLIC_GEONODE_BASEURL || '';
-const OIDC_WELL_KNOWN_URL = `${process.env.NUXT_OIDC_ISSUER}/.well-known/openid-configuration/`;
-const OIDC_USERINFO_URL = `${GEONODE_BASEURL}/protocol/openid-connect/userinfo`;
+const OIDC_WELL_KNOWN_URL = `${process.env.NUXT_OIDC_ISSUER}/.well-known/openid-configuration`;
+const OIDC_USERINFO_URL = `${process.env.NUXT_OIDC_ISSUER}/protocol/openid-connect/userinfo`;
 
 interface RefreshToken {
     access_token: string;
@@ -69,6 +69,7 @@ async function fetchUserData(url: any, token: any) {
                 Authorization: `Bearer ${token}`,
             },
         });
+        console.log(`User data fetched from ${url}:`, userData);
         return userData.user;
     } catch (error) {
         console.error(`Error fetching user data from ${url}`, error);
@@ -104,12 +105,20 @@ export default NuxtAuthHandler({
                 },
             },
             async profile(profile: any, token: any) {
+                console.log("Received profile:", profile);
+                console.log("Received token:", token);
+                console.log("OIDC_USERINFO_URL:", OIDC_USERINFO_URL);
+                let userProfile = profile;
+                userProfile.id = profile.sub; // Ensure the profile has an id field
+
+
                 const fetchedUserData = await fetchUserData(`${OIDC_USERINFO_URL}`, token.access_token);
                 if (fetchedUserData) {
                     console.log("Fetched user data:", fetchedUserData);
-                    profile = fetchedUserData;
-                    profile.id = profile.pk;
+                    userProfile = fetchedUserData;
+                    userProfile.id = profile.sub;
                 }
+                console.log("Final profile:", profile);
                 return profile;
             },
         },
@@ -127,7 +136,7 @@ export default NuxtAuthHandler({
                 if (account) {
                     token = {
                         ...token,
-                        id: account.providerAccountId,
+                        id: account.email,
                         provider: account.provider,
                         scope: account.scope,
                         token_type: account.token_type,
@@ -154,3 +163,5 @@ export default NuxtAuthHandler({
         },
     },
 });
+
+
