@@ -2,9 +2,7 @@
 import {defineQuasarConfig} from './quasar.config'
 
 export default defineNuxtConfig({
-    nitro: {
-        preset: 'node-server', // o 'cloudflare' si es edge
-    },
+
     app: {
         head: {
             title: 'GeoNode Nuxt Client',
@@ -42,7 +40,7 @@ export default defineNuxtConfig({
     auth: {
         isEnabled: true,
         disableServerSideAuth: false,
-        baseURL: `/api/auth`,
+        baseURL: `${process.env.NUXT_BASE_URL}/api/auth`,
         provider: {
             type: 'authjs',
             trustHost: true,

@@ -2,8 +2,8 @@ import {NuxtAuthHandler} from '#auth';
 
 // Configuración de constantes
 const GEONODE_BASEURL = process.env.NUXT_PUBLIC_GEONODE_BASEURL || '';
-const GEONODE_WELL_KNOWN_URL = `${process.env.NUXT_OIDC_ISSUER}/.well-known/openid-configuration/`;
-const GEONODE_API_V2_USERS_URL = `${GEONODE_BASEURL}/api/v2/users`;
+const OIDC_WELL_KNOWN_URL = `${process.env.NUXT_OIDC_ISSUER}/.well-known/openid-configuration/`;
+const OIDC_USERINFO_URL = `${GEONODE_BASEURL}/protocol/openid-connect/userinfo`;
 
 interface RefreshToken {
     access_token: string;
@@ -87,7 +87,7 @@ function isTokenExpired(expiresAt: any) {
 }
 
 export default NuxtAuthHandler({
-    secret: useRuntimeConfig().authSecret || process.env.NEXTAUTH_SECRET,
+    secret: useRuntimeConfig().NEXT_AUTH_SECRET || process.env.NEXT_AUTH_SECRET,
 
     providers: [
         {
@@ -95,7 +95,7 @@ export default NuxtAuthHandler({
             name: 'SIGICSSO',
             type: 'oauth',
             issuer: process.env.NUXT_OIDC_ISSUER,
-            wellKnown: GEONODE_WELL_KNOWN_URL,
+            wellKnown: OIDC_WELL_KNOWN_URL,
             clientId: process.env.NUXT_OIDC_CLIENT_ID || '',
             clientSecret: process.env.NUXT_OIDC_CLIENT_SECRET || '',
             authorization: {
@@ -104,8 +104,9 @@ export default NuxtAuthHandler({
                 },
             },
             async profile(profile: any, token: any) {
-                const fetchedUserData = await fetchUserData(`${GEONODE_API_V2_USERS_URL}/${profile.sub}`, token.access_token);
+                const fetchedUserData = await fetchUserData(`${OIDC_USERINFO_URL}`, token.access_token);
                 if (fetchedUserData) {
+                    console.log("Fetched user data:", fetchedUserData);
                     profile = fetchedUserData;
                     profile.id = profile.pk;
                 }
@@ -143,7 +144,7 @@ export default NuxtAuthHandler({
                 }
 
                 if (!token.user) {
-                    const fetchedUserData = await fetchUserData(`${GEONODE_API_V2_USERS_URL}/${token.id}`, token.access_token);
+                    const fetchedUserData = await fetchUserData(`${OIDC_USERINFO_URL}/${token.id}`, token.access_token);
                     if (fetchedUserData) {
                         token.user = fetchedUserData;
                     }
