@@ -3,7 +3,7 @@ import {defineQuasarConfig} from './quasar.config'
 
 export default defineNuxtConfig({
     nitro: {
-        preset: 'node', // o 'cloudflare' si es edge
+        preset: 'node-server', // o 'cloudflare' si es edge
     },
     app: {
         head: {
