@@ -2,6 +2,9 @@
 import {defineQuasarConfig} from './quasar.config'
 
 export default defineNuxtConfig({
+    nitro: {
+        preset: 'node', // o 'cloudflare' si es edge
+    },
     app: {
         head: {
             title: 'GeoNode Nuxt Client',
@@ -55,7 +58,7 @@ export default defineNuxtConfig({
             NUXT_BASE_URL: process.env.NUXT_BASE_URL || 'http://localhost:3000',
             NUXT_PUBLIC_GEOSERVER_BASEURL: process.env.NUXT_PUBLIC_GEOSERVER_BASEURL || 'http://localhost:8080/geoserver',
             NUXT_PUBLIC_GEONODE_BASEURL: process.env.NUXT_PUBLIC_GEONODE_BASEURL || 'http://localhost:8080',
-            NUXT_PUBLIC_GEONODE_FORCE_SCRIPT_NAME: process.env.NUXT_PUBLIC_GEONODE_FORCE_SCRIPT_NAME || '',
+            NUXT_PUBLIC_GEONODE_FORCE_SCRIPT_NAME: process.env.NUXT_PUBLIC_GEONODE_FORCE_SCRIPT_NAME || '/dsds',
             NUXT_PUBLIC_GEONODE_ADMIN_PATH: process.env.NUXT_PUBLIC_GEONODE_ADMIN_PATH || '/admin',
         },
         NUXT_OIDC_ISSUER: process.env.NUXT_OIDC_ISSUER || '',

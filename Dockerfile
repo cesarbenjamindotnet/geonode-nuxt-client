@@ -4,17 +4,24 @@ WORKDIR /app
 
 COPY . .
 
-# Asegúrate de instalar dependencias
 RUN npm install
 
-# Usa variables en tiempo de ejecución
+# IMPORTANTE: aseguramos que el build vea las variables definidas por Cloud Run
+ARG NUXT_PUBLIC_GEOSERVER_BASEURL
+ARG NUXT_PUBLIC_GEONODE_BASEURL
+ARG NUXT_PUBLIC_GEONODE_FORCE_SCRIPT_NAME
+ARG NUXT_PUBLIC_GEONODE_ADMIN_PATH
+
+ENV NUXT_PUBLIC_GEOSERVER_BASEURL=$NUXT_PUBLIC_GEOSERVER_BASEURL
+ENV NUXT_PUBLIC_GEONODE_BASEURL=$NUXT_PUBLIC_GEONODE_BASEURL
+ENV NUXT_PUBLIC_GEONODE_FORCE_SCRIPT_NAME=$NUXT_PUBLIC_GEONODE_FORCE_SCRIPT_NAME
+ENV NUXT_PUBLIC_GEONODE_ADMIN_PATH=$NUXT_PUBLIC_GEONODE_ADMIN_PATH
+
+RUN npm run build
+
 ENV HOST=0.0.0.0
 ENV PORT=3000
 ENV NODE_ENV=production
-
-# El build se ejecuta en tiempo de despliegue,
-# y usará las variables de entorno definidas en Cloud Run
-RUN npm run build
 
 EXPOSE 3000
 
