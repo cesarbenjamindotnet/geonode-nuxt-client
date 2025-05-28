@@ -1,17 +1,20 @@
-# Usa Node.js 22 en Alpine
 FROM node:22-alpine
 
 WORKDIR /app
 
-# Copia todo el código fuente
 COPY . .
 
-# Instala dependencias y construye la app
-RUN npm install && npm run build
+# Asegúrate de instalar dependencias
+RUN npm install
 
+# Usa variables en tiempo de ejecución
 ENV HOST=0.0.0.0
 ENV PORT=3000
 ENV NODE_ENV=production
+
+# El build se ejecuta en tiempo de despliegue,
+# y usará las variables de entorno definidas en Cloud Run
+RUN npm run build
 
 EXPOSE 3000
 
