@@ -12,7 +12,7 @@ COPY . .
 # ⚠️ NO uses variables de entorno aquí para runtimeConfig
 # Nuxt las debe obtener en tiempo de ejecución (desde Cloud Run)
 
-RUN npm build
+RUN npm run build
 
 
 # 🏁 Stage 2: producción

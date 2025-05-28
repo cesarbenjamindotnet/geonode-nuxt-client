@@ -152,7 +152,7 @@ export default NuxtAuthHandler({
                 }
 
                 if (!token.user) {
-                    const fetchedUserData = await fetchUserData(`${OIDC_USERINFO_URL}/${token.id}`, token.access_token);
+                    const fetchedUserData = await fetchUserData(`${OIDC_USERINFO_URL}`, token.access_token);
                     if (fetchedUserData) {
                         token.user = fetchedUserData;
                     }
