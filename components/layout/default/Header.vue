@@ -144,8 +144,8 @@
 <script setup lang="ts">
 const config = useRuntimeConfig()
 const showHeaderMenu = ref(false)
-const geoserverUrl = config.public.NUXT_PUBLIC_GEOSERVER_BASEURL
-const geonodeAdminUrl = `${config.public.NUXT_PUBLIC_GEONODE_BASEURL}${config.public.NUXT_PUBLIC_GEONODE_FORCE_SCRIPT_NAME}${config.public.NUXT_PUBLIC_GEONODE_ADMIN_PATH}`
+const geoserverUrl = config.public.geoserverBaseUrl
+const geonodeAdminUrl = `${config.public.geonodeBaseUrl}${config.public.geonodeForceScriptName}${config.public.geonodeAdminPath}`
 const isLoggedUser = ref(false) // TODO: Implement user authentication and pinia storage of user data
 const loggedUser = ref({email: 'mathereall@gmail.com'}) // TODO: Implement user authentication and pinia storage of user data
 

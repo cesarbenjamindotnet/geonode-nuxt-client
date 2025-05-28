@@ -12,7 +12,7 @@ COPY . .
 # ⚠️ NO uses variables de entorno aquí para runtimeConfig
 # Nuxt las debe obtener en tiempo de ejecución (desde Cloud Run)
 
-RUN npm run build
+RUN nuxi build
 
 
 # 🏁 Stage 2: producción
@@ -36,4 +36,5 @@ ENV NODE_ENV=production
 EXPOSE 3000
 
 # Inicia Nuxt
-CMD ["node", ".output/server/index.mjs"]
+# CMD ["node", ".output/server/index.mjs"]
+CMD ["npm", "run", "start"]

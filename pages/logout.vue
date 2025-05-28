@@ -32,8 +32,8 @@ const handleLogout = async () => {
 
     console.log("response: ", response)
 
-    const logoutUrl = `${config.public.NUXT_PUBLIC_GEONODE_BASEURL}/api/v2/geonuxt/logout`
-    const returnUrl = `${config.public.NUXT_PUBLIC_BASE_URL}`
+    const logoutUrl = `${config.public.geonodeBaseUrl}/api/v2/geonuxt/logout`
+    const returnUrl = `${config.public.baseUrl}`
 
     const redirectLogoutUrl = `${logoutUrl}?next=${returnUrl}`
     console.log("redirectLogoutUrl: ", redirectLogoutUrl)
