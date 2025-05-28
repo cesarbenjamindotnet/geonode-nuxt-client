@@ -61,6 +61,11 @@ export default defineNuxtConfig({
 
         public: {
             quasarBrand: defineQuasarConfig().config.brand,
+            NUXT_PUBLIC_BASE_URL: process.env.NUXT_PUBLIC_BASE_URL ?? '',
+            NUXT_PUBLIC_GEOSERVER_BASEURL: process.env.NUXT_PUBLIC_GEOSERVER_BASEURL ?? '',
+            NUXT_PUBLIC_GEONODE_BASEURL: process.env.NUXT_PUBLIC_GEONODE_BASEURL ?? '',
+            NUXT_PUBLIC_GEONODE_FORCE_SCRIPT_NAME: process.env.NUXT_PUBLIC_GEONODE_FORCE_SCRIPT_NAME ?? '',
+            NUXT_PUBLIC_GEONODE_ADMIN_PATH: process.env.NUXT_PUBLIC_GEONODE_ADMIN_PATH ?? ''
         }
     }
 })
